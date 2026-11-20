@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../assets/fonts.css">
+<style>
+  :root { --maroon:#430107; --cream:#FFEFEF; --yellow:#FECD00; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1080px; height:1920px; overflow:hidden; background:#000; }
+  .l { position:absolute; left:0; top:0; width:1080px; height:1920px; }
+  .row { position:absolute; left:0; width:1080px; text-align:center; }
+  .big { font-family:"Anton"; text-transform:uppercase; line-height:0.9; letter-spacing:2px;
+         text-shadow:0 8px 0 var(--maroon), 0 16px 0 rgba(0,0,0,0.4), 0 0 50px rgba(254,205,0,0.35); }
+  .skew { display:inline-block; transform:skewX(-8deg); }
+  .card { position:absolute; width:420px; height:270px; border:9px solid var(--yellow); border-radius:22px; overflow:hidden;
+          box-shadow:0 24px 40px rgba(0,0,0,0.6), 0 0 0 4px var(--maroon); }
+  .card img { width:100%; height:100%; object-fit:cover; display:block; }
+  .card .t { position:absolute; left:0; bottom:0; width:100%; text-align:center; background:rgba(67,1,7,0.88); color:var(--yellow);
+             font-family:"JetBrains Mono"; font-weight:700; font-size:24px; letter-spacing:0.16em; padding:6px 0 4px; }
+  .sticker { display:inline-block; font-family:"Poppins"; font-weight:900; font-style:italic; text-transform:uppercase;
+             background:var(--yellow); color:var(--maroon); padding:12px 40px 8px; border-radius:20px; border:7px solid var(--cream);
+             box-shadow:12px 12px 0 var(--maroon), 0 0 60px rgba(254,205,0,0.6); white-space:nowrap; }
+  .mono { font-family:"JetBrains Mono"; font-weight:700; letter-spacing:0.24em; color:var(--yellow); text-shadow:0 3px 0 var(--maroon); }
+  .scan { background:repeating-linear-gradient(to bottom, rgba(255,239,239,0.05) 0 2px, transparent 2px 6px); }
+</style></head>
+<body>
+  <img class="l" src="../assets/thumb/frame.png">
+  <div class="l" style="background:linear-gradient(to bottom, rgba(20,0,2,0.85) 0%, rgba(20,0,2,0.55) 30%, rgba(20,0,2,0.1) 45%, rgba(67,1,7,0) 55%, rgba(67,1,7,0.6) 75%, rgba(67,1,7,0.95) 92%)"></div>
+  <div class="row mono" style="top:300px;font-size:36px">★ BEZA SEBENAR ★</div>
+  <div class="row big" style="top:352px;font-size:230px;color:var(--cream)"><span class="skew">COROLLA</span></div>
+  <div class="row big" style="top:560px;font-size:200px;color:var(--yellow)"><span class="skew">VS YARIS</span></div>
+  <img class="l" src="../assets/thumb/person.png">
+  <div class="l scan"></div>
+  <div class="card" style="left:85px;top:1050px;transform:rotate(-7deg)"><img src="../assets/img/c_burnout.jpg"><div class="t">GR COROLLA</div></div>
+  <div class="card" style="left:575px;top:1050px;transform:rotate(6deg)"><img src="../assets/img/y_front.jpg"><div class="t">GR YARIS</div></div>
+  <div class="card" style="left:85px;top:1360px;transform:rotate(5deg)"><img src="../assets/img/c_grfour.jpg"><div class="t">4WD GR-FOUR</div></div>
+  <div class="card" style="left:575px;top:1360px;transform:rotate(-6deg)"><img src="../assets/img/c_auto.jpg"><div class="t">AUTO PUN ADA</div></div>
+  <div class="row" style="top:1278px"><span class="sticker" style="font-size:66px;transform:rotate(-4deg)">300 HP</span></div>
+</body></html>

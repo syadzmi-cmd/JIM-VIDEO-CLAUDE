@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="ms" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <link rel="stylesheet" href="assets/fonts.css" />
+    <style>
+      :root {
+        --maroon: #430107;
+        --cream: #ffefef;
+        --yellow: #fecd00;
+        --font-display: "Anton", sans-serif;
+        --font-ui: "Poppins", sans-serif;
+        --font-mono: "JetBrains Mono", monospace;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: var(--font-ui); }
+      .full { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+      video.full { object-fit: cover; }
+      .layer { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none; }
+      .row { position: absolute; left: 0; width: 1080px; text-align: center; }
+      .abs { position: absolute; }
+
+      /* shades */
+      .shade-bottom { background: linear-gradient(to bottom, rgba(67,1,7,0) 46%, rgba(67,1,7,0.55) 62%, rgba(67,1,7,0.9) 82%, rgba(67,1,7,0.95) 100%); }
+      .shade-top { background: linear-gradient(to bottom, rgba(20,0,2,0.55) 0%, rgba(20,0,2,0) 26%); }
+      .scanlines { background: repeating-linear-gradient(to bottom, rgba(255,239,239,0.05) 0 2px, transparent 2px 6px); mix-blend-mode: overlay; }
+      .vignette { background: radial-gradient(ellipse at 50% 42%, transparent 55%, rgba(30,0,4,0.55) 100%); }
+
+      /* full-frame photo inserts */
+      .still { overflow: hidden; background: #120002; }
+      .still .bg { position: absolute; left: -60px; top: -60px; width: 1200px; height: 2040px; object-fit: cover; filter: blur(34px) brightness(0.42) saturate(1.2); }
+      .still .fgwrap { position: absolute; left: 0; top: 400px; width: 1080px; height: 860px; overflow: hidden;
+                       border-top: 6px solid var(--yellow); border-bottom: 6px solid var(--yellow); box-shadow: 0 0 60px rgba(254,205,0,0.35); }
+      .still .fg { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .still .shade { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px;
+                      background: linear-gradient(to bottom, rgba(67,1,7,0) 60%, rgba(67,1,7,0.75) 78%, rgba(67,1,7,0.92) 100%); }
+      .credit { position: absolute; right: 26px; top: 1268px; font-family: var(--font-mono); font-weight: 700; font-size: 18px;
+                letter-spacing: 0.12em; color: rgba(255,239,239,0.7); }
+
+      /* type */
+      .big { font-family: var(--font-display); text-transform: uppercase; line-height: 0.92; color: var(--cream);
+             text-shadow: 0 6px 0 var(--maroon), 0 12px 0 rgba(0,0,0,0.35), 0 0 40px rgba(254,205,0,0.25); }
+      .big.y { color: var(--yellow); text-shadow: 0 6px 0 var(--maroon), 0 12px 0 rgba(0,0,0,0.35), 0 0 46px rgba(254,205,0,0.55); }
+      .skew { display: inline-block; transform: skewX(-8deg); }
+      .mono { font-family: var(--font-mono); font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cream);
+              text-shadow: 0 3px 0 var(--maroon), 0 0 18px rgba(0,0,0,0.6); }
+      .mono.y { color: var(--yellow); }
+      .chip { display: inline-block; font-family: var(--font-mono); font-weight: 700; font-size: 38px; letter-spacing: 0.18em;
+              background: var(--yellow); color: var(--maroon); padding: 12px 28px 10px; border-radius: 999px;
+              box-shadow: 0 0 0 5px var(--maroon), 0 0 0 8px var(--yellow), 0 0 36px rgba(254,205,0,0.6); }
+      .sticker { display: inline-block; font-family: var(--font-ui); font-weight: 900; font-style: italic; text-transform: uppercase;
+                 background: var(--yellow); color: var(--maroon); padding: 10px 34px 6px; border-radius: 18px;
+                 border: 6px solid var(--cream); box-shadow: 10px 10px 0 var(--maroon), 0 0 50px rgba(254,205,0,0.45); white-space: nowrap; }
+      .sticker.m { background: var(--maroon); color: var(--cream); border-color: var(--yellow); box-shadow: 10px 10px 0 rgba(0,0,0,0.45), 0 0 40px rgba(254,205,0,0.35); }
+      .panel { position: absolute; border-radius: 36px; background: rgba(67,1,7,0.88); border: 5px solid var(--yellow);
+               box-shadow: 0 0 0 3px rgba(67,1,7,0.9), 0 0 60px rgba(254,205,0,0.35), inset 0 0 50px rgba(254,205,0,0.12); }
+      .panel::before, .panel::after { content: ""; position: absolute; width: 54px; height: 54px; border: 7px solid var(--cream); }
+      .panel::before { left: -18px; top: -18px; border-right: none; border-bottom: none; border-radius: 18px 0 0 0; }
+      .panel::after { right: -18px; bottom: -18px; border-left: none; border-top: none; border-radius: 0 0 18px 0; }
+      .card { position: absolute; border: 8px solid var(--yellow); border-radius: 22px; overflow: hidden;
+              box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 4px var(--maroon), 0 0 40px rgba(254,205,0,0.3); background: var(--maroon); }
+      .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .card .tag { position: absolute; left: 0; bottom: 0; width: 100%; padding: 8px 0 6px; text-align: center; background: rgba(67,1,7,0.85);
+                   font-family: var(--font-mono); font-weight: 700; font-size: 24px; letter-spacing: 0.16em; color: var(--yellow); }
+      svg { overflow: visible; }
+      .neon { fill: none; stroke: var(--cream); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round;
+              filter: drop-shadow(0 0 8px rgba(254,205,0,0.9)) drop-shadow(0 0 22px rgba(254,205,0,0.45)); }
+      .neon.y { stroke: var(--yellow); }
+      .vs { position: absolute; width: 200px; height: 200px; border-radius: 50%; background: var(--yellow); color: var(--maroon);
+            font-family: var(--font-display); font-size: 120px; line-height: 200px; text-align: center;
+            box-shadow: 0 0 0 8px var(--maroon), 0 0 0 14px var(--cream), 0 0 70px rgba(254,205,0,0.8); }
+
+      /* captions */
+      .cap { position: absolute; left: 60px; width: 960px; top: 250px; text-align: center; }
+      .cap span { display: inline-block; margin: 0 9px; font-family: var(--font-ui); font-weight: 900; font-style: italic; font-size: 64px;
+                  text-transform: uppercase; color: var(--cream); line-height: 1.05;
+                  -webkit-text-stroke: 3px var(--maroon); paint-order: stroke fill;
+                  text-shadow: 0 5px 0 var(--maroon), 0 0 24px rgba(0,0,0,0.55); }
+
+      /* insert transitions */
+      .scanbar { position: absolute; left: 0; width: 1080px; height: 26px; background: var(--yellow);
+                 box-shadow: 0 0 40px 12px rgba(254,205,0,0.7); }
+      .flash { background: var(--cream); }
+      .xmark, .vmark { display: inline-flex; align-items: center; justify-content: center; width: 92px; height: 92px; border-radius: 50%;
+               font-family: var(--font-ui); font-weight: 900; font-size: 60px; vertical-align: middle; }
+      .vmark { background: var(--yellow); color: var(--maroon); box-shadow: 0 0 30px rgba(254,205,0,0.7); }
+      .xmark { background: var(--cream); color: var(--maroon); box-shadow: 0 0 0 5px var(--maroon); }
+      .sparkle { position: absolute; width: 70px; height: 70px; }
+
+      /* torque split panel */
+      .lbl { position: absolute; font-family: var(--font-mono); font-weight: 700; font-size: 34px; letter-spacing: 0.2em; color: var(--cream); }
+      .pctn { position: absolute; font-family: var(--font-display); font-size: 190px; line-height: 1; color: var(--yellow);
+              text-shadow: 0 6px 0 var(--maroon), 0 0 40px rgba(254,205,0,0.5); }
+      .pctn small { font-size: 90px; color: var(--cream); }
+      .bar { position: absolute; height: 34px; border-radius: 17px; background: linear-gradient(to right, var(--yellow), #fff3a6);
+             box-shadow: 0 0 24px rgba(254,205,0,0.8); transform-origin: left center; }
+      .bartrack { position: absolute; height: 34px; border-radius: 17px; border: 4px solid rgba(255,239,239,0.45); }
+      .selector { position: absolute; left: 90px; width: 900px; height: 150px; border-radius: 75px; background: rgba(67,1,7,0.9);
+                  border: 5px solid var(--cream); box-shadow: 0 0 40px rgba(254,205,0,0.35); }
+      .selector .hl { position: absolute; top: 10px; left: 10px; width: 286px; height: 120px; border-radius: 60px; background: var(--yellow);
+                      box-shadow: 0 0 40px rgba(254,205,0,0.8); }
+      .selector .opt { position: absolute; top: 0; width: 300px; height: 140px; line-height: 140px; text-align: center;
+                       font-family: var(--font-display); font-size: 70px; color: var(--cream); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="__DUR__" data-width="1080" data-height="1920">
+      <!-- SVG symbols -->
+      <svg width="0" height="0" style="position:absolute">
+        <defs>
+          <symbol id="star" viewBox="0 0 100 100">
+            <path d="M50 0 C54 36 64 46 100 50 C64 54 54 64 50 100 C46 64 36 54 0 50 C36 46 46 36 50 0Z" fill="#FECD00"/>
+          </symbol>
+          <symbol id="person" viewBox="0 0 100 120">
+            <circle cx="50" cy="34" r="24" fill="#FFEFEF" stroke="#430107" stroke-width="5"/>
+            <path d="M8 118 Q10 68 50 66 Q90 68 92 118Z" fill="#FECD00" stroke="#430107" stroke-width="5"/>
+            <path d="M28 18 Q50 0 72 18 L72 12 Q50 -4 28 12Z" fill="#430107"/>
+          </symbol>
+          <symbol id="personf" viewBox="0 0 100 120">
+            <path d="M22 30 Q22 4 50 4 Q78 4 78 30 L80 66 L20 66Z" fill="#430107"/>
+            <circle cx="50" cy="34" r="22" fill="#FFEFEF" stroke="#430107" stroke-width="5"/>
+            <path d="M28 22 Q50 6 72 22 L72 14 Q50 -2 28 14Z" fill="#430107"/>
+            <path d="M8 118 Q10 70 50 66 Q90 70 92 118Z" fill="#FFEFEF" stroke="#430107" stroke-width="5"/>
+            <path d="M30 70 L50 96 L70 70" fill="none" stroke="#FECD00" stroke-width="6"/>
+          </symbol>
+          <symbol id="pin" viewBox="0 0 100 120">
+            <path d="M50 4 C24 4 8 24 8 46 C8 74 50 116 50 116 C50 116 92 74 92 46 C92 24 76 4 50 4Z" fill="#FECD00" stroke="#430107" stroke-width="6"/>
+            <circle cx="50" cy="45" r="16" fill="#430107"/>
+          </symbol>
+          <symbol id="door" viewBox="0 0 100 130">
+            <path d="M10 40 L40 6 L90 6 L90 124 L10 124Z" fill="rgba(254,205,0,0.18)" stroke="#FECD00" stroke-width="7" stroke-linejoin="round"/>
+            <path d="M22 42 L44 16 L80 16 L80 56 L22 56Z" fill="rgba(255,239,239,0.35)"/>
+            <path d="M62 76 L80 76" stroke="#FFEFEF" stroke-width="8" stroke-linecap="round"/>
+          </symbol>
+        </defs>
+      </svg>
+
+      <!-- ===== BASE TALKING HEAD (voice) ===== -->
+      <video id="base" class="clip full" src="assets/video/base.mp4" data-start="0" data-duration="__DUR__" data-track-index="0" data-has-audio="true" data-volume="1" style="z-index:1"></video>
+
+      <!-- ===== FULL-FRAME PHOTO INSERTS ===== -->
+__STILLS__
+
+      <!-- ===== persistent look ===== -->
+      <div class="clip layer shade-bottom" data-start="0" data-duration="__DUR__" data-track-index="2" style="z-index:5"></div>
+      <div class="clip layer shade-top" data-start="0" data-duration="__DUR__" data-track-index="2" style="z-index:5"></div>
+      <div class="clip layer vignette" data-start="0" data-duration="__DUR__" data-track-index="2" style="z-index:5"></div>
+      <div class="clip layer scanlines" data-start="0" data-duration="__DUR__" data-track-index="2" style="z-index:6"></div>
+
+      <!-- ===== S0 HOOK: GR COROLLA vs GR YARIS  0 - 3.3 ===== -->
+      <div id="s0" class="clip layer" data-start="0" data-duration="3.3" data-track-index="3" style="z-index:10">
+        <div class="layer" style="background:linear-gradient(to bottom, rgba(67,1,7,0) 38%, rgba(67,1,7,0.75) 55%, rgba(67,1,7,0.96) 75%)"></div>
+        <div id="s0lbl" class="row mono y" style="top:975px;font-size:40px">★ MANA LAGI BEST? ★</div>
+        <div id="s0c1" class="card" style="left:30px;top:1060px;width:480px;height:320px;transform:rotate(-5deg)"><img src="assets/img/c_34.jpg" alt=""></div>
+        <div id="s0c2" class="card" style="left:570px;top:1060px;width:480px;height:320px;transform:rotate(5deg)"><img src="assets/img/y_front.jpg" alt=""></div>
+        <div id="s0t1" class="abs" style="left:30px;top:1410px;width:500px;text-align:center"><span class="sticker" style="font-size:62px;transform:rotate(-4deg)">GR COROLLA</span></div>
+        <div id="s0t2" class="abs" style="left:550px;top:1410px;width:500px;text-align:center"><span class="sticker m" style="font-size:62px;transform:rotate(4deg)">GR YARIS</span></div>
+        <div id="s0vs" class="vs" style="left:440px;top:1120px">VS</div>
+        <div id="s0sub" class="row mono" style="top:1590px;font-size:34px">BEZA SEBENAR · JOM TENGOK</div>
+        <svg id="s0s1" class="sparkle" style="left:940px;top:1000px"><use href="#star"/></svg>
+        <svg id="s0s2" class="sparkle" style="left:70px;top:1560px;width:50px;height:50px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== S1 PRAKTIKAL 3.3 - 5.9 ===== -->
+      <div id="s1" class="clip layer" data-start="3.3" data-duration="2.6" data-track-index="3" style="z-index:10">
+        <div id="s1a" class="row big" style="top:1000px;font-size:120px"><span class="skew">LEBIH</span></div>
+        <div id="s1b" class="row big y" style="top:1110px;font-size:190px"><span class="skew">PRAKTIKAL</span></div>
+        <div id="s1c" class="card" style="left:240px;top:1320px;width:600px;height:338px;transform:rotate(-2deg)"><img src="assets/img/c_rearseats.jpg" alt=""><div class="tag">GR COROLLA · RUANG BELAKANG</div></div>
+        <svg id="s1s1" class="sparkle" style="left:900px;top:1110px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== S2 SEBAB APA / 4 PINTU 5.9 - 8.22 ===== -->
+      <div id="s2" class="clip layer" data-start="5.9" data-duration="2.32" data-track-index="3" style="z-index:10">
+        <div id="s2a" class="row big" style="top:1150px;font-size:210px"><span class="skew">SEBAB APA<span id="s2q" style="display:inline-block;color:var(--yellow)">?</span></span></div>
+        <div id="s2b" class="row big y" style="top:990px;font-size:170px"><span class="skew">4 PINTU</span></div>
+        <div id="s2c1" class="card" style="left:30px;top:1180px;width:490px;height:326px;transform:rotate(-4deg)"><img src="assets/img/c_side.jpg" alt=""><div class="tag">GR COROLLA</div></div>
+        <div id="s2c2" class="card" style="left:560px;top:1180px;width:490px;height:326px;transform:rotate(4deg)"><img src="assets/img/y_side.jpg" alt=""><div class="tag">GR YARIS</div></div>
+        <div id="s2t1" class="abs" style="left:30px;top:1545px;width:500px;text-align:center"><span class="sticker" style="font-size:56px;transform:rotate(-3deg)">4 PINTU ✓</span></div>
+        <div id="s2t2" class="abs" style="left:550px;top:1545px;width:500px;text-align:center"><span class="sticker m" style="font-size:56px;transform:rotate(3deg)">2 PINTU</span></div>
+      </div>
+
+      <!-- ===== S3 GR YARIS V1 = MANUAL 8.22 - 10.36 ===== -->
+      <div id="s3" class="clip layer" data-start="8.22" data-duration="2.14" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:1000px"><span id="s3chip" class="chip">GR YARIS · VERSION 1</span></div>
+        <div id="s3c" class="card" style="left:330px;top:1105px;width:420px;height:420px;transform:rotate(-3deg)"><img src="assets/img/y_manual.jpg" alt=""></div>
+        <div id="s3a" class="row big" style="top:1540px;font-size:170px"><span class="skew">MANUAL</span></div>
+        <div id="s3x" class="abs" style="left:760px;top:1150px"><span class="sticker m" style="font-size:44px;transform:rotate(8deg)">6MT SAHAJA</span></div>
+      </div>
+
+      <!-- ===== S4 GR COROLLA: AUTO PUN ADA 10.36 - 13.22 ===== -->
+      <div id="s4" class="clip layer" data-start="10.36" data-duration="2.86" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:1000px"><span id="s4chip" class="chip">GR COROLLA</span></div>
+        <div id="s4c1" class="card" style="left:50px;top:1100px;width:460px;height:345px;transform:rotate(-4deg)"><img src="assets/img/c_auto.jpg" alt=""><div class="tag">AUTO (GR-DAT)</div></div>
+        <div id="s4c2" class="card" style="left:570px;top:1100px;width:460px;height:345px;transform:rotate(4deg)"><img src="assets/img/c_manual.jpg" alt=""><div class="tag">MANUAL (6MT)</div></div>
+        <div id="s4t1" class="abs" style="left:30px;top:1470px;width:500px;text-align:center"><span class="sticker" style="font-size:58px;transform:rotate(-3deg)">AUTO ✓</span></div>
+        <div id="s4t2" class="abs" style="left:550px;top:1470px;width:500px;text-align:center"><span class="sticker m" style="font-size:58px;transform:rotate(3deg)">MANUAL ✓</span></div>
+        <div id="s4a" class="row big y" style="top:1600px;font-size:120px"><span class="skew">AUTO PUN ADA!</span></div>
+      </div>
+
+      <!-- ===== S5 SIAPA PUN BOLEH BAWA 13.22 - 18.24 ===== -->
+      <div id="s5" class="clip layer" data-start="13.22" data-duration="5.02" data-track-index="3" style="z-index:10">
+        <div id="s5lbl" class="row mono y" style="top:1010px;font-size:40px">MAKSUDNYA...</div>
+        <div id="s5panel" class="panel" style="left:110px;top:1080px;width:860px;height:500px"></div>
+        <svg id="s5p1" class="abs" style="left:200px;top:1120px;width:250px;height:300px"><use href="#person"/></svg>
+        <svg id="s5p2" class="abs" style="left:630px;top:1120px;width:250px;height:300px"><use href="#personf"/></svg>
+        <div id="s5l1" class="abs" style="left:150px;top:1440px;width:350px;text-align:center"><span class="sticker m" style="font-size:52px">LELAKI</span></div>
+        <div id="s5l2" class="abs" style="left:560px;top:1440px;width:390px;text-align:center"><span class="sticker m" style="font-size:52px">PEREMPUAN</span></div>
+        <div id="s5v1" class="abs" style="left:390px;top:1110px"><span class="vmark">✓</span></div>
+        <div id="s5v2" class="abs" style="left:820px;top:1110px"><span class="vmark">✓</span></div>
+        <div id="s5b" class="row" style="top:1290px"><span class="sticker" style="font-size:150px;padding:0 60px;transform:rotate(-4deg)">SENANG JE!</span></div>
+        <div id="s5c" class="row mono" style="top:1530px;font-size:36px">SIAPA PUN BOLEH BAWA</div>
+        <svg id="s5s1" class="sparkle" style="left:880px;top:1250px"><use href="#star"/></svg>
+        <svg id="s5s2" class="sparkle" style="left:140px;top:1480px;width:50px;height:50px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== S6 ENJIN SAMA (engine still) 18.24 - 20.66 ===== -->
+      <div id="s6" class="clip layer" data-start="18.24" data-duration="2.42" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:1300px"><span id="s6chip" class="chip">1.6L TURBO · 3 SILINDER</span></div>
+        <div id="s6a" class="row big" style="top:1410px;font-size:160px"><span class="skew">ENJIN SAMA</span></div>
+        <div class="row" style="top:1600px"><span id="s6t" class="sticker" style="font-size:66px;transform:rotate(-3deg)">MACAM GR YARIS</span></div>
+      </div>
+
+      <!-- ===== S7 300 HP 20.66 - 24.98 ===== -->
+      <div id="s7" class="clip layer" data-start="20.66" data-duration="4.32" data-track-index="3" style="z-index:10">
+        <div id="s7lbl" class="row mono y" style="top:1000px;font-size:40px">TAPI YANG NI...</div>
+        <svg id="s7g" class="abs" viewBox="0 0 300 190" style="left:240px;top:1060px;width:600px;height:380px">
+          <path d="M30 160 A120 120 0 1 1 270 160" class="neon" />
+          <path id="s7arc" d="M30 160 A120 120 0 1 1 270 160" fill="none" stroke="#FECD00" stroke-width="14" stroke-linecap="round" style="filter:drop-shadow(0 0 12px #FECD00)"/>
+          <path d="M52 160 L66 160 M150 52 L150 66 M234 160 L248 160 M74 84 L84 94 M226 84 L216 94" class="neon y" stroke-width="5"/>
+          <line id="s7n" x1="150" y1="160" x2="150" y2="66" stroke="#FFEFEF" stroke-width="9" stroke-linecap="round" style="filter:drop-shadow(0 0 10px #FECD00)"/>
+          <circle cx="150" cy="160" r="14" fill="#FECD00"/>
+        </svg>
+        <div id="s7num" class="row big y" style="top:1350px;font-size:300px"><span class="skew"><span id="s7v">0</span><span style="font-size:140px;color:var(--cream)"> HP</span></span></div>
+        <div class="row" style="top:1650px"><span id="s7t" class="sticker m" style="font-size:48px;transform:rotate(-2deg)">GR COROLLA</span></div>
+        <svg id="s7s1" class="sparkle" style="left:880px;top:1350px"><use href="#star"/></svg>
+        <svg id="s7s2" class="sparkle" style="left:120px;top:1560px;width:52px;height:52px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== S8 LAJU NI (burnout still) 24.98 - 26.4 ===== -->
+      <div id="s8" class="clip layer" data-start="24.98" data-duration="1.42" data-track-index="3" style="z-index:10">
+        <div id="s8a" class="row big y" style="top:1330px;font-size:260px"><span class="skew">LAJU NI!</span></div>
+      </div>
+
+      <!-- ===== S9 4WD 26.4 - 28.94 ===== -->
+      <div id="s9" class="clip layer" data-start="26.4" data-duration="2.54" data-track-index="3" style="z-index:10">
+        <div id="s9c" class="card" style="left:160px;top:1020px;width:760px;height:430px;transform:rotate(-2deg)"><img src="assets/img/c_grfour.jpg" alt=""></div>
+        <div id="s9a" class="row big y" style="top:1470px;font-size:230px"><span class="skew">4WD</span></div>
+        <div id="s9b" class="row mono" style="top:1690px;font-size:38px">FOUR-WHEEL DRIVE · GR-FOUR</div>
+      </div>
+
+      <!-- ===== S10 DIFFERENTIAL MODE / 3 MODE 28.94 - 31.72 ===== -->
+      <div id="s10" class="clip layer" data-start="28.94" data-duration="2.78" data-track-index="3" style="z-index:10">
+        <div id="s10c" class="card" style="left:330px;top:1030px;width:420px;height:353px;border-radius:50% / 50%"><img src="assets/img/awd_dialphoto.jpg" alt=""></div>
+        <div id="s10lbl" class="row mono y" style="top:1420px;font-size:40px">BOLEH UBAH DIFFERENTIAL MODE</div>
+        <div id="s10a" class="row big" style="top:1490px;font-size:190px"><span class="skew">3 <span style="color:var(--yellow)">MODE</span></span></div>
+        <svg id="s10s1" class="sparkle" style="left:800px;top:1060px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== S11 TORQUE SPLIT 31.72 - 43.82 ===== -->
+      <div id="s11" class="clip layer" data-start="31.72" data-duration="12.1" data-track-index="3" style="z-index:10">
+        <div id="s11box">
+          <div class="row" style="top:990px;height:90px">
+            <span id="s11m1" class="chip abs" style="left:50%;transform:translateX(-50%)">MODE #1 · NORMAL</span>
+            <span id="s11m2" class="chip abs" style="left:50%;transform:translateX(-50%)">MODE #2</span>
+            <span id="s11m3" class="chip abs" style="left:50%;transform:translateX(-50%)">MODE #3 · TRACK</span>
+          </div>
+          <div id="s11panel" class="panel" style="left:60px;top:1095px;width:960px;height:600px"></div>
+          <!-- top-view car, front at top -->
+          <svg id="s11car" class="abs" viewBox="0 0 200 400" style="left:120px;top:1130px;width:265px;height:530px">
+            <g class="neon">
+              <path d="M40 60 Q40 18 100 14 Q160 18 160 60 L164 330 Q164 384 100 388 Q36 384 36 330Z"/>
+              <path d="M54 120 Q100 98 146 120 L140 170 Q100 160 60 170Z"/>
+              <path d="M60 300 Q100 312 140 300 L144 330 Q100 344 56 330Z"/>
+              <path d="M100 150 L100 290" stroke-dasharray="10 10"/>
+            </g>
+            <g id="s11fw" style="filter:drop-shadow(0 0 12px #FECD00)">
+              <rect x="10" y="62" width="26" height="60" rx="8" fill="#FECD00"/><rect x="164" y="62" width="26" height="60" rx="8" fill="#FECD00"/>
+              <path d="M36 92 L164 92" stroke="#FECD00" stroke-width="8"/>
+            </g>
+            <g id="s11rw" style="filter:drop-shadow(0 0 12px #FECD00)">
+              <rect x="10" y="276" width="26" height="60" rx="8" fill="#FECD00"/><rect x="164" y="276" width="26" height="60" rx="8" fill="#FECD00"/>
+              <path d="M36 306 L164 306" stroke="#FECD00" stroke-width="8"/>
+            </g>
+          </svg>
+          <div class="lbl" style="left:430px;top:1135px">DEPAN</div>
+          <div class="lbl" style="left:430px;top:1415px">BELAKANG</div>
+          <div id="s11f" class="pctn" style="left:425px;top:1180px"><span id="s11fv">60</span><small>%</small></div>
+          <div id="s11r" class="pctn" style="left:425px;top:1460px"><span id="s11rv">40</span><small>%</small></div>
+          <div class="bartrack" style="left:700px;top:1260px;width:270px"></div>
+          <div class="bartrack" style="left:700px;top:1540px;width:270px"></div>
+          <div id="s11fb" class="bar" style="left:700px;top:1260px;width:270px"></div>
+          <div id="s11rb" class="bar" style="left:700px;top:1540px;width:270px"></div>
+        </div>
+        <!-- mode 3 tease (over track still) -->
+        <div id="s11t1" class="row mono y" style="top:1300px;font-size:44px">MODE TERAKHIR</div>
+        <div id="s11t2" class="row big" style="top:1370px;font-size:150px"><span class="skew">SEMUA ORANG</span></div>
+        <div id="s11t3" class="row big y" style="top:1510px;font-size:150px"><span class="skew">NAK PAKAI</span></div>
+      </div>
+
+      <!-- ===== S12 CUKUP? 43.82 - 45.36 ===== -->
+      <div id="s12" class="clip layer" data-start="43.82" data-duration="1.54" data-track-index="3" style="z-index:10">
+        <div id="s12a" class="row big" style="top:1130px;font-size:180px"><span class="skew">DAH CUKUP?</span></div>
+        <div id="s12b" class="row" style="top:1140px"><span class="xmark" style="width:150px;height:150px;font-size:100px">✕</span></div>
+        <div id="s12c" class="row big y" style="top:1320px;font-size:200px"><span class="skew">TAK CUKUP!</span></div>
+      </div>
+
+      <!-- ===== S13 TIGA DRIVE MODE 45.36 - 50.44 ===== -->
+      <div id="s13" class="clip layer" data-start="45.36" data-duration="5.08" data-track-index="3" style="z-index:10">
+        <div id="s13a" class="row mono y" style="top:1300px;font-size:44px">KERETA NI JUGA ADA</div>
+        <div id="s13b" class="row big" style="top:1370px;font-size:200px"><span class="skew">+3 <span style="color:var(--yellow)">MODE</span></span></div>
+        <div id="s13lbl" class="row mono" style="top:1060px;font-size:40px">DRIVE MODE</div>
+        <div id="s13sel" class="selector" style="top:1140px">
+          <div id="s13hl" class="hl"></div>
+          <div id="s13o1" class="opt" style="left:0">ECO</div>
+          <div id="s13o2" class="opt" style="left:300px">COMFORT</div>
+          <div id="s13o3" class="opt" style="left:600px">SPORT</div>
+        </div>
+        <div id="s13big" class="row big y" style="top:1360px;font-size:220px"><span class="skew" id="s13bigt"></span></div>
+      </div>
+
+      <!-- ===== S14 TUNGGU APA LAGI 50.44 - 52.14 ===== -->
+      <div id="s14" class="clip layer" data-start="50.44" data-duration="1.7" data-track-index="3" style="z-index:10">
+        <div id="s14lbl" class="row mono y" style="top:1040px;font-size:44px">SO...</div>
+        <div id="s14a" class="row big" style="top:1110px;font-size:200px"><span class="skew">TUNGGU</span></div>
+        <div id="s14b" class="row big y" style="top:1300px;font-size:220px"><span class="skew">APA LAGI?</span></div>
+      </div>
+
+      <!-- ===== S15 CTA 52.14 - 58.22 ===== -->
+      <div id="s15" class="clip layer" data-start="52.14" data-duration="6.08" data-track-index="3" style="z-index:10">
+        <div id="s15a" class="row big y" style="top:1060px;font-size:190px"><span class="skew">BERMINAT?</span></div>
+        <div class="row" style="top:1270px"><span id="s15b" class="sticker" style="font-size:64px;transform:rotate(-3deg)">UNIT DI BELAKANG ↑</span></div>
+        <div id="s15c" class="row mono" style="top:1060px;font-size:42px">CARI SAYA</div>
+        <div class="row" style="top:1120px"><span id="s15d" class="sticker" style="font-size:210px;padding:0 70px;transform:rotate(-5deg)">JAI</span></div>
+        <div id="s15panel" class="panel" style="left:90px;top:1170px;width:900px;height:400px"></div>
+        <svg id="s15pin" class="abs" style="left:470px;top:1040px;width:140px;height:168px"><use href="#pin"/></svg>
+        <div id="s15e" class="row mono y" style="top:1230px;font-size:38px">JUMPA DEKAT</div>
+        <div id="s15f" class="row big" style="top:1290px;font-size:122px">ECW MOTORSPORTS</div>
+        <div id="s15g" class="row mono" style="top:1460px;font-size:38px">BANDAR BARU BANGI</div>
+        <svg id="s15s1" class="sparkle" style="left:860px;top:1140px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== S16 END ===== -->
+      <div id="s16" class="clip layer" data-start="58.22" data-duration="__ENDDUR__" data-track-index="3" style="z-index:10">
+        <div class="layer" style="background:rgba(67,1,7,0.55)"></div>
+        <div id="s16a" class="row" style="top:1180px;font-family:var(--font-ui);font-weight:900;font-style:italic;font-size:84px;color:var(--cream);text-shadow:0 6px 0 var(--maroon)">ASSALAMUALAIKUM</div>
+        <div class="row" style="top:1330px"><span id="s16b" class="sticker" style="font-size:60px">JUMPA DI ECW!</span></div>
+        <div id="s16c" class="row mono" style="top:1500px;font-size:30px">FOTO: TOYOTA GAZOO RACING (GLOBAL.TOYOTA)</div>
+      </div>
+
+      <!-- ===== INSERT ENTRY FX ===== -->
+__BFX__
+
+      <!-- ===== CAPTIONS ===== -->
+__CAPTIONS__
+
+      <!-- ===== AUDIO ===== -->
+      <audio id="music" src="assets/audio/music_ducked.wav" data-start="0" data-duration="__DUR__" data-track-index="20" data-volume="1"></audio>
+__SFX__
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const qa = (s) => Array.from(document.querySelectorAll(s));
+      // helpers ------------------------------------------------------------
+      const pop = (sel, t, extra = {}) => tl.fromTo(sel, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.42, ease: "back.out(2.4)", ...extra }, t);
+      const slam = (sel, t) => tl.fromTo(sel, { scale: 1.9, opacity: 0, filter: "blur(14px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.32, ease: "power3.out" }, t);
+      const rise = (sel, t, d = 0.45) => tl.fromTo(sel, { y: 80, opacity: 0, filter: "blur(10px)" }, { y: 0, opacity: 1, filter: "blur(0px)", duration: d, ease: "power3.out" }, t);
+      const type = (sel, t, d = 0.5) => tl.fromTo(sel, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: d, ease: "steps(14)" }, t);
+      const out = (sel, t, d = 0.22) => tl.to(sel, { opacity: 0, scale: 0.85, duration: d, ease: "power2.in" }, t);
+      const outUp = (sel, t, d = 0.25) => tl.to(sel, { opacity: 0, y: -60, filter: "blur(8px)", duration: d, ease: "power2.in" }, t);
+      const hide = (sel, t = 0) => tl.set(sel, { opacity: 0 }, t);
+      const shake = (sel, t, n = 5, a = 10) => tl.fromTo(sel, { x: 0 }, { x: a, duration: 0.04, yoyo: true, repeat: n, ease: "none" }, t);
+      const twinkle = (sel, t, d) => tl.fromTo(sel, { scale: 0, rotation: -90, opacity: 0 }, { scale: 1, rotation: 90, opacity: 1, duration: 0.5, ease: "back.out(3)" }, t)
+                                        .to(sel, { scale: 0.6, rotation: 180, duration: d, ease: "sine.inOut", yoyo: true, repeat: 1 }, t + 0.5);
+      const cardIn = (sel, t, rot = 0, from = 500) => tl.fromTo(sel, { y: from, rotation: rot * 4, opacity: 0 }, { y: 0, rotation: rot, opacity: 1, duration: 0.5, ease: "back.out(1.6)" }, t);
+      const stillIn = (id, t, d) => {
+        tl.fromTo(id, { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.34, ease: "power2.out" }, t);
+        tl.fromTo(id + " .fg", { scale: 1.14 }, { scale: 1.0, duration: d, ease: "none" }, t);
+        tl.fromTo(id + "s .scanbar", { y: -40, opacity: 1 }, { y: 1940, duration: 0.34, ease: "power2.out" }, t);
+        tl.fromTo(id + "f", { opacity: 0.55 }, { opacity: 0, duration: 0.25, ease: "power2.out" }, t + 0.02);
+      };
+      const counter = (sel, from, to, t, d) => {
+        const o = { v: from }; const el = document.querySelector(sel);
+        tl.fromTo(o, { v: from }, { v: to, duration: d, ease: "power2.out", onUpdate: () => { el.textContent = Math.round(o.v); } }, t);
+      };
+
+      // ===== S0 HOOK (frame 0 fully composed) =====
+      tl.fromTo("#s0c1", { y: 0, rotation: -5 }, { y: -12, rotation: -6, duration: 1.6, ease: "sine.inOut", yoyo: true, repeat: 1 }, 0);
+      tl.fromTo("#s0c2", { y: 0, rotation: 5 }, { y: -12, rotation: 6, duration: 1.6, ease: "sine.inOut", yoyo: true, repeat: 1 }, 0);
+      tl.fromTo("#s0vs", { scale: 1, rotation: -8 }, { scale: 1.12, rotation: 8, duration: 0.5, ease: "sine.inOut", yoyo: true, repeat: 5 }, 0);
+      tl.to(["#s0c1", "#s0t1"], { scale: 1.08, duration: 0.18, yoyo: true, repeat: 1, ease: "power2.out" }, 1.02);
+      tl.to(["#s0c2", "#s0t2"], { scale: 1.08, duration: 0.18, yoyo: true, repeat: 1, ease: "power2.out" }, 2.72);
+      type("#s0sub", 0.4, 0.7);
+      twinkle("#s0s1", 0.1, 0.6); twinkle("#s0s2", 0.5, 0.6);
+      outUp(["#s0lbl", "#s0sub"], 3.08); out(["#s0c1", "#s0c2", "#s0t1", "#s0t2", "#s0vs", "#s0s1", "#s0s2"], 3.08);
+
+      // ===== S1 PRAKTIKAL =====
+      rise("#s1a", 3.84, 0.35);
+      slam("#s1b", 4.16);
+      cardIn("#s1c", 4.5, -2);
+      twinkle("#s1s1", 4.3, 0.5);
+      out(["#s1a", "#s1b", "#s1c", "#s1s1"], 5.7);
+
+      // ===== S2 SEBAB APA / 4 PINTU =====
+      slam("#s2a", 5.92);
+      tl.fromTo("#s2q", { rotation: 0, y: 0 }, { rotation: 18, y: -30, duration: 0.16, ease: "power2.out", yoyo: true, repeat: 3 }, 6.2);
+      out("#s2a", 6.82, 0.16);
+      slam("#s2b", 7.06);
+      cardIn("#s2c1", 6.98, -4); cardIn("#s2c2", 7.1, 4);
+      pop("#s2t1", 7.6, { rotation: 0 }); pop("#s2t2", 7.75);
+      out(["#s2b", "#s2c1", "#s2c2", "#s2t1", "#s2t2"], 8.06, 0.16);
+
+      // ===== S3 YARIS V1 MANUAL =====
+      pop("#s3chip", 8.3);
+      cardIn("#s3c", 8.55, -3);
+      pop("#s3x", 9.3, { rotation: 8 });
+      slam("#s3a", 9.68);
+      out(["#s3chip", "#s3c", "#s3x", "#s3a"], 10.2, 0.16);
+
+      // ===== S4 COROLLA AUTO =====
+      pop("#s4chip", 10.78);
+      cardIn("#s4c2", 11.0, 4);
+      cardIn("#s4c1", 11.78, -4);
+      tl.to("#s4c2", { opacity: 0.55, duration: 0.2 }, 11.78);
+      pop("#s4t1", 11.9); pop("#s4t2", 12.66);
+      tl.to("#s4c2", { opacity: 1, duration: 0.2 }, 12.66);
+      slam("#s4a", 12.3);
+      out(["#s4chip", "#s4c1", "#s4c2", "#s4t1", "#s4t2", "#s4a"], 13.06, 0.16);
+
+      // ===== S5 SIAPA PUN BOLEH =====
+      type("#s5lbl", 13.24, 0.5);
+      pop("#s5panel", 13.6, { duration: 0.35 });
+      pop("#s5p1", 14.72); pop("#s5l1", 14.8);
+      pop("#s5p2", 15.9); pop("#s5l2", 15.98);
+      pop("#s5v1", 16.5); pop("#s5v2", 16.62);
+      tl.to(["#s5p1", "#s5p2"], { y: -18, duration: 0.2, yoyo: true, repeat: 1, ease: "sine.inOut" }, 16.6);
+      out(["#s5lbl", "#s5panel", "#s5p1", "#s5p2", "#s5l1", "#s5l2", "#s5v1", "#s5v2"], 17.22, 0.18);
+      tl.fromTo("#s5b", { scale: 3, opacity: 0, rotation: -20 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.36, ease: "back.out(1.8)" }, 17.4);
+      type("#s5c", 17.7, 0.4);
+      twinkle("#s5s1", 17.5, 0.3); twinkle("#s5s2", 17.6, 0.3);
+      out(["#s5b", "#s5c", "#s5s1", "#s5s2"], 18.08, 0.16);
+
+      // ===== S6 ENJIN SAMA =====
+      pop("#s6chip", 18.6);
+      slam("#s6a", 18.9);
+      pop("#s6t", 19.78, { rotation: -3 });
+      out(["#s6chip", "#s6a", "#s6t"], 20.46, 0.18);
+
+      // ===== S7 300 HP =====
+      type("#s7lbl", 20.7, 0.5);
+      pop("#s7g", 21.0, { duration: 0.4 });
+      tl.set("#s7arc", { strokeDasharray: 580, strokeDashoffset: 580 }, 0);
+      tl.to("#s7arc", { strokeDashoffset: 0, duration: 0.9, ease: "power2.out" }, 22.5);
+      tl.fromTo("#s7n", { rotation: -110, svgOrigin: "150 160" }, { rotation: 100, svgOrigin: "150 160", duration: 0.9, ease: "power2.out" }, 22.5);
+      tl.to("#s7n", { rotation: 94, svgOrigin: "150 160", duration: 0.05, yoyo: true, repeat: 9, ease: "none" }, 23.4);
+      tl.fromTo("#s7num", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 22.4);
+      counter("#s7v", 0, 300, 22.5, 0.9);
+      tl.to("#s7num", { scale: 1.12, duration: 0.12, yoyo: true, repeat: 1 }, 23.4);
+      pop("#s7t", 23.7, { rotation: -2 });
+      twinkle("#s7s1", 23.5, 0.5); twinkle("#s7s2", 23.6, 0.5);
+      out(["#s7lbl", "#s7g", "#s7num", "#s7t", "#s7s1", "#s7s2"], 24.78, 0.18);
+
+      // ===== S8 LAJU NI =====
+      slam("#s8a", 25.04);
+      shake("#s8a", 25.3, 7, 12);
+      out("#s8a", 26.22, 0.16);
+
+      // ===== S9 4WD =====
+      cardIn("#s9c", 26.5, -2);
+      slam("#s9a", 27.94);
+      shake("#s9a", 28.2, 3, 8);
+      type("#s9b", 28.2, 0.4);
+      out(["#s9c", "#s9a", "#s9b"], 28.8, 0.16);
+
+      // ===== S10 DIFF MODE =====
+      pop("#s10c", 29.0);
+      tl.fromTo("#s10c img", { rotation: -30 }, { rotation: 0, duration: 1.2, ease: "power3.out" }, 29.0);
+      type("#s10lbl", 29.5, 0.7);
+      slam("#s10a", 30.94);
+      twinkle("#s10s1", 31.0, 0.3);
+      out(["#s10c", "#s10lbl", "#s10a", "#s10s1"], 31.56, 0.16);
+
+      // ===== S11 TORQUE SPLIT =====
+      const setSplit = (f, r, t, d = 0.45) => {
+        tl.to("#s11fb", { scaleX: f / 100, duration: d, ease: "power3.out" }, t);
+        tl.to("#s11rb", { scaleX: r / 100, duration: d, ease: "power3.out" }, t);
+        tl.to("#s11fw", { opacity: 0.35 + f / 100, duration: d }, t);
+        tl.to("#s11rw", { opacity: 0.35 + r / 100, duration: d }, t);
+      };
+      hide(["#s11m2", "#s11m3", "#s11t1", "#s11t2", "#s11t3"], 0);
+      tl.set(["#s11fb", "#s11rb"], { scaleX: 0 }, 0);
+      tl.set(["#s11f", "#s11r"], { opacity: 0 }, 0);
+      pop("#s11m1", 31.76);
+      pop("#s11panel", 31.8, { duration: 0.35 });
+      tl.fromTo("#s11car", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 31.9);
+      // mode 1 normal 60:40
+      tl.set("#s11fv", { textContent: "60" }, 0); tl.set("#s11rv", { textContent: "40" }, 0);
+      pop("#s11f", 32.64); setSplit(60, 0, 32.64);
+      pop("#s11r", 33.66); setSplit(60, 40, 33.66);
+      // mode 2: 30 front / 70 rear (as spoken)
+      tl.set("#s11m1", { opacity: 0 }, 34.74); pop("#s11m2", 34.74);
+      tl.to(["#s11f", "#s11r"], { opacity: 0, duration: 0.12 }, 34.74); setSplit(0, 0, 34.74, 0.2);
+      tl.set("#s11rv", { textContent: "70" }, 35.92); pop("#s11r", 35.92); setSplit(0, 70, 35.92);
+      tl.set("#s11fv", { textContent: "30" }, 37.08); pop("#s11f", 37.08); setSplit(30, 70, 37.08);
+      // hide box during the track-photo tease
+      tl.to("#s11box", { opacity: 0, duration: 0.18 }, 38.1);
+      rise("#s11t1", 38.5, 0.3); slam("#s11t2", 39.56); slam("#s11t3", 40.2);
+      tl.to(["#s11t1", "#s11t2", "#s11t3"], { opacity: 0, duration: 0.15 }, 40.6);
+      // mode 3 track 50:50
+      tl.to("#s11box", { opacity: 1, duration: 0.18 }, 40.66);
+      tl.set("#s11m2", { opacity: 0 }, 40.66); slam("#s11m3", 40.72);
+      shake("#s11m3", 41.2, 3, 8);
+      tl.set(["#s11f", "#s11r"], { opacity: 0 }, 40.66); setSplit(0, 0, 40.66, 0.01);
+      tl.set("#s11fv", { textContent: "50" }, 41.72); pop("#s11f", 41.72); setSplit(50, 0, 41.72);
+      tl.set("#s11rv", { textContent: "50" }, 42.7); pop("#s11r", 42.7); setSplit(50, 50, 42.7);
+      out("#s11box", 43.62, 0.18);
+
+      // ===== S12 CUKUP? =====
+      rise("#s12a", 43.86, 0.3);
+      outUp("#s12a", 44.58, 0.12);
+      pop("#s12b", 44.7);
+      tl.fromTo("#s12c", { scale: 1.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.16, ease: "power3.out" }, 44.74);
+      shake("#s12c", 44.92, 3, 8);
+      out(["#s12b", "#s12c"], 45.24, 0.12);
+
+      // ===== S13 DRIVE MODES =====
+      rise("#s13a", 45.6, 0.35);
+      slam("#s13b", 46.86);
+      out(["#s13a", "#s13b"], 47.4, 0.16);
+      type("#s13lbl", 47.6, 0.4);
+      pop("#s13sel", 47.7, { duration: 0.35 });
+      hide("#s13hl", 0);
+      tl.set("#s13hl", { opacity: 1, x: 0 }, 48.0);
+      tl.fromTo("#s13hl", { scale: 0.6 }, { scale: 1, duration: 0.25, ease: "back.out(2)" }, 48.0);
+      tl.set("#s13o1", { color: "#430107" }, 48.0);
+      tl.to("#s13hl", { x: 300, duration: 0.25, ease: "power3.inOut" }, 48.54);
+      tl.set("#s13o1", { color: "#FFEFEF" }, 48.6); tl.set("#s13o2", { color: "#430107" }, 48.66);
+      tl.to("#s13hl", { x: 600, duration: 0.25, ease: "power3.inOut" }, 49.48);
+      tl.set("#s13o2", { color: "#FFEFEF" }, 49.54); tl.set("#s13o3", { color: "#430107" }, 49.6);
+      [["ECO", 48.0], ["COMFORT", 48.54], ["SPORT", 49.48]].forEach(([w, t]) => {
+        tl.set("#s13bigt", { textContent: w }, t);
+        tl.fromTo("#s13big", { scale: 1.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.22, ease: "power3.out" }, t);
+      });
+      shake("#s13big", 49.7, 3, 8);
+      out(["#s13lbl", "#s13sel", "#s13big"], 50.26, 0.16);
+
+      // ===== S14 TUNGGU APA LAGI =====
+      type("#s14lbl", 50.56, 0.25);
+      rise("#s14a", 51.2, 0.25);
+      slam("#s14b", 51.52);
+      shake("#s14b", 51.7, 3, 8);
+      out(["#s14lbl", "#s14a", "#s14b"], 51.98, 0.14);
+
+      // ===== S15 CTA =====
+      slam("#s15a", 52.16);
+      pop("#s15b", 52.96, { rotation: -3 });
+      tl.to("#s15b", { y: -16, duration: 0.25, yoyo: true, repeat: 1, ease: "sine.inOut" }, 53.3);
+      out(["#s15a", "#s15b"], 53.62, 0.16);
+      type("#s15c", 53.7, 0.35);
+      tl.fromTo("#s15d", { scale: 3, opacity: 0, rotation: -25 }, { scale: 1, opacity: 1, rotation: -5, duration: 0.36, ease: "back.out(1.8)" }, 54.36);
+      out(["#s15c", "#s15d"], 55.02, 0.16);
+      pop("#s15panel", 55.12, { duration: 0.35 });
+      tl.fromTo("#s15pin", { y: -500, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "bounce.out" }, 55.12);
+      type("#s15e", 55.18, 0.3);
+      slam("#s15f", 55.3);
+      type("#s15g", 57.0, 0.5);
+      twinkle("#s15s1", 55.5, 0.6);
+      tl.to("#s15pin", { y: -24, duration: 0.3, yoyo: true, repeat: 3, ease: "sine.inOut" }, 56.0);
+      out(["#s15panel", "#s15pin", "#s15e", "#s15f", "#s15g", "#s15s1"], 58.04, 0.16);
+
+      // ===== S16 END =====
+      rise("#s16a", 58.24, 0.3); pop("#s16b", 58.5, { rotation: -3 }); type("#s16c", 58.8, 0.5);
+
+      // ===== INSERT ENTRY =====
+__BFXJS__
+
+      // ===== CAPTIONS =====
+__CAPJS__
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
