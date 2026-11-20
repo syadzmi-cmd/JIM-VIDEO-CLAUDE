@@ -425,9 +425,10 @@ __CHAPTERS__
 
       <!-- ===== L26 follow / end ===== -->
       <div id="sc_L26" class="clip layer scene" data-line="L26" data-track-index="3" style="z-index:10">
-        <div id="fo_m" class="row" style="top:420px"><span class="mb" style="font-size:150px"><span class="st"><i></i><i></i><i></i></span>ECW</span></div>
-        <div class="row" style="top:690px"><span id="fo_b" class="sticker" style="font-size:130px;transform:rotate(-3deg)">+ FOLLOW</span></div>
-        <div id="fo_t" class="row mono y" style="top:975px;font-size:44px">TIPS KERETA DARI KEMAL</div>
+        <div id="fo_m" class="row" style="top:360px;display:none"><span class="mb" style="font-size:150px"><span class="st"><i></i><i></i><i></i></span>ECW</span></div>
+        <div class="row" style="top:720px"><span id="fo_b" class="sticker" style="font-size:130px;transform:rotate(-3deg)">+ FOLLOW</span></div>
+        <div id="fo_n" class="row big" style="top:400px;font-size:150px;line-height:0.95"><span class="skew">ECW<br><span style="color:var(--yellow)">MOTORSPORT</span></span></div>
+        <div id="fo_t" class="row mono y" style="top:985px;font-size:44px">TIPS KERETA SETERUSNYA</div>
         <svg id="fo_s1" class="sparkle" style="left:860px;top:640px"><use href="#star"/></svg>
         <svg id="fo_s2" class="sparkle" style="left:160px;top:860px;width:50px;height:50px"><use href="#star"/></svg>
       </div>
@@ -786,11 +787,13 @@ __SFX__
       tl.to("#e_pin", { y: -20, duration: 0.25, yoyo: true, repeat: 3, ease: "sine.inOut" }, w("L25", 8) + 0.4);
 
       // ===== L26 follow =====
-      pop("#fo_m", ls("L26"));
+      slam("#fo_n", ls("L26"));
       tl.fromTo("#fo_b", { scale: 2.6, opacity: 0, rotation: -20 }, { scale: 1, opacity: 1, rotation: -3, duration: 0.3, ease: "back.out(1.6)" }, w("L26", 0) + 0.05);
       tl.to("#fo_b", { scale: 1.07, duration: 0.3, yoyo: true, repeat: 7, ease: "sine.inOut" }, w("L26", 0) + 0.45);
-      type("#fo_t", w("L26", 3), 0.6);
-      twinkle("#fo_s1", w("L26", 2), 0.6); twinkle("#fo_s2", w("L26", 3), 0.6);
+      tl.to("#fo_n", { scale: 1.06, duration: 0.18, yoyo: true, repeat: 1 }, w("L26", 1));
+      type("#fo_t", w("L26", 6), 0.6);
+      twinkle("#fo_s1", w("L26", 4), 0.6); twinkle("#fo_s2", w("L26", 6), 0.6);
+      tl.to("#fo_n", { scale: 1.05, duration: 0.2, yoyo: true, repeat: 1 }, w("L26", 9));
 
       // ===== Kemal narrator =====
 __KEMALJS__
