@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="ms" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <link rel="stylesheet" href="assets/fonts.css" />
+    <style>
+      :root {
+        --maroon: #430107;
+        --cream: #ffefef;
+        --yellow: #fecd00;
+        --font-display: "Anton", sans-serif;
+        --font-ui: "Poppins", sans-serif;
+        --font-mono: "JetBrains Mono", monospace;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: var(--font-ui); }
+      .full { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+      video.full { object-fit: cover; }
+      .layer { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none; }
+      .row { position: absolute; left: 0; width: 1080px; text-align: center; }
+      .abs { position: absolute; }
+
+      /* shades */
+      .shade-bottom { background: linear-gradient(to bottom, rgba(67,1,7,0) 46%, rgba(67,1,7,0.55) 62%, rgba(67,1,7,0.9) 82%, rgba(67,1,7,0.95) 100%); }
+      .shade-top { background: linear-gradient(to bottom, rgba(20,0,2,0.55) 0%, rgba(20,0,2,0) 26%); }
+      .scanlines { background: repeating-linear-gradient(to bottom, rgba(255,239,239,0.05) 0 2px, transparent 2px 6px); mix-blend-mode: overlay; }
+      .vignette { background: radial-gradient(ellipse at 50% 42%, transparent 55%, rgba(30,0,4,0.55) 100%); }
+
+      /* type */
+      .big { font-family: var(--font-display); text-transform: uppercase; line-height: 0.92; color: var(--cream);
+             text-shadow: 0 6px 0 var(--maroon), 0 12px 0 rgba(0,0,0,0.35), 0 0 40px rgba(254,205,0,0.25); }
+      .big.y { color: var(--yellow); text-shadow: 0 6px 0 var(--maroon), 0 12px 0 rgba(0,0,0,0.35), 0 0 46px rgba(254,205,0,0.55); }
+      .skew { display: inline-block; transform: skewX(-8deg); }
+      .mono { font-family: var(--font-mono); font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cream); }
+      .mono.y { color: var(--yellow); }
+      .chip { display: inline-block; font-family: var(--font-mono); font-weight: 700; font-size: 38px; letter-spacing: 0.18em;
+              background: var(--yellow); color: var(--maroon); padding: 12px 28px 10px; border-radius: 999px;
+              box-shadow: 0 0 0 5px var(--maroon), 0 0 0 8px var(--yellow), 0 0 36px rgba(254,205,0,0.6); }
+      .sticker { display: inline-block; font-family: var(--font-ui); font-weight: 900; font-style: italic; text-transform: uppercase;
+                 background: var(--yellow); color: var(--maroon); padding: 10px 34px 6px; border-radius: 18px;
+                 border: 6px solid var(--cream); box-shadow: 10px 10px 0 var(--maroon), 0 0 50px rgba(254,205,0,0.45); }
+      .sticker.m { background: var(--maroon); color: var(--cream); border-color: var(--yellow); box-shadow: 10px 10px 0 rgba(0,0,0,0.45), 0 0 40px rgba(254,205,0,0.35); }
+      .panel { position: absolute; border-radius: 36px; background: rgba(67,1,7,0.88); border: 5px solid var(--yellow);
+               box-shadow: 0 0 0 3px rgba(67,1,7,0.9), 0 0 60px rgba(254,205,0,0.35), inset 0 0 50px rgba(254,205,0,0.12); }
+      .panel::before, .panel::after { content: ""; position: absolute; width: 54px; height: 54px; border: 7px solid var(--cream); }
+      .panel::before { left: -18px; top: -18px; border-right: none; border-bottom: none; border-radius: 18px 0 0 0; }
+      .panel::after { right: -18px; bottom: -18px; border-left: none; border-top: none; border-radius: 0 0 18px 0; }
+      .card { position: absolute; width: 260px; height: 340px; border: 8px solid var(--yellow); border-radius: 22px; overflow: hidden;
+              box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 4px var(--maroon); background: var(--maroon); }
+      .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      svg { overflow: visible; }
+      .neon { fill: none; stroke: var(--cream); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round;
+              filter: drop-shadow(0 0 8px rgba(254,205,0,0.9)) drop-shadow(0 0 22px rgba(254,205,0,0.45)); }
+      .neon.y { stroke: var(--yellow); }
+
+      /* captions */
+      .cap { position: absolute; left: 60px; width: 960px; top: 285px; text-align: center; }
+      .cap span { display: inline-block; margin: 0 9px; font-family: var(--font-ui); font-weight: 900; font-style: italic; font-size: 66px;
+                  text-transform: uppercase; color: var(--cream); line-height: 1.05;
+                  -webkit-text-stroke: 3px var(--maroon); paint-order: stroke fill;
+                  text-shadow: 0 5px 0 var(--maroon), 0 0 24px rgba(0,0,0,0.55); }
+
+      /* b-roll transitions */
+      .scanbar { position: absolute; left: 0; width: 1080px; height: 26px; background: var(--yellow);
+                 box-shadow: 0 0 40px 12px rgba(254,205,0,0.7); }
+      .flash { background: var(--cream); }
+      .tape { position: absolute; left: -60px; width: 1200px; height: 64px;
+              background: repeating-linear-gradient(-45deg, var(--yellow) 0 44px, var(--maroon) 44px 88px);
+              border-top: 4px solid var(--cream); border-bottom: 4px solid var(--cream); box-shadow: 0 0 30px rgba(254,205,0,0.5); }
+      .xmark, .vmark { display: inline-flex; align-items: center; justify-content: center; width: 92px; height: 92px; border-radius: 50%;
+               font-family: var(--font-ui); font-weight: 900; font-size: 60px; vertical-align: middle; }
+      .vmark { background: var(--yellow); color: var(--maroon); box-shadow: 0 0 30px rgba(254,205,0,0.7); }
+      .xmark { background: var(--cream); color: var(--maroon); box-shadow: 0 0 0 5px var(--maroon); }
+      .item { position: absolute; left: 110px; display: flex; align-items: center; gap: 28px; }
+      .item .t { font-family: var(--font-display); font-size: 104px; color: var(--cream); text-transform: uppercase; line-height: 1;
+                 text-shadow: 0 5px 0 var(--maroon); }
+      .strike { position: absolute; left: -10px; top: 48%; height: 14px; background: var(--yellow); border-radius: 8px;
+                box-shadow: 0 0 20px rgba(254,205,0,0.8); transform-origin: left center; }
+      .meter { position: absolute; width: 120px; height: 470px; border: 7px solid var(--cream); border-radius: 26px; padding: 10px;
+               box-shadow: 0 0 30px rgba(254,205,0,0.45); background: rgba(67,1,7,0.6); }
+      .meter .fill { position: absolute; left: 10px; right: 10px; bottom: 10px; height: 436px; border-radius: 14px;
+                     background: linear-gradient(to top, var(--yellow), #fff3a6); transform-origin: bottom center; box-shadow: 0 0 24px rgba(254,205,0,0.8); }
+      .meter .cap-nub { position: absolute; left: 34px; top: -30px; width: 38px; height: 20px; background: var(--cream); border-radius: 6px 6px 0 0; }
+      .pct { position: absolute; width: 220px; text-align: center; font-family: var(--font-mono); font-weight: 700; font-size: 40px; color: var(--yellow); letter-spacing: 0.08em; }
+      .sparkle { position: absolute; width: 70px; height: 70px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="__DUR__" data-width="1080" data-height="1920">
+      <!-- SVG symbols -->
+      <svg width="0" height="0" style="position:absolute">
+        <defs>
+          <symbol id="ketupat" viewBox="0 0 100 130">
+            <path d="M50 5 L95 50 L50 95 L5 50Z" fill="rgba(254,205,0,0.18)" stroke="#FECD00" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M27.5 27.5 L72.5 72.5 M27.5 72.5 L72.5 27.5 M38.75 16.25 L83.75 61.25 M16.25 38.75 L61.25 83.75 M61.25 16.25 L16.25 61.25 M83.75 38.75 L38.75 83.75" stroke="#FECD00" stroke-width="3.5" fill="none"/>
+            <path d="M50 95 C45 108 40 118 30 127 M50 95 C55 108 60 118 70 127" stroke="#FFEFEF" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </symbol>
+          <symbol id="star" viewBox="0 0 100 100">
+            <path d="M50 0 C54 36 64 46 100 50 C64 54 54 64 50 100 C46 64 36 54 0 50 C36 46 46 36 50 0Z" fill="#FECD00"/>
+          </symbol>
+          <symbol id="carmini" viewBox="0 0 620 230">
+            <path d="M40 172 L36 122 Q42 104 70 92 L118 62 Q132 54 150 53 L350 52 Q372 53 388 64 L440 98 L540 110 Q572 116 580 138 L582 172 Z" fill="#FFEFEF" stroke="#430107" stroke-width="10"/>
+            <path d="M120 98 L150 66 L292 64 L292 100Z M306 64 L352 64 L410 100 L306 100Z" fill="#430107"/>
+            <circle cx="148" cy="174" r="40" fill="#430107"/><circle cx="148" cy="174" r="18" fill="#FECD00"/>
+            <circle cx="466" cy="174" r="40" fill="#430107"/><circle cx="466" cy="174" r="18" fill="#FECD00"/>
+          </symbol>
+          <symbol id="house" viewBox="0 0 120 112">
+            <path d="M8 56 L60 10 L112 56" fill="none" stroke="#FECD00" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M22 46 V104 H98 V46" fill="rgba(67,1,7,0.85)" stroke="#FFEFEF" stroke-width="6" stroke-linejoin="round"/>
+            <rect x="48" y="68" width="24" height="36" fill="#FECD00"/>
+            <rect x="30" y="58" width="14" height="14" fill="#FFEFEF"/><rect x="76" y="58" width="14" height="14" fill="#FFEFEF"/>
+          </symbol>
+          <symbol id="person" viewBox="0 0 100 120">
+            <circle cx="50" cy="34" r="24" fill="#FFEFEF" stroke="#430107" stroke-width="5"/>
+            <path d="M8 118 Q10 68 50 66 Q90 68 92 118Z" fill="#FECD00" stroke="#430107" stroke-width="5"/>
+            <path d="M28 18 Q50 0 72 18 L72 12 Q50 -4 28 12Z" fill="#430107"/>
+          </symbol>
+          <symbol id="pin" viewBox="0 0 100 120">
+            <path d="M50 4 C24 4 8 24 8 46 C8 74 50 116 50 116 C50 116 92 74 92 46 C92 24 76 4 50 4Z" fill="#FECD00" stroke="#430107" stroke-width="6"/>
+            <circle cx="50" cy="45" r="16" fill="#430107"/>
+          </symbol>
+        </defs>
+      </svg>
+
+      <!-- ===== BASE TALKING HEAD (voice) ===== -->
+      <video id="base" class="clip full" src="assets/video/base.mp4" data-start="0" data-duration="__DUR__" data-track-index="0" data-has-audio="true" data-volume="1" style="z-index:1"></video>
+
+      <!-- ===== B-ROLL (muted) ===== -->
+__BROLL__
+
+      <!-- ===== persistent look ===== -->
+      <div id="lookShade" class="clip layer shade-bottom" data-start="0" data-duration="__DUR__" data-track-index="2" style="z-index:5"></div>
+      <div class="clip layer shade-top" data-start="0" data-duration="__DUR__" data-track-index="2" style="z-index:5"></div>
+      <div class="clip layer vignette" data-start="0" data-duration="__DUR__" data-track-index="2" style="z-index:5"></div>
+      <div class="clip layer scanlines" data-start="0" data-duration="__DUR__" data-track-index="2" style="z-index:6"></div>
+
+      <!-- ===== S0 HOOK 0 - 1.66 ===== -->
+      <div id="s0" class="clip layer" data-start="0" data-duration="1.7" data-track-index="3" style="z-index:10">
+        <div class="layer" style="background:linear-gradient(to bottom, rgba(67,1,7,0) 40%, rgba(67,1,7,0.7) 58%, rgba(67,1,7,0.96) 78%)"></div>
+        <div id="s0lbl" class="row mono y" style="top:1000px;font-size:34px">★ PILIHAN KERETA RAYA ★</div>
+        <div id="s0a" class="row big" style="top:1050px;font-size:250px"><span class="skew">RACUN</span></div>
+        <div id="s0b" class="row big y" style="top:1265px;font-size:300px"><span class="skew">RAYA!</span></div>
+        <svg id="s0k1" class="abs" style="left:52px;top:1060px;width:120px;height:156px"><use href="#ketupat"/></svg>
+        <svg id="s0k2" class="abs" style="left:908px;top:1300px;width:120px;height:156px"><use href="#ketupat"/></svg>
+        <svg id="s0car" class="abs" viewBox="0 0 620 230" style="left:250px;top:1560px;width:580px;height:215px">
+          <g class="neon y">
+            <path class="draw" d="M40 172 L36 122 Q42 104 70 92 L118 62 Q132 54 150 53 L350 52 Q372 53 388 64 L440 98 L540 110 Q572 116 580 138 L582 172 L508 172 M424 172 L190 172 M106 172 L40 172"/>
+            <path class="draw" d="M120 98 L150 66 L292 64 L292 100Z M306 64 L352 64 L410 100 L306 100Z"/>
+            <circle class="draw" cx="148" cy="174" r="36"/><circle class="draw" cx="466" cy="174" r="36"/>
+          </g>
+        </svg>
+        <svg id="s0s1" class="sparkle" style="left:830px;top:1080px"><use href="#star"/></svg>
+        <svg id="s0s2" class="sparkle" style="left:150px;top:1460px;width:50px;height:50px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== S1 GLA35 (b-roll badge) 1.66 - 3.6 ===== -->
+      <div id="s1" class="clip layer" data-start="1.66" data-duration="1.94" data-track-index="3" style="z-index:10">
+        <div id="s1lbl" class="row mono" style="top:1180px;font-size:40px">MERCEDES-AMG</div>
+        <div class="row" style="top:1250px"><span id="s1tag" class="sticker" style="font-size:150px;transform:rotate(-4deg)">GLA 35</span></div>
+        <div class="row" style="top:1475px"><span id="s1sub" class="sticker m" style="font-size:72px;transform:rotate(3deg)">4MATIC</span></div>
+      </div>
+
+      <!-- ===== S2 PALING TERBAIK 3.6 - 7.38 ===== -->
+      <div id="s2" class="clip layer" data-start="3.6" data-duration="3.78" data-track-index="3" style="z-index:10">
+        <div id="s2c1" class="card" style="left:90px;top:1290px;transform:rotate(-9deg)"><img src="assets/img/b4.jpg" alt=""></div>
+        <div id="s2c3" class="card" style="left:730px;top:1290px;transform:rotate(9deg)"><img src="assets/img/b5.jpg" alt=""></div>
+        <div id="s2c2" class="card" style="left:410px;top:1250px"><img src="assets/img/b1.jpg" alt=""></div>
+        <div id="s2a" class="row big" style="top:1010px;font-size:120px"><span class="skew">PALING</span></div>
+        <div id="s2b" class="row big y" style="top:1110px;font-size:190px"><span class="skew">TERBAIK</span></div>
+        <svg id="s2s1" class="sparkle" style="left:860px;top:1080px"><use href="#star"/></svg>
+        <svg id="s2s2" class="sparkle" style="left:150px;top:1190px;width:48px;height:48px"><use href="#star"/></svg>
+        <div class="row" style="top:1520px"><span id="s2tag" class="sticker" style="font-size:64px;transform:rotate(-3deg)">KERETA RAYA ✓</span></div>
+      </div>
+
+      <!-- ===== S3 KENAPA 7.38 - 8.66 ===== -->
+      <div id="s3" class="clip layer" data-start="7.38" data-duration="1.28" data-track-index="3" style="z-index:10">
+        <div id="s3a" class="row big" style="top:1120px;font-size:250px"><span class="skew">KENAPA<span id="s3q" style="display:inline-block;color:var(--yellow)">?</span></span></div>
+      </div>
+
+      <!-- ===== S4 SEBAB 1 8.66 - 13.22 ===== -->
+      <div id="s4" class="clip layer" data-start="8.66" data-duration="4.56" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:1010px"><span id="s4chip" class="chip">SEBAB #1</span></div>
+        <div id="s4a" class="row big" style="top:1120px;font-size:150px"><span class="skew">BILA RAYA</span></div>
+        <div id="s4b" class="row big y" style="top:1110px;font-size:190px"><span class="skew">BERJALAN</span></div>
+        <svg id="s4route" class="abs" viewBox="0 0 900 200" style="left:90px;top:1330px;width:900px;height:200px">
+          <path id="s4path" d="M40 150 C220 20 380 190 520 90 S800 40 860 120" class="neon y" stroke-dasharray="18 18"/>
+        </svg>
+        <svg id="s4p1" class="abs" style="left:100px;top:1400px;width:80px;height:96px"><use href="#pin"/></svg>
+        <svg id="s4p2" class="abs" style="left:910px;top:1370px;width:80px;height:96px"><use href="#pin"/></svg>
+        <div id="s4c" class="row big" style="top:1105px;font-size:120px"><span class="skew">JUMPA</span></div>
+        <div id="s4d" class="row big y" style="top:1215px;font-size:160px"><span class="skew">SEDARA MARA</span></div>
+        <div id="s4ppl" class="row" style="top:1420px;height:170px">
+__PEOPLE__
+        </div>
+      </div>
+
+      <!-- ===== S5 SEBAB 2 13.22 - 21.9 ===== -->
+      <div id="s5" class="clip layer" data-start="13.22" data-duration="8.68" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:1010px"><span id="s5chip" class="chip">SEBAB #2</span></div>
+        <!-- keluar masuk -->
+        <div id="s5a" class="row big" style="top:1100px;font-size:118px"><span class="skew">KELUAR <span style="color:var(--yellow)">MASUK</span></span></div>
+        <svg id="s5car" class="abs" viewBox="0 0 620 230" style="left:200px;top:1250px;width:680px;height:252px">
+          <g class="neon">
+            <path class="draw" d="M40 172 L36 122 Q42 104 70 92 L118 62 Q132 54 150 53 L350 52 Q372 53 388 64 L440 98 L540 110 Q572 116 580 138 L582 172 L508 172 M424 172 L190 172 M106 172 L40 172"/>
+            <path class="draw" d="M120 98 L150 66 L292 64 L292 100Z"/>
+            <circle class="draw" cx="148" cy="174" r="36"/><circle class="draw" cx="466" cy="174" r="36"/>
+          </g>
+          <g id="s5door">
+            <path d="M300 62 L352 62 L412 100 L420 160 L300 160Z" fill="rgba(254,205,0,0.25)" stroke="#FECD00" stroke-width="7" stroke-linejoin="round" style="filter:drop-shadow(0 0 10px rgba(254,205,0,0.9))"/>
+            <path d="M330 118 L360 118" stroke="#FFEFEF" stroke-width="7" stroke-linecap="round"/>
+          </g>
+        </svg>
+        <div id="s5x" class="abs" style="left:820px;top:1440px"><span class="sticker" style="font-size:70px;transform:rotate(8deg)">x10</span></div>
+        <!-- comfort / mudah (over interior b-roll) -->
+        <div id="s5panel" class="panel" style="left:150px;top:1120px;width:780px;height:390px"></div>
+        <div id="s5v1" class="item" style="top:1165px;left:230px"><span class="vmark">✓</span><span class="t">COMFORT</span></div>
+        <div id="s5v2" class="item" style="top:1335px;left:230px"><span class="vmark">✓</span><span class="t" style="color:var(--yellow)">MUDAH</span></div>
+        <!-- penat / letih -->
+        <div id="s5n0" class="row mono y" style="top:1085px;font-size:40px">TAK RASA</div>
+        <div id="s5n1" class="row" style="top:1150px"><span class="big" style="position:relative;display:inline-block;font-size:170px"><span class="skew">PENAT</span><span id="s5k1" class="strike" style="width:520px"></span></span></div>
+        <div id="s5n2" class="row" style="top:1340px"><span class="big y" style="position:relative;display:inline-block;font-size:170px"><span class="skew">LETIH</span><span id="s5k2" class="strike" style="width:470px;background:var(--cream)"></span></span></div>
+      </div>
+
+      <!-- ===== S6 SEBAB 3 21.9 - 27.48 ===== -->
+      <div id="s6" class="clip layer" data-start="21.9" data-duration="5.58" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:1010px"><span id="s6chip" class="chip">SEBAB #3</span></div>
+        <div id="s6t" class="row mono" style="top:1110px;font-size:40px">RUMAH KE RUMAH</div>
+        <svg id="s6route" class="abs" viewBox="0 0 1080 300" style="left:0;top:1170px;width:1080px;height:300px">
+          <path id="s6path" d="M220 200 Q540 -10 860 200" class="neon" stroke-dasharray="20 20"/>
+        </svg>
+        <svg id="s6h1" class="abs" style="left:130px;top:1300px;width:180px;height:168px"><use href="#house"/></svg>
+        <svg id="s6h2" class="abs" style="left:770px;top:1300px;width:180px;height:168px"><use href="#house"/></svg>
+        <svg id="s6car" class="abs" style="left:150px;top:1250px;width:150px;height:56px"><use href="#carmini"/></svg>
+        <div id="s6l1" class="abs" style="left:60px;top:1490px;width:320px;text-align:center"><span class="sticker m" style="font-size:44px">RAYA A</span></div>
+        <div id="s6l2" class="abs" style="left:700px;top:1490px;width:320px;text-align:center"><span class="sticker m" style="font-size:44px">RAYA B</span></div>
+        <div id="s6m1" class="abs" style="left:40px;top:1490px;width:360px;text-align:center"><span class="sticker" style="font-size:46px;transform:rotate(-4deg)">MAKCIK</span></div>
+        <div id="s6m2" class="abs" style="left:660px;top:1490px;width:400px;text-align:center"><span class="sticker" style="font-size:46px;transform:rotate(4deg)">PAK ITAM</span></div>
+      </div>
+
+      <!-- ===== S7 ENJOY 27.48 - 32.12 ===== -->
+      <div id="s7" class="clip layer" data-start="27.48" data-duration="4.64" data-track-index="3" style="z-index:10">
+        <svg id="s7pin" class="abs" style="left:470px;top:1080px;width:140px;height:168px"><use href="#pin"/></svg>
+        <div id="s7a" class="row big" style="top:1270px;font-size:150px"><span class="skew">DESTINASI</span></div>
+        <svg id="s7g" class="abs" viewBox="0 0 300 190" style="left:290px;top:1080px;width:500px;height:316px">
+          <path d="M40 150 A110 110 0 1 1 260 150" class="neon" />
+          <path d="M60 150 L72 150 M150 50 L150 62 M228 150 L240 150 M86 86 L95 95 M214 86 L205 95" class="neon y" stroke-width="5"/>
+          <line id="s7n" x1="150" y1="150" x2="150" y2="62" stroke="#FECD00" stroke-width="10" stroke-linecap="round" style="filter:drop-shadow(0 0 10px #FECD00)"/>
+          <circle cx="150" cy="150" r="14" fill="#FFEFEF"/>
+        </svg>
+        <div id="s7b" class="row big y" style="top:1370px;font-size:240px"><span class="skew">ENJOY!</span></div>
+        <svg id="s7s1" class="sparkle" style="left:860px;top:1380px"><use href="#star"/></svg>
+        <svg id="s7s2" class="sparkle" style="left:140px;top:1560px;width:50px;height:50px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== S8 WARNING 32.12 - 41.46 ===== -->
+      <div id="s8" class="clip layer" data-start="32.12" data-duration="9.34" data-track-index="3" style="z-index:10">
+        <div id="s8t1" class="tape" style="top:990px;transform:rotate(-2deg)"></div>
+        <div id="s8a" class="row big" style="top:1110px;font-size:120px"><span class="skew">KERETA TAK KENA</span></div>
+        <div id="s8b" class="row big y" style="top:1240px;font-size:170px"><span class="skew">CITA RASA?</span></div>
+        <div id="s8panel" class="panel" style="left:70px;top:1095px;width:940px;height:520px"></div>
+        <div id="s8i1" class="item" style="top:1130px"><span class="xmark">✕</span><span class="t" style="position:relative">NGANTUK</span></div>
+        <div id="s8i2" class="item" style="top:1285px"><span class="xmark">✕</span><span class="t">BORING</span></div>
+        <div id="s8i3" class="item" style="top:1440px"><span class="xmark">✕</span><span class="t" style="font-size:88px">TAK SEMANGAT</span></div>
+        <div id="s8m" class="meter" style="left:850px;top:1120px;height:400px;width:110px"><div class="cap-nub" style="left:29px"></div><div id="s8f" class="fill" style="height:366px"></div></div>
+        <div id="s8p0" class="pct" style="left:795px;top:1530px">100%</div>
+        <div id="s8p1" class="pct" style="left:795px;top:1530px">68%</div>
+        <div id="s8p2" class="pct" style="left:795px;top:1530px">40%</div>
+        <div id="s8p3" class="pct" style="left:795px;top:1530px">12%</div>
+      </div>
+
+      <!-- ===== S9 SESUAI 41.46 - 45.46 ===== -->
+      <div id="s9" class="clip layer" data-start="41.46" data-duration="4.0" data-track-index="3" style="z-index:10">
+        <div id="s9lbl" class="row mono y" style="top:1035px;font-size:40px">INI KERETA</div>
+        <div id="s9a" class="row big" style="top:1110px;font-size:150px"><span class="skew">MEMANG SESUAI</span></div>
+        <div class="row" style="top:1310px"><span id="s9tag" class="sticker" style="font-size:96px;transform:rotate(-3deg)">UNTUK RAYA ✓</span></div>
+        <div class="row" style="top:1490px"><span id="s9m" class="sticker m" style="font-size:52px;transform:rotate(2deg)">GLA 35 4MATIC</span></div>
+      </div>
+
+      <!-- ===== S10 PENASIHAT / JOJO 45.46 - 52.72 ===== -->
+      <div id="s10" class="clip layer" data-start="45.46" data-duration="7.26" data-track-index="3" style="z-index:10">
+        <div id="s10a" class="row big" style="top:1080px;font-size:150px"><span class="skew">KERETA RAYA</span></div>
+        <div id="s10b" class="row big y" style="top:1230px;font-size:170px"><span class="skew">YANG BAIK</span></div>
+        <svg id="s10k1" class="abs" style="left:40px;top:1420px;width:110px;height:143px"><use href="#ketupat"/></svg>
+        <svg id="s10k2" class="abs" style="left:930px;top:1050px;width:110px;height:143px"><use href="#ketupat"/></svg>
+        <div id="s10c" class="row mono" style="top:1090px;font-size:44px">CARI PENASIHAT</div>
+        <div id="s10d" class="row big y" style="top:1150px;font-size:210px"><span class="skew">TERBAIK</span></div>
+        <div class="row" style="top:1110px"><span id="s10e" class="sticker" style="font-size:220px;padding:0 60px;transform:rotate(-5deg)">JOJO</span></div>
+        <div id="s10f" class="row mono" style="top:1480px;font-size:38px">PENASIHAT KERETA ANDA</div>
+        <svg id="s10s1" class="sparkle" style="left:830px;top:1080px"><use href="#star"/></svg>
+        <svg id="s10s2" class="sparkle" style="left:190px;top:1350px;width:52px;height:52px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== S11 LOKASI 52.72 - 56.04 ===== -->
+      <div id="s11" class="clip layer" data-start="52.72" data-duration="3.32" data-track-index="3" style="z-index:10">
+        <div id="s11panel" class="panel" style="left:90px;top:1170px;width:900px;height:380px"></div>
+        <svg id="s11pin" class="abs" style="left:470px;top:1040px;width:140px;height:168px"><use href="#pin"/></svg>
+        <div id="s11a" class="row mono y" style="top:1225px;font-size:38px">JUMPA DEKAT</div>
+        <div id="s11b" class="row big" style="top:1280px;font-size:120px">ECW MOTORSPORTS</div>
+        <div id="s11c" class="row mono" style="top:1440px;font-size:36px">RECOND · BANDAR BARU BANGI</div>
+      </div>
+
+      <!-- ===== S12 END 56.04 - end ===== -->
+      <div id="s12" class="clip layer" data-start="56.04" data-duration="__ENDDUR__" data-track-index="3" style="z-index:10">
+        <div class="layer" style="background:rgba(67,1,7,0.55)"></div>
+        <svg id="s12k" class="abs" style="left:465px;top:980px;width:150px;height:195px"><use href="#ketupat"/></svg>
+        <div id="s12a" class="row" style="top:1210px;font-family:var(--font-ui);font-weight:900;font-style:italic;font-size:84px;color:var(--cream);text-shadow:0 6px 0 var(--maroon)">ASSALAMUALAIKUM</div>
+        <div class="row" style="top:1360px"><span id="s12b" class="sticker" style="font-size:58px">JUMPA DI ECW!</span></div>
+      </div>
+
+      <!-- ===== B-ROLL ENTRY FX ===== -->
+__BFX__
+
+      <!-- ===== CAPTIONS ===== -->
+__CAPTIONS__
+
+      <!-- ===== AUDIO ===== -->
+      <audio id="music" src="assets/audio/music_ducked.wav" data-start="0" data-duration="__DUR__" data-track-index="20" data-volume="1"></audio>
+__SFX__
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => Array.from(document.querySelectorAll(s));
+      // helpers ------------------------------------------------------------
+      const pop = (sel, t, extra = {}) => tl.fromTo(sel, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.42, ease: "back.out(2.4)", ...extra }, t);
+      const slam = (sel, t) => tl.fromTo(sel, { scale: 1.9, opacity: 0, filter: "blur(14px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.32, ease: "power3.out" }, t);
+      const rise = (sel, t, d = 0.45) => tl.fromTo(sel, { y: 80, opacity: 0, filter: "blur(10px)" }, { y: 0, opacity: 1, filter: "blur(0px)", duration: d, ease: "power3.out" }, t);
+      const type = (sel, t, d = 0.5) => tl.fromTo(sel, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: d, ease: "steps(14)" }, t);
+      const out = (sel, t, d = 0.22) => tl.to(sel, { opacity: 0, scale: 0.85, duration: d, ease: "power2.in" }, t);
+      const outUp = (sel, t, d = 0.25) => tl.to(sel, { opacity: 0, y: -60, filter: "blur(8px)", duration: d, ease: "power2.in" }, t);
+      const hide = (sel, t = 0) => tl.set(sel, { opacity: 0 }, t);
+      const twinkle = (sel, t, d) => tl.fromTo(sel, { scale: 0, rotation: -90, opacity: 0 }, { scale: 1, rotation: 90, opacity: 1, duration: 0.5, ease: "back.out(3)" }, t)
+                                        .to(sel, { scale: 0.6, rotation: 180, duration: d, ease: "sine.inOut", yoyo: true, repeat: 1 }, t + 0.5);
+      const drawPaths = (sel, t, d) => qa(sel).forEach((p, i) => {
+        const L = p.getTotalLength ? p.getTotalLength() : 1500;
+        tl.fromTo(p, { strokeDasharray: L, strokeDashoffset: L }, { strokeDashoffset: 0, duration: d, ease: "power2.inOut" }, t + i * 0.08);
+      });
+      const dashFlow = (sel, t, d) => tl.fromTo(sel, { strokeDashoffset: 0 }, { strokeDashoffset: -36 * Math.round(d * 4), duration: d, ease: "none" }, t);
+      const brollIn = (vid, scan, flash, t, d) => {
+        tl.fromTo(vid, { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.34, ease: "power2.out" }, t);
+        tl.fromTo(vid, { scale: 1.12 }, { scale: 1.0, duration: d, ease: "none" }, t);
+        tl.fromTo(scan, { y: -40, opacity: 1 }, { y: 1940, duration: 0.34, ease: "power2.out" }, t);
+        tl.fromTo(flash, { opacity: 0.55 }, { opacity: 0, duration: 0.25, ease: "power2.out" }, t + 0.02);
+      };
+
+      // ===== S0 HOOK (frame 0 fully composed) =====
+      tl.set(["#s0a", "#s0b", "#s0lbl", "#s0k1", "#s0k2"], { opacity: 1 }, 0);
+      tl.fromTo("#s0a", { scale: 1.0 }, { scale: 1.05, duration: 1.66, ease: "sine.out" }, 0);
+      tl.fromTo("#s0b", { scale: 1.0, rotation: -2 }, { scale: 1.08, rotation: 0, duration: 1.66, ease: "sine.out" }, 0);
+      tl.fromTo("#s0k1", { rotation: -12 }, { rotation: 12, duration: 1.66, ease: "sine.inOut" }, 0);
+      tl.fromTo("#s0k2", { rotation: 10 }, { rotation: -14, duration: 1.66, ease: "sine.inOut" }, 0);
+      drawPaths("#s0car .draw", 0.05, 1.0);
+      twinkle("#s0s1", 0.15, 0.6); twinkle("#s0s2", 0.45, 0.5);
+      outUp(["#s0a", "#s0lbl"], 1.46); outUp(["#s0b", "#s0car"], 1.5); out(["#s0k1", "#s0k2"], 1.46);
+
+      // ===== S1 GLA35 =====
+      type("#s1lbl", 1.72, 0.45);
+      pop("#s1tag", 1.72, { rotation: -4 });
+      pop("#s1sub", 2.72, { rotation: 3 });
+      out(["#s1tag", "#s1sub", "#s1lbl"], 3.4);
+
+      // ===== S2 PALING TERBAIK =====
+      tl.fromTo("#s2c1", { y: 500, rotation: -30, opacity: 0 }, { y: 0, rotation: -9, opacity: 1, duration: 0.5, ease: "back.out(1.6)" }, 3.62);
+      tl.fromTo("#s2c2", { y: 500, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.6)" }, 3.74);
+      tl.fromTo("#s2c3", { y: 500, rotation: 30, opacity: 0 }, { y: 0, rotation: 9, opacity: 1, duration: 0.5, ease: "back.out(1.6)" }, 3.86);
+      tl.to(["#s2c1", "#s2c3"], { y: -14, duration: 1.4, ease: "sine.inOut", yoyo: true, repeat: 1 }, 4.4);
+      rise("#s2a", 4.44, 0.35);
+      slam("#s2b", 4.80);
+      twinkle("#s2s1", 4.9, 0.7); twinkle("#s2s2", 5.1, 0.6);
+      pop("#s2tag", 6.7, { rotation: -3 });
+      out(["#s2a", "#s2b", "#s2c1", "#s2c2", "#s2c3", "#s2tag", "#s2s1", "#s2s2"], 7.16);
+
+      // ===== S3 KENAPA =====
+      slam("#s3a", 7.40);
+      tl.fromTo("#s3q", { rotation: 0, y: 0 }, { rotation: 18, y: -30, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 3 }, 7.62);
+      tl.fromTo("#s3a", { x: 0 }, { x: 10, duration: 0.04, yoyo: true, repeat: 5, ease: "none" }, 7.40);
+      out("#s3a", 8.46, 0.18);
+
+      // ===== S4 SEBAB 1 =====
+      pop("#s4chip", 8.68);
+      rise("#s4a", 9.30);
+      outUp("#s4a", 9.92);
+      slam("#s4b", 10.0);
+      tl.fromTo("#s4route", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.9, ease: "power2.inOut" }, 10.1); dashFlow("#s4path", 11.0, 0.9);
+      pop("#s4p1", 10.1); pop("#s4p2", 10.8);
+      out(["#s4b", "#s4route", "#s4p1", "#s4p2"], 11.75);
+      rise("#s4c", 11.92, 0.35);
+      slam("#s4d", 12.50);
+      qa("#s4ppl svg").forEach((el, i) => { pop(el, 12.06 + i * 0.12); tl.to(el, { y: -16, duration: 0.25, yoyo: true, repeat: 1, ease: "sine.inOut" }, 12.8 + i * 0.06); });
+      out(["#s4chip", "#s4c", "#s4d", "#s4ppl"], 13.02);
+
+      // ===== S5 SEBAB 2 =====
+      pop("#s5chip", 13.24);
+      rise("#s5a", 15.74);
+      drawPaths("#s5car .draw", 14.1, 1.0);
+      pop("#s5door", 14.9);
+      tl.fromTo("#s5door", { scaleX: 1, svgOrigin: "300 110" }, { scaleX: 0.25, svgOrigin: "300 110", duration: 0.3, ease: "power2.inOut", yoyo: true, repeat: 5 }, 16.38);
+      pop("#s5x", 16.4, { rotation: 8 });
+      out(["#s5a", "#s5car", "#s5x", "#s5chip"], 18.18);
+      pop("#s5panel", 18.5, { duration: 0.35 });
+      pop("#s5v1 .vmark", 18.82); rise("#s5v1 .t", 18.82, 0.3);
+      pop("#s5v2 .vmark", 19.64); rise("#s5v2 .t", 19.64, 0.3);
+      out(["#s5panel", "#s5v1", "#s5v2"], 19.95);
+      type("#s5n0", 20.12, 0.35);
+      rise("#s5n1", 20.4, 0.3);
+      tl.fromTo("#s5k1", { scaleX: 0 }, { scaleX: 1, duration: 0.22, ease: "power3.out" }, 20.96);
+      rise("#s5n2", 21.2, 0.25);
+      tl.fromTo("#s5k2", { scaleX: 0 }, { scaleX: 1, duration: 0.2, ease: "power3.out" }, 21.54);
+      out(["#s5n0", "#s5n1", "#s5n2"], 21.74, 0.16);
+
+      // ===== S6 SEBAB 3 =====
+      pop("#s6chip", 21.92);
+      type("#s6t", 22.1, 0.4);
+      pop("#s6h1", 22.38); pop("#s6h2", 23.46);
+      pop("#s6l1", 22.90); pop("#s6l2", 23.90);
+      tl.fromTo("#s6route", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 1.2, ease: "power2.inOut" }, 22.5); dashFlow("#s6path", 23.7, 3.6);
+      pop("#s6car", 22.5, { duration: 0.3 });
+      // car travels along arc (x linear, y up then down)
+      const carTrip = (t0, d) => {
+        tl.fromTo("#s6car", { x: 0 }, { x: 640, duration: d, ease: "power1.inOut" }, t0);
+        tl.fromTo("#s6car", { y: 30 }, { y: -60, duration: d / 2, ease: "sine.out" }, t0);
+        tl.to("#s6car", { y: 30, duration: d / 2, ease: "sine.in" }, t0 + d / 2);
+      };
+      carTrip(22.9, 1.2);
+      tl.to("#s6car", { x: 0, y: 30, duration: 0.3, ease: "power2.inOut" }, 24.3);
+      out(["#s6l1", "#s6l2"], 24.5, 0.18);
+      pop("#s6m1", 25.0, { rotation: -4 });
+      carTrip(25.3, 1.1);
+      pop("#s6m2", 26.16, { rotation: 4 });
+      tl.to("#s6m2", { scale: 1.15, duration: 0.2, yoyo: true, repeat: 1 }, 27.0);
+      out(["#s6chip", "#s6t", "#s6route", "#s6h1", "#s6h2", "#s6car", "#s6m1", "#s6m2"], 27.3, 0.18);
+
+      // ===== S7 DESTINASI / ENJOY =====
+      tl.fromTo("#s7pin", { y: -500, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "bounce.out" }, 27.55);
+      rise("#s7a", 28.6, 0.35);
+      out(["#s7pin", "#s7a"], 29.45, 0.18);
+      pop("#s7g", 29.62, { duration: 0.35 });
+      tl.fromTo("#s7n", { rotation: -100, svgOrigin: "150 150" }, { rotation: 80, svgOrigin: "150 150", duration: 1.3, ease: "power3.out" }, 29.85);
+      tl.to("#s7n", { rotation: 72, svgOrigin: "150 150", duration: 0.08, yoyo: true, repeat: 7, ease: "none" }, 31.15);
+      slam("#s7b", 29.88);
+      twinkle("#s7s1", 30.0, 0.6); twinkle("#s7s2", 30.3, 0.6);
+      out(["#s7g", "#s7b", "#s7s1", "#s7s2"], 31.86);
+
+      // ===== S8 WARNING =====
+      tl.fromTo("#s8t1", { x: -1200 }, { x: 0, duration: 0.4, ease: "power3.out" }, 32.14);
+      tl.to("#s8t1", { x: -88, duration: 3.3, ease: "none" }, 32.54);
+      rise("#s8a", 33.1, 0.35);
+      slam("#s8b", 35.0);
+      tl.to("#s8b", { x: 8, duration: 0.05, yoyo: true, repeat: 5, ease: "none" }, 35.3);
+      out(["#s8a", "#s8b"], 35.92, 0.18);
+      tl.to("#s8t1", { x: -1300, duration: 0.3, ease: "power2.in" }, 35.92);
+      pop("#s8panel", 36.14, { duration: 0.35 });
+      pop("#s8m", 36.3);
+      hide(["#s8i1", "#s8i2", "#s8i3"], 0);
+      [["#s8i1", 37.04, 0.68], ["#s8i2", 38.30, 0.40], ["#s8i3", 39.88, 0.12]].forEach(([s, t, lvl]) => {
+        tl.set(s, { opacity: 1 }, t);
+        pop(s + " .xmark", t); rise(s + " .t", t, 0.25);
+        tl.to("#s8f", { scaleY: lvl, duration: 0.35, ease: "power3.out" }, t);
+        tl.fromTo("#s8m", { x: 0 }, { x: 9, duration: 0.05, yoyo: true, repeat: 3 }, t);
+      });
+      hide(["#s8p1", "#s8p2", "#s8p3"], 0);
+      pop("#s8p0", 36.4);
+      [["#s8p0", "#s8p1", 37.04], ["#s8p1", "#s8p2", 38.30], ["#s8p2", "#s8p3", 39.88]].forEach(([a, b, t]) => { tl.set(a, { opacity: 0 }, t); tl.set(b, { opacity: 1 }, t); });
+      tl.to("#s8f", { opacity: 0.35, duration: 0.15, yoyo: true, repeat: 5 }, 40.3);
+      out(["#s8panel", "#s8i1", "#s8i2", "#s8i3", "#s8m", "#s8p3"], 41.24);
+
+      // ===== S9 SESUAI (front b-roll) =====
+      type("#s9lbl", 41.92, 0.4);
+      slam("#s9a", 42.9);
+      pop("#s9tag", 43.54, { rotation: -3 });
+      pop("#s9m", 44.1, { rotation: 2 });
+      out(["#s9lbl", "#s9a", "#s9tag", "#s9m"], 45.24);
+
+      // ===== S10 JOJO =====
+      rise("#s10a", 46.84, 0.35);
+      slam("#s10b", 47.66);
+      pop("#s10k1", 47.0); pop("#s10k2", 47.2);
+      tl.to(["#s10k1", "#s10k2"], { rotation: 15, duration: 0.6, yoyo: true, repeat: 1, ease: "sine.inOut" }, 47.4);
+      out(["#s10a", "#s10b", "#s10k1", "#s10k2"], 48.08, 0.18);
+      type("#s10c", 48.82, 0.45);
+      slam("#s10d", 49.7);
+      out(["#s10c", "#s10d"], 50.3, 0.15);
+      tl.fromTo("#s10e", { scale: 3, opacity: 0, rotation: -25 }, { scale: 1, opacity: 1, rotation: -5, duration: 0.38, ease: "back.out(1.8)" }, 50.44);
+      type("#s10f", 50.9, 0.5);
+      twinkle("#s10s1", 50.6, 0.6); twinkle("#s10s2", 50.8, 0.6);
+      tl.to("#s10e", { scale: 1.06, duration: 0.4, yoyo: true, repeat: 2, ease: "sine.inOut" }, 51.1);
+      out(["#s10e", "#s10f", "#s10s1", "#s10s2"], 52.5, 0.2);
+
+      // ===== S11 LOKASI (showroom b-roll) =====
+      pop("#s11panel", 52.9, { duration: 0.35 });
+      tl.fromTo("#s11pin", { y: -500, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "bounce.out" }, 52.95);
+      type("#s11a", 53.0, 0.35);
+      slam("#s11b", 53.32);
+      type("#s11c", 54.44, 0.7);
+      tl.to("#s11pin", { y: -24, duration: 0.3, yoyo: true, repeat: 3, ease: "sine.inOut" }, 54.6);
+      out(["#s11panel", "#s11pin", "#s11a", "#s11b", "#s11c"], 55.86, 0.18);
+
+      // ===== S12 END =====
+      pop("#s12k", 56.06); rise("#s12a", 56.1, 0.3); pop("#s12b", 56.3, { rotation: -3 });
+      tl.to("#s12k", { rotation: 10, duration: 0.3, ease: "sine.inOut" }, 56.3);
+
+      // ===== B-ROLL ENTRY =====
+__BFXJS__
+
+      // ===== CAPTIONS =====
+__CAPJS__
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

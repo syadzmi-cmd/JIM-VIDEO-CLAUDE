@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="ms" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <link rel="stylesheet" href="assets/fonts.css" />
+    <style>
+      :root {
+        --maroon: #430107;
+        --cream: #ffefef;
+        --yellow: #fecd00;
+        --font-display: "Anton", sans-serif;
+        --font-ui: "Poppins", sans-serif;
+        --font-mono: "JetBrains Mono", monospace;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: var(--font-ui); }
+      .full { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+      video.full { object-fit: cover; }
+      .layer { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none; }
+      .row { position: absolute; left: 0; width: 1080px; text-align: center; }
+      .abs { position: absolute; }
+
+      /* shades */
+      .shade-bottom { background: linear-gradient(to bottom, rgba(67,1,7,0) 46%, rgba(67,1,7,0.55) 62%, rgba(67,1,7,0.9) 82%, rgba(67,1,7,0.95) 100%); }
+      .shade-top { background: linear-gradient(to bottom, rgba(20,0,2,0.55) 0%, rgba(20,0,2,0) 26%); }
+      .scanlines { background: repeating-linear-gradient(to bottom, rgba(255,239,239,0.05) 0 2px, transparent 2px 6px); mix-blend-mode: overlay; }
+      .vignette { background: radial-gradient(ellipse at 50% 42%, transparent 55%, rgba(30,0,4,0.55) 100%); }
+
+      /* type */
+      .big { font-family: var(--font-display); text-transform: uppercase; line-height: 0.92; color: var(--cream);
+             text-shadow: 0 6px 0 var(--maroon), 0 12px 0 rgba(0,0,0,0.35), 0 0 40px rgba(254,205,0,0.25); }
+      .big.y { color: var(--yellow); text-shadow: 0 6px 0 var(--maroon), 0 12px 0 rgba(0,0,0,0.35), 0 0 46px rgba(254,205,0,0.55); }
+      .skew { display: inline-block; transform: skewX(-8deg); }
+      .mono { font-family: var(--font-mono); font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cream); }
+      .mono.y { color: var(--yellow); }
+      .chip { display: inline-block; font-family: var(--font-mono); font-weight: 700; font-size: 38px; letter-spacing: 0.18em;
+              background: var(--yellow); color: var(--maroon); padding: 12px 28px 10px; border-radius: 999px;
+              box-shadow: 0 0 0 5px var(--maroon), 0 0 0 8px var(--yellow), 0 0 36px rgba(254,205,0,0.6); }
+      .sticker { display: inline-block; font-family: var(--font-ui); font-weight: 900; font-style: italic; text-transform: uppercase;
+                 background: var(--yellow); color: var(--maroon); padding: 10px 34px 6px; border-radius: 18px;
+                 border: 6px solid var(--cream); box-shadow: 10px 10px 0 var(--maroon), 0 0 50px rgba(254,205,0,0.45); }
+      .sticker.m { background: var(--maroon); color: var(--cream); border-color: var(--yellow); box-shadow: 10px 10px 0 rgba(0,0,0,0.45), 0 0 40px rgba(254,205,0,0.35); }
+      .panel { position: absolute; border-radius: 36px; background: rgba(67,1,7,0.88); border: 5px solid var(--yellow);
+               box-shadow: 0 0 0 3px rgba(67,1,7,0.9), 0 0 60px rgba(254,205,0,0.35), inset 0 0 50px rgba(254,205,0,0.12); }
+      .panel::before, .panel::after { content: ""; position: absolute; width: 54px; height: 54px; border: 7px solid var(--cream); }
+      .panel::before { left: -18px; top: -18px; border-right: none; border-bottom: none; border-radius: 18px 0 0 0; }
+      .panel::after { right: -18px; bottom: -18px; border-left: none; border-top: none; border-radius: 0 0 18px 0; }
+      .card { position: absolute; width: 260px; height: 340px; border: 8px solid var(--yellow); border-radius: 22px; overflow: hidden;
+              box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 4px var(--maroon); background: var(--maroon); }
+      .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      svg { overflow: visible; }
+      .neon { fill: none; stroke: var(--cream); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round;
+              filter: drop-shadow(0 0 8px rgba(254,205,0,0.9)) drop-shadow(0 0 22px rgba(254,205,0,0.45)); }
+      .neon.y { stroke: var(--yellow); }
+
+      /* captions */
+      .cap { position: absolute; left: 60px; width: 960px; top: 285px; text-align: center; }
+      .cap span { display: inline-block; margin: 0 9px; font-family: var(--font-ui); font-weight: 900; font-style: italic; font-size: 66px;
+                  text-transform: uppercase; color: var(--cream); line-height: 1.05;
+                  -webkit-text-stroke: 3px var(--maroon); paint-order: stroke fill;
+                  text-shadow: 0 5px 0 var(--maroon), 0 0 24px rgba(0,0,0,0.55); }
+
+      /* b-roll transitions */
+      .scanbar { position: absolute; left: 0; width: 1080px; height: 26px; background: var(--yellow);
+                 box-shadow: 0 0 40px 12px rgba(254,205,0,0.7); }
+      .flash { background: var(--cream); }
+      .tape { position: absolute; left: -60px; width: 1200px; height: 64px;
+              background: repeating-linear-gradient(-45deg, var(--yellow) 0 44px, var(--maroon) 44px 88px);
+              border-top: 4px solid var(--cream); border-bottom: 4px solid var(--cream); box-shadow: 0 0 30px rgba(254,205,0,0.5); }
+      .xmark, .vmark { display: inline-flex; align-items: center; justify-content: center; width: 92px; height: 92px; border-radius: 50%;
+               font-family: var(--font-ui); font-weight: 900; font-size: 60px; vertical-align: middle; }
+      .vmark { background: var(--yellow); color: var(--maroon); box-shadow: 0 0 30px rgba(254,205,0,0.7); }
+      .xmark { background: var(--cream); color: var(--maroon); box-shadow: 0 0 0 5px var(--maroon); }
+      .item { position: absolute; left: 110px; display: flex; align-items: center; gap: 28px; }
+      .item .t { font-family: var(--font-display); font-size: 104px; color: var(--cream); text-transform: uppercase; line-height: 1;
+                 text-shadow: 0 5px 0 var(--maroon); }
+      .strike { position: absolute; left: -10px; top: 48%; height: 14px; background: var(--yellow); border-radius: 8px;
+                box-shadow: 0 0 20px rgba(254,205,0,0.8); transform-origin: left center; }
+      .meter { position: absolute; width: 120px; height: 470px; border: 7px solid var(--cream); border-radius: 26px; padding: 10px;
+               box-shadow: 0 0 30px rgba(254,205,0,0.45); background: rgba(67,1,7,0.6); }
+      .meter .fill { position: absolute; left: 10px; right: 10px; bottom: 10px; height: 436px; border-radius: 14px;
+                     background: linear-gradient(to top, var(--yellow), #fff3a6); transform-origin: bottom center; box-shadow: 0 0 24px rgba(254,205,0,0.8); }
+      .meter .cap-nub { position: absolute; left: 34px; top: -30px; width: 38px; height: 20px; background: var(--cream); border-radius: 6px 6px 0 0; }
+      .pct { position: absolute; width: 220px; text-align: center; font-family: var(--font-mono); font-weight: 700; font-size: 40px; color: var(--yellow); letter-spacing: 0.08em; }
+      .sparkle { position: absolute; width: 70px; height: 70px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="58.25" data-width="1080" data-height="1920">
+      <!-- SVG symbols -->
+      <svg width="0" height="0" style="position:absolute">
+        <defs>
+          <symbol id="ketupat" viewBox="0 0 100 130">
+            <path d="M50 5 L95 50 L50 95 L5 50Z" fill="rgba(254,205,0,0.18)" stroke="#FECD00" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M27.5 27.5 L72.5 72.5 M27.5 72.5 L72.5 27.5 M38.75 16.25 L83.75 61.25 M16.25 38.75 L61.25 83.75 M61.25 16.25 L16.25 61.25 M83.75 38.75 L38.75 83.75" stroke="#FECD00" stroke-width="3.5" fill="none"/>
+            <path d="M50 95 C45 108 40 118 30 127 M50 95 C55 108 60 118 70 127" stroke="#FFEFEF" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </symbol>
+          <symbol id="star" viewBox="0 0 100 100">
+            <path d="M50 0 C54 36 64 46 100 50 C64 54 54 64 50 100 C46 64 36 54 0 50 C36 46 46 36 50 0Z" fill="#FECD00"/>
+          </symbol>
+          <symbol id="carmini" viewBox="0 0 620 230">
+            <path d="M40 172 L36 122 Q42 104 70 92 L118 62 Q132 54 150 53 L350 52 Q372 53 388 64 L440 98 L540 110 Q572 116 580 138 L582 172 Z" fill="#FFEFEF" stroke="#430107" stroke-width="10"/>
+            <path d="M120 98 L150 66 L292 64 L292 100Z M306 64 L352 64 L410 100 L306 100Z" fill="#430107"/>
+            <circle cx="148" cy="174" r="40" fill="#430107"/><circle cx="148" cy="174" r="18" fill="#FECD00"/>
+            <circle cx="466" cy="174" r="40" fill="#430107"/><circle cx="466" cy="174" r="18" fill="#FECD00"/>
+          </symbol>
+          <symbol id="house" viewBox="0 0 120 112">
+            <path d="M8 56 L60 10 L112 56" fill="none" stroke="#FECD00" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M22 46 V104 H98 V46" fill="rgba(67,1,7,0.85)" stroke="#FFEFEF" stroke-width="6" stroke-linejoin="round"/>
+            <rect x="48" y="68" width="24" height="36" fill="#FECD00"/>
+            <rect x="30" y="58" width="14" height="14" fill="#FFEFEF"/><rect x="76" y="58" width="14" height="14" fill="#FFEFEF"/>
+          </symbol>
+          <symbol id="person" viewBox="0 0 100 120">
+            <circle cx="50" cy="34" r="24" fill="#FFEFEF" stroke="#430107" stroke-width="5"/>
+            <path d="M8 118 Q10 68 50 66 Q90 68 92 118Z" fill="#FECD00" stroke="#430107" stroke-width="5"/>
+            <path d="M28 18 Q50 0 72 18 L72 12 Q50 -4 28 12Z" fill="#430107"/>
+          </symbol>
+          <symbol id="pin" viewBox="0 0 100 120">
+            <path d="M50 4 C24 4 8 24 8 46 C8 74 50 116 50 116 C50 116 92 74 92 46 C92 24 76 4 50 4Z" fill="#FECD00" stroke="#430107" stroke-width="6"/>
+            <circle cx="50" cy="45" r="16" fill="#430107"/>
+          </symbol>
+        </defs>
+      </svg>
+
+      <!-- ===== BASE TALKING HEAD (voice) ===== -->
+      <video id="base" class="clip full" src="assets/video/base.mp4" data-start="0" data-duration="58.25" data-track-index="0" data-has-audio="true" data-volume="1" style="z-index:1"></video>
+
+      <!-- ===== B-ROLL (muted) ===== -->
+      <video id="br1" class="clip full" src="assets/video/b2.mp4" data-start="1.66" data-duration="1.94" data-media-start="0.2" data-track-index="1" muted playsinline style="z-index:3"></video>
+      <video id="br2" class="clip full" src="assets/video/b0.mp4" data-start="10.0" data-duration="1.9" data-media-start="0.3" data-track-index="1" muted playsinline style="z-index:3"></video>
+      <video id="br3" class="clip full" src="assets/video/b5.mp4" data-start="18.4" data-duration="1.68" data-media-start="0.5" data-track-index="1" muted playsinline style="z-index:3"></video>
+      <video id="br4" class="clip full" src="assets/video/b1.mp4" data-start="29.6" data-duration="2.3" data-media-start="0.5" data-track-index="1" muted playsinline style="z-index:3"></video>
+      <video id="br5" class="clip full" src="assets/video/b4.mp4" data-start="41.9" data-duration="3.4" data-media-start="0.3" data-track-index="1" muted playsinline style="z-index:3"></video>
+      <video id="br6" class="clip full" src="assets/video/b3.mp4" data-start="52.72" data-duration="3.3" data-media-start="0.25" data-track-index="1" muted playsinline style="z-index:3"></video>
+
+      <!-- ===== persistent look ===== -->
+      <div id="lookShade" class="clip layer shade-bottom" data-start="0" data-duration="58.25" data-track-index="2" style="z-index:5"></div>
+      <div class="clip layer shade-top" data-start="0" data-duration="58.25" data-track-index="2" style="z-index:5"></div>
+      <div class="clip layer vignette" data-start="0" data-duration="58.25" data-track-index="2" style="z-index:5"></div>
+      <div class="clip layer scanlines" data-start="0" data-duration="58.25" data-track-index="2" style="z-index:6"></div>
+
+      <!-- ===== S0 HOOK 0 - 1.66 ===== -->
+      <div id="s0" class="clip layer" data-start="0" data-duration="1.7" data-track-index="3" style="z-index:10">
+        <div class="layer" style="background:linear-gradient(to bottom, rgba(67,1,7,0) 40%, rgba(67,1,7,0.7) 58%, rgba(67,1,7,0.96) 78%)"></div>
+        <div id="s0lbl" class="row mono y" style="top:1000px;font-size:34px">★ PILIHAN KERETA RAYA ★</div>
+        <div id="s0a" class="row big" style="top:1050px;font-size:250px"><span class="skew">RACUN</span></div>
+        <div id="s0b" class="row big y" style="top:1265px;font-size:300px"><span class="skew">RAYA!</span></div>
+        <svg id="s0k1" class="abs" style="left:52px;top:1060px;width:120px;height:156px"><use href="#ketupat"/></svg>
+        <svg id="s0k2" class="abs" style="left:908px;top:1300px;width:120px;height:156px"><use href="#ketupat"/></svg>
+        <svg id="s0car" class="abs" viewBox="0 0 620 230" style="left:250px;top:1560px;width:580px;height:215px">
+          <g class="neon y">
+            <path class="draw" d="M40 172 L36 122 Q42 104 70 92 L118 62 Q132 54 150 53 L350 52 Q372 53 388 64 L440 98 L540 110 Q572 116 580 138 L582 172 L508 172 M424 172 L190 172 M106 172 L40 172"/>
+            <path class="draw" d="M120 98 L150 66 L292 64 L292 100Z M306 64 L352 64 L410 100 L306 100Z"/>
+            <circle class="draw" cx="148" cy="174" r="36"/><circle class="draw" cx="466" cy="174" r="36"/>
+          </g>
+        </svg>
+        <svg id="s0s1" class="sparkle" style="left:830px;top:1080px"><use href="#star"/></svg>
+        <svg id="s0s2" class="sparkle" style="left:150px;top:1460px;width:50px;height:50px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== S1 GLA35 (b-roll badge) 1.66 - 3.6 ===== -->
+      <div id="s1" class="clip layer" data-start="1.66" data-duration="1.94" data-track-index="3" style="z-index:10">
+        <div id="s1lbl" class="row mono" style="top:1180px;font-size:40px">MERCEDES-AMG</div>
+        <div class="row" style="top:1250px"><span id="s1tag" class="sticker" style="font-size:150px;transform:rotate(-4deg)">GLA 35</span></div>
+        <div class="row" style="top:1475px"><span id="s1sub" class="sticker m" style="font-size:72px;transform:rotate(3deg)">4MATIC</span></div>
+      </div>
+
+      <!-- ===== S2 PALING TERBAIK 3.6 - 7.38 ===== -->
+      <div id="s2" class="clip layer" data-start="3.6" data-duration="3.78" data-track-index="3" style="z-index:10">
+        <div id="s2c1" class="card" style="left:90px;top:1290px;transform:rotate(-9deg)"><img src="assets/img/b4.jpg" alt=""></div>
+        <div id="s2c3" class="card" style="left:730px;top:1290px;transform:rotate(9deg)"><img src="assets/img/b5.jpg" alt=""></div>
+        <div id="s2c2" class="card" style="left:410px;top:1250px"><img src="assets/img/b1.jpg" alt=""></div>
+        <div id="s2a" class="row big" style="top:1010px;font-size:120px"><span class="skew">PALING</span></div>
+        <div id="s2b" class="row big y" style="top:1110px;font-size:190px"><span class="skew">TERBAIK</span></div>
+        <svg id="s2s1" class="sparkle" style="left:860px;top:1080px"><use href="#star"/></svg>
+        <svg id="s2s2" class="sparkle" style="left:150px;top:1190px;width:48px;height:48px"><use href="#star"/></svg>
+        <div class="row" style="top:1520px"><span id="s2tag" class="sticker" style="font-size:64px;transform:rotate(-3deg)">KERETA RAYA ✓</span></div>
+      </div>
+
+      <!-- ===== S3 KENAPA 7.38 - 8.66 ===== -->
+      <div id="s3" class="clip layer" data-start="7.38" data-duration="1.28" data-track-index="3" style="z-index:10">
+        <div id="s3a" class="row big" style="top:1120px;font-size:250px"><span class="skew">KENAPA<span id="s3q" style="display:inline-block;color:var(--yellow)">?</span></span></div>
+      </div>
+
+      <!-- ===== S4 SEBAB 1 8.66 - 13.22 ===== -->
+      <div id="s4" class="clip layer" data-start="8.66" data-duration="4.56" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:1010px"><span id="s4chip" class="chip">SEBAB #1</span></div>
+        <div id="s4a" class="row big" style="top:1120px;font-size:150px"><span class="skew">BILA RAYA</span></div>
+        <div id="s4b" class="row big y" style="top:1110px;font-size:190px"><span class="skew">BERJALAN</span></div>
+        <svg id="s4route" class="abs" viewBox="0 0 900 200" style="left:90px;top:1330px;width:900px;height:200px">
+          <path id="s4path" d="M40 150 C220 20 380 190 520 90 S800 40 860 120" class="neon y" stroke-dasharray="18 18"/>
+        </svg>
+        <svg id="s4p1" class="abs" style="left:100px;top:1400px;width:80px;height:96px"><use href="#pin"/></svg>
+        <svg id="s4p2" class="abs" style="left:910px;top:1370px;width:80px;height:96px"><use href="#pin"/></svg>
+        <div id="s4c" class="row big" style="top:1105px;font-size:120px"><span class="skew">JUMPA</span></div>
+        <div id="s4d" class="row big y" style="top:1215px;font-size:160px"><span class="skew">SEDARA MARA</span></div>
+        <div id="s4ppl" class="row" style="top:1420px;height:170px">
+          <svg class="abs" style="left:150px;top:0px;width:130px;height:156px"><use href="#person"/></svg>
+          <svg class="abs" style="left:310px;top:20px;width:130px;height:156px"><use href="#person"/></svg>
+          <svg class="abs" style="left:470px;top:0px;width:130px;height:156px"><use href="#person"/></svg>
+          <svg class="abs" style="left:630px;top:20px;width:130px;height:156px"><use href="#person"/></svg>
+          <svg class="abs" style="left:790px;top:0px;width:130px;height:156px"><use href="#person"/></svg>
+        </div>
+      </div>
+
+      <!-- ===== S5 SEBAB 2 13.22 - 21.9 ===== -->
+      <div id="s5" class="clip layer" data-start="13.22" data-duration="8.68" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:1010px"><span id="s5chip" class="chip">SEBAB #2</span></div>
+        <!-- keluar masuk -->
+        <div id="s5a" class="row big" style="top:1100px;font-size:118px"><span class="skew">KELUAR <span style="color:var(--yellow)">MASUK</span></span></div>
+        <svg id="s5car" class="abs" viewBox="0 0 620 230" style="left:200px;top:1250px;width:680px;height:252px">
+          <g class="neon">
+            <path class="draw" d="M40 172 L36 122 Q42 104 70 92 L118 62 Q132 54 150 53 L350 52 Q372 53 388 64 L440 98 L540 110 Q572 116 580 138 L582 172 L508 172 M424 172 L190 172 M106 172 L40 172"/>
+            <path class="draw" d="M120 98 L150 66 L292 64 L292 100Z"/>
+            <circle class="draw" cx="148" cy="174" r="36"/><circle class="draw" cx="466" cy="174" r="36"/>
+          </g>
+          <g id="s5door">
+            <path d="M300 62 L352 62 L412 100 L420 160 L300 160Z" fill="rgba(254,205,0,0.25)" stroke="#FECD00" stroke-width="7" stroke-linejoin="round" style="filter:drop-shadow(0 0 10px rgba(254,205,0,0.9))"/>
+            <path d="M330 118 L360 118" stroke="#FFEFEF" stroke-width="7" stroke-linecap="round"/>
+          </g>
+        </svg>
+        <div id="s5x" class="abs" style="left:820px;top:1440px"><span class="sticker" style="font-size:70px;transform:rotate(8deg)">x10</span></div>
+        <!-- comfort / mudah (over interior b-roll) -->
+        <div id="s5panel" class="panel" style="left:150px;top:1120px;width:780px;height:390px"></div>
+        <div id="s5v1" class="item" style="top:1165px;left:230px"><span class="vmark">✓</span><span class="t">COMFORT</span></div>
+        <div id="s5v2" class="item" style="top:1335px;left:230px"><span class="vmark">✓</span><span class="t" style="color:var(--yellow)">MUDAH</span></div>
+        <!-- penat / letih -->
+        <div id="s5n0" class="row mono y" style="top:1085px;font-size:40px">TAK RASA</div>
+        <div id="s5n1" class="row" style="top:1150px"><span class="big" style="position:relative;display:inline-block;font-size:170px"><span class="skew">PENAT</span><span id="s5k1" class="strike" style="width:520px"></span></span></div>
+        <div id="s5n2" class="row" style="top:1340px"><span class="big y" style="position:relative;display:inline-block;font-size:170px"><span class="skew">LETIH</span><span id="s5k2" class="strike" style="width:470px;background:var(--cream)"></span></span></div>
+      </div>
+
+      <!-- ===== S6 SEBAB 3 21.9 - 27.48 ===== -->
+      <div id="s6" class="clip layer" data-start="21.9" data-duration="5.58" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:1010px"><span id="s6chip" class="chip">SEBAB #3</span></div>
+        <div id="s6t" class="row mono" style="top:1110px;font-size:40px">RUMAH KE RUMAH</div>
+        <svg id="s6route" class="abs" viewBox="0 0 1080 300" style="left:0;top:1170px;width:1080px;height:300px">
+          <path id="s6path" d="M220 200 Q540 -10 860 200" class="neon" stroke-dasharray="20 20"/>
+        </svg>
+        <svg id="s6h1" class="abs" style="left:130px;top:1300px;width:180px;height:168px"><use href="#house"/></svg>
+        <svg id="s6h2" class="abs" style="left:770px;top:1300px;width:180px;height:168px"><use href="#house"/></svg>
+        <svg id="s6car" class="abs" style="left:150px;top:1250px;width:150px;height:56px"><use href="#carmini"/></svg>
+        <div id="s6l1" class="abs" style="left:60px;top:1490px;width:320px;text-align:center"><span class="sticker m" style="font-size:44px">RAYA A</span></div>
+        <div id="s6l2" class="abs" style="left:700px;top:1490px;width:320px;text-align:center"><span class="sticker m" style="font-size:44px">RAYA B</span></div>
+        <div id="s6m1" class="abs" style="left:40px;top:1490px;width:360px;text-align:center"><span class="sticker" style="font-size:46px;transform:rotate(-4deg)">MAKCIK</span></div>
+        <div id="s6m2" class="abs" style="left:660px;top:1490px;width:400px;text-align:center"><span class="sticker" style="font-size:46px;transform:rotate(4deg)">PAK ITAM</span></div>
+      </div>
+
+      <!-- ===== S7 ENJOY 27.48 - 32.12 ===== -->
+      <div id="s7" class="clip layer" data-start="27.48" data-duration="4.64" data-track-index="3" style="z-index:10">
+        <svg id="s7pin" class="abs" style="left:470px;top:1080px;width:140px;height:168px"><use href="#pin"/></svg>
+        <div id="s7a" class="row big" style="top:1270px;font-size:150px"><span class="skew">DESTINASI</span></div>
+        <svg id="s7g" class="abs" viewBox="0 0 300 190" style="left:290px;top:1080px;width:500px;height:316px">
+          <path d="M40 150 A110 110 0 1 1 260 150" class="neon" />
+          <path d="M60 150 L72 150 M150 50 L150 62 M228 150 L240 150 M86 86 L95 95 M214 86 L205 95" class="neon y" stroke-width="5"/>
+          <line id="s7n" x1="150" y1="150" x2="150" y2="62" stroke="#FECD00" stroke-width="10" stroke-linecap="round" style="filter:drop-shadow(0 0 10px #FECD00)"/>
+          <circle cx="150" cy="150" r="14" fill="#FFEFEF"/>
+        </svg>
+        <div id="s7b" class="row big y" style="top:1370px;font-size:240px"><span class="skew">ENJOY!</span></div>
+        <svg id="s7s1" class="sparkle" style="left:860px;top:1380px"><use href="#star"/></svg>
+        <svg id="s7s2" class="sparkle" style="left:140px;top:1560px;width:50px;height:50px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== S8 WARNING 32.12 - 41.46 ===== -->
+      <div id="s8" class="clip layer" data-start="32.12" data-duration="9.34" data-track-index="3" style="z-index:10">
+        <div id="s8t1" class="tape" style="top:990px;transform:rotate(-2deg)"></div>
+        <div id="s8a" class="row big" style="top:1110px;font-size:120px"><span class="skew">KERETA TAK KENA</span></div>
+        <div id="s8b" class="row big y" style="top:1240px;font-size:170px"><span class="skew">CITA RASA?</span></div>
+        <div id="s8panel" class="panel" style="left:70px;top:1095px;width:940px;height:520px"></div>
+        <div id="s8i1" class="item" style="top:1130px"><span class="xmark">✕</span><span class="t" style="position:relative">NGANTUK</span></div>
+        <div id="s8i2" class="item" style="top:1285px"><span class="xmark">✕</span><span class="t">BORING</span></div>
+        <div id="s8i3" class="item" style="top:1440px"><span class="xmark">✕</span><span class="t" style="font-size:88px">TAK SEMANGAT</span></div>
+        <div id="s8m" class="meter" style="left:850px;top:1120px;height:400px;width:110px"><div class="cap-nub" style="left:29px"></div><div id="s8f" class="fill" style="height:366px"></div></div>
+        <div id="s8p0" class="pct" style="left:795px;top:1530px">100%</div>
+        <div id="s8p1" class="pct" style="left:795px;top:1530px">68%</div>
+        <div id="s8p2" class="pct" style="left:795px;top:1530px">40%</div>
+        <div id="s8p3" class="pct" style="left:795px;top:1530px">12%</div>
+      </div>
+
+      <!-- ===== S9 SESUAI 41.46 - 45.46 ===== -->
+      <div id="s9" class="clip layer" data-start="41.46" data-duration="4.0" data-track-index="3" style="z-index:10">
+        <div id="s9lbl" class="row mono y" style="top:1035px;font-size:40px">INI KERETA</div>
+        <div id="s9a" class="row big" style="top:1110px;font-size:150px"><span class="skew">MEMANG SESUAI</span></div>
+        <div class="row" style="top:1310px"><span id="s9tag" class="sticker" style="font-size:96px;transform:rotate(-3deg)">UNTUK RAYA ✓</span></div>
+        <div class="row" style="top:1490px"><span id="s9m" class="sticker m" style="font-size:52px;transform:rotate(2deg)">GLA 35 4MATIC</span></div>
+      </div>
+
+      <!-- ===== S10 PENASIHAT / JOJO 45.46 - 52.72 ===== -->
+      <div id="s10" class="clip layer" data-start="45.46" data-duration="7.26" data-track-index="3" style="z-index:10">
+        <div id="s10a" class="row big" style="top:1080px;font-size:150px"><span class="skew">KERETA RAYA</span></div>
+        <div id="s10b" class="row big y" style="top:1230px;font-size:170px"><span class="skew">YANG BAIK</span></div>
+        <svg id="s10k1" class="abs" style="left:40px;top:1420px;width:110px;height:143px"><use href="#ketupat"/></svg>
+        <svg id="s10k2" class="abs" style="left:930px;top:1050px;width:110px;height:143px"><use href="#ketupat"/></svg>
+        <div id="s10c" class="row mono" style="top:1090px;font-size:44px">CARI PENASIHAT</div>
+        <div id="s10d" class="row big y" style="top:1150px;font-size:210px"><span class="skew">TERBAIK</span></div>
+        <div class="row" style="top:1110px"><span id="s10e" class="sticker" style="font-size:220px;padding:0 60px;transform:rotate(-5deg)">JOJO</span></div>
+        <div id="s10f" class="row mono" style="top:1480px;font-size:38px">PENASIHAT KERETA ANDA</div>
+        <svg id="s10s1" class="sparkle" style="left:830px;top:1080px"><use href="#star"/></svg>
+        <svg id="s10s2" class="sparkle" style="left:190px;top:1350px;width:52px;height:52px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== S11 LOKASI 52.72 - 56.04 ===== -->
+      <div id="s11" class="clip layer" data-start="52.72" data-duration="3.32" data-track-index="3" style="z-index:10">
+        <div id="s11panel" class="panel" style="left:90px;top:1170px;width:900px;height:380px"></div>
+        <svg id="s11pin" class="abs" style="left:470px;top:1040px;width:140px;height:168px"><use href="#pin"/></svg>
+        <div id="s11a" class="row mono y" style="top:1225px;font-size:38px">JUMPA DEKAT</div>
+        <div id="s11b" class="row big" style="top:1280px;font-size:120px">ECW MOTORSPORTS</div>
+        <div id="s11c" class="row mono" style="top:1440px;font-size:36px">RECOND · BANDAR BARU BANGI</div>
+      </div>
+
+      <!-- ===== S12 END 56.04 - end ===== -->
+      <div id="s12" class="clip layer" data-start="56.04" data-duration="2.21" data-track-index="3" style="z-index:10">
+        <div class="layer" style="background:rgba(67,1,7,0.55)"></div>
+        <svg id="s12k" class="abs" style="left:465px;top:980px;width:150px;height:195px"><use href="#ketupat"/></svg>
+        <div id="s12a" class="row" style="top:1210px;font-family:var(--font-ui);font-weight:900;font-style:italic;font-size:84px;color:var(--cream);text-shadow:0 6px 0 var(--maroon)">ASSALAMUALAIKUM</div>
+        <div class="row" style="top:1360px"><span id="s12b" class="sticker" style="font-size:58px">JUMPA DI ECW!</span></div>
+      </div>
+
+      <!-- ===== B-ROLL ENTRY FX ===== -->
+      <div id="br1s" class="clip layer" data-start="1.66" data-duration="0.4" data-track-index="9" style="z-index:40"><div class="scanbar"></div></div>
+      <div id="br1f" class="clip layer flash" data-start="1.66" data-duration="0.3" data-track-index="9" style="z-index:39"></div>
+      <div id="br2s" class="clip layer" data-start="10.0" data-duration="0.4" data-track-index="9" style="z-index:40"><div class="scanbar"></div></div>
+      <div id="br2f" class="clip layer flash" data-start="10.0" data-duration="0.3" data-track-index="9" style="z-index:39"></div>
+      <div id="br3s" class="clip layer" data-start="18.4" data-duration="0.4" data-track-index="9" style="z-index:40"><div class="scanbar"></div></div>
+      <div id="br3f" class="clip layer flash" data-start="18.4" data-duration="0.3" data-track-index="9" style="z-index:39"></div>
+      <div id="br4s" class="clip layer" data-start="29.6" data-duration="0.4" data-track-index="9" style="z-index:40"><div class="scanbar"></div></div>
+      <div id="br4f" class="clip layer flash" data-start="29.6" data-duration="0.3" data-track-index="9" style="z-index:39"></div>
+      <div id="br5s" class="clip layer" data-start="41.9" data-duration="0.4" data-track-index="9" style="z-index:40"><div class="scanbar"></div></div>
+      <div id="br5f" class="clip layer flash" data-start="41.9" data-duration="0.3" data-track-index="9" style="z-index:39"></div>
+      <div id="br6s" class="clip layer" data-start="52.72" data-duration="0.4" data-track-index="9" style="z-index:40"><div class="scanbar"></div></div>
+      <div id="br6f" class="clip layer flash" data-start="52.72" data-duration="0.3" data-track-index="9" style="z-index:39"></div>
+
+      <!-- ===== CAPTIONS ===== -->
+      <div class="clip cap" data-start="0.00" data-duration="1.02" data-track-index="8" style="z-index:30"><span id="cw0_0">Untuk</span><span id="cw0_1">racun</span><span id="cw0_2">raya</span></div>
+      <div class="clip cap" data-start="1.02" data-duration="0.64" data-track-index="8" style="z-index:30"><span id="cw1_0">tahun</span><span id="cw1_1">ni</span></div>
+      <div class="clip cap" data-start="1.66" data-duration="1.96" data-track-index="8" style="z-index:30"><span id="cw2_0">GLA35</span><span id="cw2_1">4MATIC</span><span id="cw2_2">ni</span></div>
+      <div class="clip cap" data-start="3.62" data-duration="1.18" data-track-index="8" style="z-index:30"><span id="cw3_0">kereta</span><span id="cw3_1">yang</span><span id="cw3_2">paling</span></div>
+      <div class="clip cap" data-start="4.80" data-duration="1.24" data-track-index="8" style="z-index:30"><span id="cw4_0">terbaik</span><span id="cw4_1">untuk</span><span id="cw4_2">korang</span></div>
+      <div class="clip cap" data-start="6.04" data-duration="1.04" data-track-index="8" style="z-index:30"><span id="cw5_0">beli</span><span id="cw5_1">untuk</span><span id="cw5_2">guna</span></div>
+      <div class="clip cap" data-start="7.08" data-duration="0.32" data-track-index="8" style="z-index:30"><span id="cw6_0">raya</span></div>
+      <div class="clip cap" data-start="7.40" data-duration="1.12" data-track-index="8" style="z-index:30"><span id="cw7_0">Kenapa</span></div>
+      <div class="clip cap" data-start="8.68" data-duration="1.30" data-track-index="8" style="z-index:30"><span id="cw8_0">Sebab</span><span id="cw8_1">bila</span><span id="cw8_2">raya</span></div>
+      <div class="clip cap" data-start="9.98" data-duration="1.40" data-track-index="8" style="z-index:30"><span id="cw9_0">kita</span><span id="cw9_1">akan</span><span id="cw9_2">berjalan</span></div>
+      <div class="clip cap" data-start="11.38" data-duration="1.16" data-track-index="8" style="z-index:30"><span id="cw10_0">kita</span><span id="cw10_1">akan</span><span id="cw10_2">jumpa</span></div>
+      <div class="clip cap" data-start="12.54" data-duration="0.70" data-track-index="8" style="z-index:30"><span id="cw11_0">sedara</span><span id="cw11_1">mara</span></div>
+      <div class="clip cap" data-start="13.24" data-duration="0.82" data-track-index="8" style="z-index:30"><span id="cw12_0">Yang</span><span id="cw12_1">kedua</span></div>
+      <div class="clip cap" data-start="14.06" data-duration="1.08" data-track-index="8" style="z-index:30"><span id="cw13_0">bila</span><span id="cw13_1">kita</span><span id="cw13_2">banyak</span></div>
+      <div class="clip cap" data-start="15.14" data-duration="0.60" data-track-index="8" style="z-index:30"><span id="cw14_0">berjalan</span></div>
+      <div class="clip cap" data-start="15.74" data-duration="1.00" data-track-index="8" style="z-index:30"><span id="cw15_0">kita</span><span id="cw15_1">banyak</span><span id="cw15_2">keluar</span></div>
+      <div class="clip cap" data-start="16.74" data-duration="0.86" data-track-index="8" style="z-index:30"><span id="cw16_0">masuk</span><span id="cw16_1">kereta</span></div>
+      <div class="clip cap" data-start="17.60" data-duration="1.22" data-track-index="8" style="z-index:30"><span id="cw17_0">kita</span><span id="cw17_1">akan</span><span id="cw17_2">rasa</span></div>
+      <div class="clip cap" data-start="18.82" data-duration="1.28" data-track-index="8" style="z-index:30"><span id="cw18_0">comfort</span><span id="cw18_1">dan</span><span id="cw18_2">mudah</span></div>
+      <div class="clip cap" data-start="20.10" data-duration="0.86" data-track-index="8" style="z-index:30"><span id="cw19_0">Kita</span><span id="cw19_1">tak</span><span id="cw19_2">rasa</span></div>
+      <div class="clip cap" data-start="20.96" data-duration="0.96" data-track-index="8" style="z-index:30"><span id="cw20_0">penat</span><span id="cw20_1">dan</span><span id="cw20_2">letih</span></div>
+      <div class="clip cap" data-start="21.92" data-duration="0.98" data-track-index="8" style="z-index:30"><span id="cw21_0">Daripada</span><span id="cw21_1">rumah</span><span id="cw21_2">raya</span></div>
+      <div class="clip cap" data-start="22.90" data-duration="0.76" data-track-index="8" style="z-index:30"><span id="cw22_0">A</span><span id="cw22_1">ke</span><span id="cw22_2">rumah</span></div>
+      <div class="clip cap" data-start="23.66" data-duration="0.56" data-track-index="8" style="z-index:30"><span id="cw23_0">raya</span><span id="cw23_1">B</span></div>
+      <div class="clip cap" data-start="24.22" data-duration="0.78" data-track-index="8" style="z-index:30"><span id="cw24_0">ataupun</span><span id="cw24_1">daripada</span><span id="cw24_2">rumah</span></div>
+      <div class="clip cap" data-start="25.00" data-duration="1.16" data-track-index="8" style="z-index:30"><span id="cw25_0">makcik</span><span id="cw25_1">ke</span><span id="cw25_2">rumah</span></div>
+      <div class="clip cap" data-start="26.16" data-duration="1.34" data-track-index="8" style="z-index:30"><span id="cw26_0">Pak</span><span id="cw26_1">Itam</span></div>
+      <div class="clip cap" data-start="27.50" data-duration="1.78" data-track-index="8" style="z-index:30"><span id="cw27_0">Jadi</span><span id="cw27_1">dalam</span><span id="cw27_2">destinasi</span></div>
+      <div class="clip cap" data-start="29.28" data-duration="0.36" data-track-index="8" style="z-index:30"><span id="cw28_0">kita</span></div>
+      <div class="clip cap" data-start="29.64" data-duration="1.20" data-track-index="8" style="z-index:30"><span id="cw29_0">kita</span><span id="cw29_1">enjoy</span><span id="cw29_2">bila</span></div>
+      <div class="clip cap" data-start="30.84" data-duration="1.30" data-track-index="8" style="z-index:30"><span id="cw30_0">kita</span><span id="cw30_1">bawa</span><span id="cw30_2">kereta</span></div>
+      <div class="clip cap" data-start="32.14" data-duration="1.30" data-track-index="8" style="z-index:30"><span id="cw31_0">Sebab</span><span id="cw31_1">kalau</span><span id="cw31_2">kita</span></div>
+      <div class="clip cap" data-start="33.44" data-duration="0.84" data-track-index="8" style="z-index:30"><span id="cw32_0">bawa</span><span id="cw32_1">kereta</span><span id="cw32_2">yang</span></div>
+      <div class="clip cap" data-start="34.28" data-duration="1.28" data-track-index="8" style="z-index:30"><span id="cw33_0">tidak</span><span id="cw33_1">menempati</span><span id="cw33_2">cita</span></div>
+      <div class="clip cap" data-start="35.56" data-duration="0.58" data-track-index="8" style="z-index:30"><span id="cw34_0">rasa</span><span id="cw34_1">kita</span></div>
+      <div class="clip cap" data-start="36.14" data-duration="0.90" data-track-index="8" style="z-index:30"><span id="cw35_0">kita</span><span id="cw35_1">mudah</span><span id="cw35_2">rasa</span></div>
+      <div class="clip cap" data-start="37.04" data-duration="0.60" data-track-index="8" style="z-index:30"><span id="cw36_0">ngantuk</span></div>
+      <div class="clip cap" data-start="37.64" data-duration="0.66" data-track-index="8" style="z-index:30"><span id="cw37_0">kita</span><span id="cw37_1">mudah</span><span id="cw37_2">rasa</span></div>
+      <div class="clip cap" data-start="38.30" data-duration="0.52" data-track-index="8" style="z-index:30"><span id="cw38_0">boring</span></div>
+      <div class="clip cap" data-start="38.82" data-duration="0.92" data-track-index="8" style="z-index:30"><span id="cw39_0">kita</span><span id="cw39_1">mudah</span><span id="cw39_2">tak</span></div>
+      <div class="clip cap" data-start="39.74" data-duration="1.00" data-track-index="8" style="z-index:30"><span id="cw40_0">ada</span><span id="cw40_1">semangat</span><span id="cw40_2">nak</span></div>
+      <div class="clip cap" data-start="40.74" data-duration="0.76" data-track-index="8" style="z-index:30"><span id="cw41_0">pergi</span><span id="cw41_1">raya</span></div>
+      <div class="clip cap" data-start="41.50" data-duration="1.40" data-track-index="8" style="z-index:30"><span id="cw42_0">Jadi</span><span id="cw42_1">ini</span><span id="cw42_2">kereta</span></div>
+      <div class="clip cap" data-start="42.90" data-duration="1.76" data-track-index="8" style="z-index:30"><span id="cw43_0">memang</span><span id="cw43_1">sesuai</span><span id="cw43_2">untuk</span></div>
+      <div class="clip cap" data-start="44.66" data-duration="0.82" data-track-index="8" style="z-index:30"><span id="cw44_0">guna</span><span id="cw44_1">raya</span></div>
+      <div class="clip cap" data-start="45.48" data-duration="0.76" data-track-index="8" style="z-index:30"><span id="cw45_0">Macam</span><span id="cw45_1">biasa</span></div>
+      <div class="clip cap" data-start="46.24" data-duration="1.18" data-track-index="8" style="z-index:30"><span id="cw46_0">nak</span><span id="cw46_1">dapat</span><span id="cw46_2">kereta</span></div>
+      <div class="clip cap" data-start="47.42" data-duration="0.82" data-track-index="8" style="z-index:30"><span id="cw47_0">raya</span><span id="cw47_1">yang</span><span id="cw47_2">baik</span></div>
+      <div class="clip cap" data-start="48.24" data-duration="1.36" data-track-index="8" style="z-index:30"><span id="cw48_0">nak</span><span id="cw48_1">cari</span><span id="cw48_2">penasihat</span></div>
+      <div class="clip cap" data-start="49.60" data-duration="0.84" data-track-index="8" style="z-index:30"><span id="cw49_0">yang</span><span id="cw49_1">terbaik</span></div>
+      <div class="clip cap" data-start="50.44" data-duration="1.24" data-track-index="8" style="z-index:30"><span id="cw50_0">Jojo</span><span id="cw50_1">dan</span><span id="cw50_2">juga</span></div>
+      <div class="clip cap" data-start="51.68" data-duration="1.06" data-track-index="8" style="z-index:30"><span id="cw51_0">Continental</span></div>
+      <div class="clip cap" data-start="52.74" data-duration="1.04" data-track-index="8" style="z-index:30"><span id="cw52_0">Jumpa</span><span id="cw52_1">dekat</span><span id="cw52_2">ECW</span></div>
+      <div class="clip cap" data-start="53.78" data-duration="0.66" data-track-index="8" style="z-index:30"><span id="cw53_0">Motorsports</span></div>
+      <div class="clip cap" data-start="54.44" data-duration="1.02" data-track-index="8" style="z-index:30"><span id="cw54_0">recond</span><span id="cw54_1">Bandar</span><span id="cw54_2">Baru</span></div>
+      <div class="clip cap" data-start="55.46" data-duration="0.58" data-track-index="8" style="z-index:30"><span id="cw55_0">Bangi</span></div>
+
+      <!-- ===== AUDIO ===== -->
+      <audio id="music" src="assets/audio/music_ducked.wav" data-start="0" data-duration="58.25" data-track-index="20" data-volume="1"></audio>
+      <audio id="sfx0" src="assets/sfx/impact.wav" data-start="0.00" data-duration="2.20" data-track-index="21" data-volume="0.7"></audio>
+      <audio id="sfx1" src="assets/sfx/shimmer.wav" data-start="0.05" data-duration="1.60" data-track-index="22" data-volume="0.3"></audio>
+      <audio id="sfx2" src="assets/sfx/whoosh.wav" data-start="1.60" data-duration="0.55" data-track-index="23" data-volume="0.14"></audio>
+      <audio id="sfx3" src="assets/sfx/glitch.wav" data-start="1.62" data-duration="0.25" data-track-index="24" data-volume="0.05"></audio>
+      <audio id="sfx4" src="assets/sfx/pop.wav" data-start="1.72" data-duration="0.12" data-track-index="22" data-volume="0.45"></audio>
+      <audio id="sfx5" src="assets/sfx/pop.wav" data-start="2.72" data-duration="0.12" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx6" src="assets/sfx/whoosh.wav" data-start="3.60" data-duration="0.55" data-track-index="21" data-volume="0.22"></audio>
+      <audio id="sfx7" src="assets/sfx/impact.wav" data-start="4.80" data-duration="2.20" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx8" src="assets/sfx/shimmer.wav" data-start="4.90" data-duration="1.60" data-track-index="22" data-volume="0.22"></audio>
+      <audio id="sfx9" src="assets/sfx/pop.wav" data-start="6.70" data-duration="0.12" data-track-index="22" data-volume="0.4"></audio>
+      <audio id="sfx10" src="assets/sfx/ding.wav" data-start="7.08" data-duration="1.20" data-track-index="21" data-volume="0.3"></audio>
+      <audio id="sfx11" src="assets/sfx/glitch.wav" data-start="7.38" data-duration="0.25" data-track-index="22" data-volume="0.22"></audio>
+      <audio id="sfx12" src="assets/sfx/pop.wav" data-start="7.40" data-duration="0.12" data-track-index="23" data-volume="0.45"></audio>
+      <audio id="sfx13" src="assets/sfx/whoosh.wav" data-start="8.66" data-duration="0.55" data-track-index="21" data-volume="0.22"></audio>
+      <audio id="sfx14" src="assets/sfx/whoosh.wav" data-start="9.98" data-duration="0.55" data-track-index="21" data-volume="0.14"></audio>
+      <audio id="sfx15" src="assets/sfx/glitch.wav" data-start="9.99" data-duration="0.25" data-track-index="22" data-volume="0.05"></audio>
+      <audio id="sfx16" src="assets/sfx/tick.wav" data-start="12.06" data-duration="0.04" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx17" src="assets/sfx/tick.wav" data-start="12.18" data-duration="0.04" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx18" src="assets/sfx/tick.wav" data-start="12.30" data-duration="0.04" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx19" src="assets/sfx/tick.wav" data-start="12.42" data-duration="0.04" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx20" src="assets/sfx/pop.wav" data-start="12.50" data-duration="0.12" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx21" src="assets/sfx/tick.wav" data-start="12.54" data-duration="0.04" data-track-index="22" data-volume="0.4"></audio>
+      <audio id="sfx22" src="assets/sfx/whoosh.wav" data-start="13.22" data-duration="0.55" data-track-index="21" data-volume="0.22"></audio>
+      <audio id="sfx23" src="assets/sfx/pop.wav" data-start="14.06" data-duration="0.12" data-track-index="21" data-volume="0.3"></audio>
+      <audio id="sfx24" src="assets/sfx/whoosh.wav" data-start="15.74" data-duration="0.55" data-track-index="21" data-volume="0.12"></audio>
+      <audio id="sfx25" src="assets/sfx/pop.wav" data-start="16.40" data-duration="0.12" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx26" src="assets/sfx/whoosh.wav" data-start="18.38" data-duration="0.55" data-track-index="21" data-volume="0.14"></audio>
+      <audio id="sfx27" src="assets/sfx/glitch.wav" data-start="18.39" data-duration="0.25" data-track-index="22" data-volume="0.05"></audio>
+      <audio id="sfx28" src="assets/sfx/ding.wav" data-start="18.82" data-duration="1.20" data-track-index="22" data-volume="0.32"></audio>
+      <audio id="sfx29" src="assets/sfx/ding.wav" data-start="19.64" data-duration="1.20" data-track-index="21" data-volume="0.32"></audio>
+      <audio id="sfx30" src="assets/sfx/whoosh.wav" data-start="20.12" data-duration="0.55" data-track-index="22" data-volume="0.18"></audio>
+      <audio id="sfx31" src="assets/sfx/thud.wav" data-start="20.96" data-duration="0.45" data-track-index="21" data-volume="0.45"></audio>
+      <audio id="sfx32" src="assets/sfx/thud.wav" data-start="21.54" data-duration="0.45" data-track-index="21" data-volume="0.45"></audio>
+      <audio id="sfx33" src="assets/sfx/whoosh.wav" data-start="21.90" data-duration="0.55" data-track-index="22" data-volume="0.22"></audio>
+      <audio id="sfx34" src="assets/sfx/whoosh.wav" data-start="22.90" data-duration="0.55" data-track-index="21" data-volume="0.12"></audio>
+      <audio id="sfx35" src="assets/sfx/pop.wav" data-start="25.00" data-duration="0.12" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx36" src="assets/sfx/whoosh.wav" data-start="25.30" data-duration="0.55" data-track-index="21" data-volume="0.12"></audio>
+      <audio id="sfx37" src="assets/sfx/pop.wav" data-start="26.16" data-duration="0.12" data-track-index="21" data-volume="0.45"></audio>
+      <audio id="sfx38" src="assets/sfx/shimmer.wav" data-start="26.20" data-duration="1.60" data-track-index="22" data-volume="0.22"></audio>
+      <audio id="sfx39" src="assets/sfx/whoosh.wav" data-start="27.50" data-duration="0.55" data-track-index="21" data-volume="0.22"></audio>
+      <audio id="sfx40" src="assets/sfx/thud.wav" data-start="28.00" data-duration="0.45" data-track-index="22" data-volume="0.3"></audio>
+      <audio id="sfx41" src="assets/sfx/whoosh.wav" data-start="29.58" data-duration="0.55" data-track-index="21" data-volume="0.14"></audio>
+      <audio id="sfx42" src="assets/sfx/glitch.wav" data-start="29.59" data-duration="0.25" data-track-index="22" data-volume="0.05"></audio>
+      <audio id="sfx43" src="assets/sfx/impact.wav" data-start="29.88" data-duration="2.20" data-track-index="22" data-volume="0.4"></audio>
+      <audio id="sfx44" src="assets/sfx/shimmer.wav" data-start="30.00" data-duration="1.60" data-track-index="23" data-volume="0.22"></audio>
+      <audio id="sfx45" src="assets/sfx/glitch.wav" data-start="32.12" data-duration="0.25" data-track-index="21" data-volume="0.22"></audio>
+      <audio id="sfx46" src="assets/sfx/whoosh.wav" data-start="32.14" data-duration="0.55" data-track-index="22" data-volume="0.22"></audio>
+      <audio id="sfx47" src="assets/sfx/thud.wav" data-start="35.00" data-duration="0.45" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx48" src="assets/sfx/whoosh.wav" data-start="36.12" data-duration="0.55" data-track-index="21" data-volume="0.18"></audio>
+      <audio id="sfx49" src="assets/sfx/thud.wav" data-start="37.04" data-duration="0.45" data-track-index="21" data-volume="0.5"></audio>
+      <audio id="sfx50" src="assets/sfx/thud.wav" data-start="38.30" data-duration="0.45" data-track-index="21" data-volume="0.5"></audio>
+      <audio id="sfx51" src="assets/sfx/thud.wav" data-start="39.88" data-duration="0.45" data-track-index="21" data-volume="0.5"></audio>
+      <audio id="sfx52" src="assets/sfx/riser.wav" data-start="41.10" data-duration="1.00" data-track-index="21" data-volume="0.3"></audio>
+      <audio id="sfx53" src="assets/sfx/whoosh.wav" data-start="41.88" data-duration="0.55" data-track-index="22" data-volume="0.14"></audio>
+      <audio id="sfx54" src="assets/sfx/glitch.wav" data-start="41.89" data-duration="0.25" data-track-index="23" data-volume="0.05"></audio>
+      <audio id="sfx55" src="assets/sfx/impact.wav" data-start="42.90" data-duration="2.20" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx56" src="assets/sfx/ding.wav" data-start="43.54" data-duration="1.20" data-track-index="22" data-volume="0.38"></audio>
+      <audio id="sfx57" src="assets/sfx/whoosh.wav" data-start="46.84" data-duration="0.55" data-track-index="21" data-volume="0.22"></audio>
+      <audio id="sfx58" src="assets/sfx/pop.wav" data-start="47.66" data-duration="0.12" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx59" src="assets/sfx/whoosh.wav" data-start="48.82" data-duration="0.55" data-track-index="21" data-volume="0.18"></audio>
+      <audio id="sfx60" src="assets/sfx/pop.wav" data-start="49.70" data-duration="0.12" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx61" src="assets/sfx/impact.wav" data-start="50.44" data-duration="2.20" data-track-index="21" data-volume="0.45"></audio>
+      <audio id="sfx62" src="assets/sfx/shimmer.wav" data-start="50.50" data-duration="1.60" data-track-index="22" data-volume="0.3"></audio>
+      <audio id="sfx63" src="assets/sfx/whoosh.wav" data-start="52.70" data-duration="0.55" data-track-index="21" data-volume="0.14"></audio>
+      <audio id="sfx64" src="assets/sfx/glitch.wav" data-start="52.71" data-duration="0.25" data-track-index="22" data-volume="0.05"></audio>
+      <audio id="sfx65" src="assets/sfx/thud.wav" data-start="53.00" data-duration="0.45" data-track-index="22" data-volume="0.25"></audio>
+      <audio id="sfx66" src="assets/sfx/pop.wav" data-start="53.32" data-duration="0.12" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx67" src="assets/sfx/tick.wav" data-start="54.44" data-duration="0.04" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx68" src="assets/sfx/pop.wav" data-start="56.06" data-duration="0.12" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx69" src="assets/sfx/shimmer.wav" data-start="56.10" data-duration="1.60" data-track-index="22" data-volume="0.35"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => Array.from(document.querySelectorAll(s));
+      // helpers ------------------------------------------------------------
+      const pop = (sel, t, extra = {}) => tl.fromTo(sel, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.42, ease: "back.out(2.4)", ...extra }, t);
+      const slam = (sel, t) => tl.fromTo(sel, { scale: 1.9, opacity: 0, filter: "blur(14px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.32, ease: "power3.out" }, t);
+      const rise = (sel, t, d = 0.45) => tl.fromTo(sel, { y: 80, opacity: 0, filter: "blur(10px)" }, { y: 0, opacity: 1, filter: "blur(0px)", duration: d, ease: "power3.out" }, t);
+      const type = (sel, t, d = 0.5) => tl.fromTo(sel, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: d, ease: "steps(14)" }, t);
+      const out = (sel, t, d = 0.22) => tl.to(sel, { opacity: 0, scale: 0.85, duration: d, ease: "power2.in" }, t);
+      const outUp = (sel, t, d = 0.25) => tl.to(sel, { opacity: 0, y: -60, filter: "blur(8px)", duration: d, ease: "power2.in" }, t);
+      const hide = (sel, t = 0) => tl.set(sel, { opacity: 0 }, t);
+      const twinkle = (sel, t, d) => tl.fromTo(sel, { scale: 0, rotation: -90, opacity: 0 }, { scale: 1, rotation: 90, opacity: 1, duration: 0.5, ease: "back.out(3)" }, t)
+                                        .to(sel, { scale: 0.6, rotation: 180, duration: d, ease: "sine.inOut", yoyo: true, repeat: 1 }, t + 0.5);
+      const drawPaths = (sel, t, d) => qa(sel).forEach((p, i) => {
+        const L = p.getTotalLength ? p.getTotalLength() : 1500;
+        tl.fromTo(p, { strokeDasharray: L, strokeDashoffset: L }, { strokeDashoffset: 0, duration: d, ease: "power2.inOut" }, t + i * 0.08);
+      });
+      const dashFlow = (sel, t, d) => tl.fromTo(sel, { strokeDashoffset: 0 }, { strokeDashoffset: -36 * Math.round(d * 4), duration: d, ease: "none" }, t);
+      const brollIn = (vid, scan, flash, t, d) => {
+        tl.fromTo(vid, { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 0.34, ease: "power2.out" }, t);
+        tl.fromTo(vid, { scale: 1.12 }, { scale: 1.0, duration: d, ease: "none" }, t);
+        tl.fromTo(scan, { y: -40, opacity: 1 }, { y: 1940, duration: 0.34, ease: "power2.out" }, t);
+        tl.fromTo(flash, { opacity: 0.55 }, { opacity: 0, duration: 0.25, ease: "power2.out" }, t + 0.02);
+      };
+
+      // ===== S0 HOOK (frame 0 fully composed) =====
+      tl.set(["#s0a", "#s0b", "#s0lbl", "#s0k1", "#s0k2"], { opacity: 1 }, 0);
+      tl.fromTo("#s0a", { scale: 1.0 }, { scale: 1.05, duration: 1.66, ease: "sine.out" }, 0);
+      tl.fromTo("#s0b", { scale: 1.0, rotation: -2 }, { scale: 1.08, rotation: 0, duration: 1.66, ease: "sine.out" }, 0);
+      tl.fromTo("#s0k1", { rotation: -12 }, { rotation: 12, duration: 1.66, ease: "sine.inOut" }, 0);
+      tl.fromTo("#s0k2", { rotation: 10 }, { rotation: -14, duration: 1.66, ease: "sine.inOut" }, 0);
+      drawPaths("#s0car .draw", 0.05, 1.0);
+      twinkle("#s0s1", 0.15, 0.6); twinkle("#s0s2", 0.45, 0.5);
+      outUp(["#s0a", "#s0lbl"], 1.46); outUp(["#s0b", "#s0car"], 1.5); out(["#s0k1", "#s0k2"], 1.46);
+
+      // ===== S1 GLA35 =====
+      type("#s1lbl", 1.72, 0.45);
+      pop("#s1tag", 1.72, { rotation: -4 });
+      pop("#s1sub", 2.72, { rotation: 3 });
+      out(["#s1tag", "#s1sub", "#s1lbl"], 3.4);
+
+      // ===== S2 PALING TERBAIK =====
+      tl.fromTo("#s2c1", { y: 500, rotation: -30, opacity: 0 }, { y: 0, rotation: -9, opacity: 1, duration: 0.5, ease: "back.out(1.6)" }, 3.62);
+      tl.fromTo("#s2c2", { y: 500, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.6)" }, 3.74);
+      tl.fromTo("#s2c3", { y: 500, rotation: 30, opacity: 0 }, { y: 0, rotation: 9, opacity: 1, duration: 0.5, ease: "back.out(1.6)" }, 3.86);
+      tl.to(["#s2c1", "#s2c3"], { y: -14, duration: 1.4, ease: "sine.inOut", yoyo: true, repeat: 1 }, 4.4);
+      rise("#s2a", 4.44, 0.35);
+      slam("#s2b", 4.80);
+      twinkle("#s2s1", 4.9, 0.7); twinkle("#s2s2", 5.1, 0.6);
+      pop("#s2tag", 6.7, { rotation: -3 });
+      out(["#s2a", "#s2b", "#s2c1", "#s2c2", "#s2c3", "#s2tag", "#s2s1", "#s2s2"], 7.16);
+
+      // ===== S3 KENAPA =====
+      slam("#s3a", 7.40);
+      tl.fromTo("#s3q", { rotation: 0, y: 0 }, { rotation: 18, y: -30, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 3 }, 7.62);
+      tl.fromTo("#s3a", { x: 0 }, { x: 10, duration: 0.04, yoyo: true, repeat: 5, ease: "none" }, 7.40);
+      out("#s3a", 8.46, 0.18);
+
+      // ===== S4 SEBAB 1 =====
+      pop("#s4chip", 8.68);
+      rise("#s4a", 9.30);
+      outUp("#s4a", 9.92);
+      slam("#s4b", 10.0);
+      tl.fromTo("#s4route", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.9, ease: "power2.inOut" }, 10.1); dashFlow("#s4path", 11.0, 0.9);
+      pop("#s4p1", 10.1); pop("#s4p2", 10.8);
+      out(["#s4b", "#s4route", "#s4p1", "#s4p2"], 11.75);
+      rise("#s4c", 11.92, 0.35);
+      slam("#s4d", 12.50);
+      qa("#s4ppl svg").forEach((el, i) => { pop(el, 12.06 + i * 0.12); tl.to(el, { y: -16, duration: 0.25, yoyo: true, repeat: 1, ease: "sine.inOut" }, 12.8 + i * 0.06); });
+      out(["#s4chip", "#s4c", "#s4d", "#s4ppl"], 13.02);
+
+      // ===== S5 SEBAB 2 =====
+      pop("#s5chip", 13.24);
+      rise("#s5a", 15.74);
+      drawPaths("#s5car .draw", 14.1, 1.0);
+      pop("#s5door", 14.9);
+      tl.fromTo("#s5door", { scaleX: 1, svgOrigin: "300 110" }, { scaleX: 0.25, svgOrigin: "300 110", duration: 0.3, ease: "power2.inOut", yoyo: true, repeat: 5 }, 16.38);
+      pop("#s5x", 16.4, { rotation: 8 });
+      out(["#s5a", "#s5car", "#s5x", "#s5chip"], 18.18);
+      pop("#s5panel", 18.5, { duration: 0.35 });
+      pop("#s5v1 .vmark", 18.82); rise("#s5v1 .t", 18.82, 0.3);
+      pop("#s5v2 .vmark", 19.64); rise("#s5v2 .t", 19.64, 0.3);
+      out(["#s5panel", "#s5v1", "#s5v2"], 19.95);
+      type("#s5n0", 20.12, 0.35);
+      rise("#s5n1", 20.4, 0.3);
+      tl.fromTo("#s5k1", { scaleX: 0 }, { scaleX: 1, duration: 0.22, ease: "power3.out" }, 20.96);
+      rise("#s5n2", 21.2, 0.25);
+      tl.fromTo("#s5k2", { scaleX: 0 }, { scaleX: 1, duration: 0.2, ease: "power3.out" }, 21.54);
+      out(["#s5n0", "#s5n1", "#s5n2"], 21.74, 0.16);
+
+      // ===== S6 SEBAB 3 =====
+      pop("#s6chip", 21.92);
+      type("#s6t", 22.1, 0.4);
+      pop("#s6h1", 22.38); pop("#s6h2", 23.46);
+      pop("#s6l1", 22.90); pop("#s6l2", 23.90);
+      tl.fromTo("#s6route", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 1.2, ease: "power2.inOut" }, 22.5); dashFlow("#s6path", 23.7, 3.6);
+      pop("#s6car", 22.5, { duration: 0.3 });
+      // car travels along arc (x linear, y up then down)
+      const carTrip = (t0, d) => {
+        tl.fromTo("#s6car", { x: 0 }, { x: 640, duration: d, ease: "power1.inOut" }, t0);
+        tl.fromTo("#s6car", { y: 30 }, { y: -60, duration: d / 2, ease: "sine.out" }, t0);
+        tl.to("#s6car", { y: 30, duration: d / 2, ease: "sine.in" }, t0 + d / 2);
+      };
+      carTrip(22.9, 1.2);
+      tl.to("#s6car", { x: 0, y: 30, duration: 0.3, ease: "power2.inOut" }, 24.3);
+      out(["#s6l1", "#s6l2"], 24.5, 0.18);
+      pop("#s6m1", 25.0, { rotation: -4 });
+      carTrip(25.3, 1.1);
+      pop("#s6m2", 26.16, { rotation: 4 });
+      tl.to("#s6m2", { scale: 1.15, duration: 0.2, yoyo: true, repeat: 1 }, 27.0);
+      out(["#s6chip", "#s6t", "#s6route", "#s6h1", "#s6h2", "#s6car", "#s6m1", "#s6m2"], 27.3, 0.18);
+
+      // ===== S7 DESTINASI / ENJOY =====
+      tl.fromTo("#s7pin", { y: -500, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "bounce.out" }, 27.55);
+      rise("#s7a", 28.6, 0.35);
+      out(["#s7pin", "#s7a"], 29.45, 0.18);
+      pop("#s7g", 29.62, { duration: 0.35 });
+      tl.fromTo("#s7n", { rotation: -100, svgOrigin: "150 150" }, { rotation: 80, svgOrigin: "150 150", duration: 1.3, ease: "power3.out" }, 29.85);
+      tl.to("#s7n", { rotation: 72, svgOrigin: "150 150", duration: 0.08, yoyo: true, repeat: 7, ease: "none" }, 31.15);
+      slam("#s7b", 29.88);
+      twinkle("#s7s1", 30.0, 0.6); twinkle("#s7s2", 30.3, 0.6);
+      out(["#s7g", "#s7b", "#s7s1", "#s7s2"], 31.86);
+
+      // ===== S8 WARNING =====
+      tl.fromTo("#s8t1", { x: -1200 }, { x: 0, duration: 0.4, ease: "power3.out" }, 32.14);
+      tl.to("#s8t1", { x: -88, duration: 3.3, ease: "none" }, 32.54);
+      rise("#s8a", 33.1, 0.35);
+      slam("#s8b", 35.0);
+      tl.to("#s8b", { x: 8, duration: 0.05, yoyo: true, repeat: 5, ease: "none" }, 35.3);
+      out(["#s8a", "#s8b"], 35.92, 0.18);
+      tl.to("#s8t1", { x: -1300, duration: 0.3, ease: "power2.in" }, 35.92);
+      pop("#s8panel", 36.14, { duration: 0.35 });
+      pop("#s8m", 36.3);
+      hide(["#s8i1", "#s8i2", "#s8i3"], 0);
+      [["#s8i1", 37.04, 0.68], ["#s8i2", 38.30, 0.40], ["#s8i3", 39.88, 0.12]].forEach(([s, t, lvl]) => {
+        tl.set(s, { opacity: 1 }, t);
+        pop(s + " .xmark", t); rise(s + " .t", t, 0.25);
+        tl.to("#s8f", { scaleY: lvl, duration: 0.35, ease: "power3.out" }, t);
+        tl.fromTo("#s8m", { x: 0 }, { x: 9, duration: 0.05, yoyo: true, repeat: 3 }, t);
+      });
+      hide(["#s8p1", "#s8p2", "#s8p3"], 0);
+      pop("#s8p0", 36.4);
+      [["#s8p0", "#s8p1", 37.04], ["#s8p1", "#s8p2", 38.30], ["#s8p2", "#s8p3", 39.88]].forEach(([a, b, t]) => { tl.set(a, { opacity: 0 }, t); tl.set(b, { opacity: 1 }, t); });
+      tl.to("#s8f", { opacity: 0.35, duration: 0.15, yoyo: true, repeat: 5 }, 40.3);
+      out(["#s8panel", "#s8i1", "#s8i2", "#s8i3", "#s8m", "#s8p3"], 41.24);
+
+      // ===== S9 SESUAI (front b-roll) =====
+      type("#s9lbl", 41.92, 0.4);
+      slam("#s9a", 42.9);
+      pop("#s9tag", 43.54, { rotation: -3 });
+      pop("#s9m", 44.1, { rotation: 2 });
+      out(["#s9lbl", "#s9a", "#s9tag", "#s9m"], 45.24);
+
+      // ===== S10 JOJO =====
+      rise("#s10a", 46.84, 0.35);
+      slam("#s10b", 47.66);
+      pop("#s10k1", 47.0); pop("#s10k2", 47.2);
+      tl.to(["#s10k1", "#s10k2"], { rotation: 15, duration: 0.6, yoyo: true, repeat: 1, ease: "sine.inOut" }, 47.4);
+      out(["#s10a", "#s10b", "#s10k1", "#s10k2"], 48.08, 0.18);
+      type("#s10c", 48.82, 0.45);
+      slam("#s10d", 49.7);
+      out(["#s10c", "#s10d"], 50.3, 0.15);
+      tl.fromTo("#s10e", { scale: 3, opacity: 0, rotation: -25 }, { scale: 1, opacity: 1, rotation: -5, duration: 0.38, ease: "back.out(1.8)" }, 50.44);
+      type("#s10f", 50.9, 0.5);
+      twinkle("#s10s1", 50.6, 0.6); twinkle("#s10s2", 50.8, 0.6);
+      tl.to("#s10e", { scale: 1.06, duration: 0.4, yoyo: true, repeat: 2, ease: "sine.inOut" }, 51.1);
+      out(["#s10e", "#s10f", "#s10s1", "#s10s2"], 52.5, 0.2);
+
+      // ===== S11 LOKASI (showroom b-roll) =====
+      pop("#s11panel", 52.9, { duration: 0.35 });
+      tl.fromTo("#s11pin", { y: -500, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "bounce.out" }, 52.95);
+      type("#s11a", 53.0, 0.35);
+      slam("#s11b", 53.32);
+      type("#s11c", 54.44, 0.7);
+      tl.to("#s11pin", { y: -24, duration: 0.3, yoyo: true, repeat: 3, ease: "sine.inOut" }, 54.6);
+      out(["#s11panel", "#s11pin", "#s11a", "#s11b", "#s11c"], 55.86, 0.18);
+
+      // ===== S12 END =====
+      pop("#s12k", 56.06); rise("#s12a", 56.1, 0.3); pop("#s12b", 56.3, { rotation: -3 });
+      tl.to("#s12k", { rotation: 10, duration: 0.3, ease: "sine.inOut" }, 56.3);
+
+      // ===== B-ROLL ENTRY =====
+      brollIn("#br1", "#br1s .scanbar", "#br1f", 1.66, 1.94);
+      brollIn("#br2", "#br2s .scanbar", "#br2f", 10.0, 1.9);
+      brollIn("#br3", "#br3s .scanbar", "#br3f", 18.4, 1.68);
+      brollIn("#br4", "#br4s .scanbar", "#br4f", 29.6, 2.3);
+      brollIn("#br5", "#br5s .scanbar", "#br5f", 41.9, 3.4);
+      brollIn("#br6", "#br6s .scanbar", "#br6f", 52.72, 3.3);
+
+      // ===== CAPTIONS =====
+      tl.fromTo("#cw0_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 0.00);
+      tl.fromTo("#cw0_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 0.30);
+      tl.fromTo("#cw0_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 0.30);
+      tl.fromTo("#cw0_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 0.68);
+      tl.fromTo("#cw0_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 0.68);
+      tl.fromTo("#cw0_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 1.02);
+      tl.fromTo("#cw1_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 1.02);
+      tl.fromTo("#cw1_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 1.28);
+      tl.fromTo("#cw1_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 1.28);
+      tl.fromTo("#cw1_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 1.60);
+      tl.fromTo("#cw2_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 1.66);
+      tl.fromTo("#cw2_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 2.70);
+      tl.fromTo("#cw2_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 2.70);
+      tl.fromTo("#cw2_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 3.44);
+      tl.fromTo("#cw2_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 3.44);
+      tl.fromTo("#cw2_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 3.62);
+      tl.fromTo("#cw3_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 3.62);
+      tl.fromTo("#cw3_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 4.24);
+      tl.fromTo("#cw3_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 4.24);
+      tl.fromTo("#cw3_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 4.44);
+      tl.fromTo("#cw3_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 4.44);
+      tl.fromTo("#cw3_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 4.80);
+      tl.fromTo("#cw4_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 4.80);
+      tl.fromTo("#cw4_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 5.30);
+      tl.fromTo("#cw4_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 5.30);
+      tl.fromTo("#cw4_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 5.74);
+      tl.fromTo("#cw4_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 5.74);
+      tl.fromTo("#cw4_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 6.04);
+      tl.fromTo("#cw5_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 6.04);
+      tl.fromTo("#cw5_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 6.36);
+      tl.fromTo("#cw5_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 6.36);
+      tl.fromTo("#cw5_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 6.76);
+      tl.fromTo("#cw5_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 6.76);
+      tl.fromTo("#cw5_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 7.08);
+      tl.fromTo("#cw6_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 7.08);
+      tl.fromTo("#cw6_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 7.32);
+      tl.fromTo("#cw7_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 7.40);
+      tl.fromTo("#cw7_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 7.92);
+      tl.fromTo("#cw8_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 8.68);
+      tl.fromTo("#cw8_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 9.32);
+      tl.fromTo("#cw8_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 9.32);
+      tl.fromTo("#cw8_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 9.50);
+      tl.fromTo("#cw8_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 9.50);
+      tl.fromTo("#cw8_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 9.94);
+      tl.fromTo("#cw9_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 9.98);
+      tl.fromTo("#cw9_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 10.24);
+      tl.fromTo("#cw9_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 10.24);
+      tl.fromTo("#cw9_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 10.56);
+      tl.fromTo("#cw9_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 10.56);
+      tl.fromTo("#cw9_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 11.22);
+      tl.fromTo("#cw10_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 11.38);
+      tl.fromTo("#cw10_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 11.80);
+      tl.fromTo("#cw10_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 11.80);
+      tl.fromTo("#cw10_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 12.06);
+      tl.fromTo("#cw10_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 12.06);
+      tl.fromTo("#cw10_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 12.54);
+      tl.fromTo("#cw11_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 12.54);
+      tl.fromTo("#cw11_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 12.84);
+      tl.fromTo("#cw11_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 12.84);
+      tl.fromTo("#cw11_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 13.24);
+      tl.fromTo("#cw12_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 13.24);
+      tl.fromTo("#cw12_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 13.44);
+      tl.fromTo("#cw12_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 13.44);
+      tl.fromTo("#cw12_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 13.82);
+      tl.fromTo("#cw13_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 14.06);
+      tl.fromTo("#cw13_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 14.58);
+      tl.fromTo("#cw13_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 14.58);
+      tl.fromTo("#cw13_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 14.80);
+      tl.fromTo("#cw13_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 14.80);
+      tl.fromTo("#cw13_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 15.14);
+      tl.fromTo("#cw14_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 15.14);
+      tl.fromTo("#cw14_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 15.74);
+      tl.fromTo("#cw15_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 15.74);
+      tl.fromTo("#cw15_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 16.04);
+      tl.fromTo("#cw15_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 16.04);
+      tl.fromTo("#cw15_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 16.38);
+      tl.fromTo("#cw15_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 16.38);
+      tl.fromTo("#cw15_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 16.74);
+      tl.fromTo("#cw16_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 16.74);
+      tl.fromTo("#cw16_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 16.98);
+      tl.fromTo("#cw16_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 16.98);
+      tl.fromTo("#cw16_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 17.54);
+      tl.fromTo("#cw17_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 17.60);
+      tl.fromTo("#cw17_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 18.00);
+      tl.fromTo("#cw17_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 18.00);
+      tl.fromTo("#cw17_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 18.46);
+      tl.fromTo("#cw17_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 18.46);
+      tl.fromTo("#cw17_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 18.82);
+      tl.fromTo("#cw18_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 18.82);
+      tl.fromTo("#cw18_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 19.36);
+      tl.fromTo("#cw18_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 19.36);
+      tl.fromTo("#cw18_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 19.64);
+      tl.fromTo("#cw18_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 19.64);
+      tl.fromTo("#cw18_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 20.10);
+      tl.fromTo("#cw19_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 20.10);
+      tl.fromTo("#cw19_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 20.44);
+      tl.fromTo("#cw19_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 20.44);
+      tl.fromTo("#cw19_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 20.74);
+      tl.fromTo("#cw19_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 20.74);
+      tl.fromTo("#cw19_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 20.96);
+      tl.fromTo("#cw20_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 20.96);
+      tl.fromTo("#cw20_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 21.46);
+      tl.fromTo("#cw20_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 21.46);
+      tl.fromTo("#cw20_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 21.61);
+      tl.fromTo("#cw20_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 21.54);
+      tl.fromTo("#cw20_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 21.86);
+      tl.fromTo("#cw21_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 21.92);
+      tl.fromTo("#cw21_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 22.38);
+      tl.fromTo("#cw21_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 22.38);
+      tl.fromTo("#cw21_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 22.56);
+      tl.fromTo("#cw21_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 22.56);
+      tl.fromTo("#cw21_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 22.90);
+      tl.fromTo("#cw22_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 22.90);
+      tl.fromTo("#cw22_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 23.16);
+      tl.fromTo("#cw22_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 23.16);
+      tl.fromTo("#cw22_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 23.46);
+      tl.fromTo("#cw22_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 23.46);
+      tl.fromTo("#cw22_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 23.66);
+      tl.fromTo("#cw23_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 23.66);
+      tl.fromTo("#cw23_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 23.90);
+      tl.fromTo("#cw23_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 23.90);
+      tl.fromTo("#cw23_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 24.16);
+      tl.fromTo("#cw24_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 24.22);
+      tl.fromTo("#cw24_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 24.54);
+      tl.fromTo("#cw24_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 24.54);
+      tl.fromTo("#cw24_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 24.80);
+      tl.fromTo("#cw24_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 24.80);
+      tl.fromTo("#cw24_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 25.00);
+      tl.fromTo("#cw25_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 25.00);
+      tl.fromTo("#cw25_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 25.52);
+      tl.fromTo("#cw25_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 25.52);
+      tl.fromTo("#cw25_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 25.94);
+      tl.fromTo("#cw25_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 25.94);
+      tl.fromTo("#cw25_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 26.16);
+      tl.fromTo("#cw26_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 26.16);
+      tl.fromTo("#cw26_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 27.22);
+      tl.fromTo("#cw26_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 27.22);
+      tl.fromTo("#cw26_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 27.50);
+      tl.fromTo("#cw27_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 27.50);
+      tl.fromTo("#cw27_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 28.04);
+      tl.fromTo("#cw27_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 28.04);
+      tl.fromTo("#cw27_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 28.64);
+      tl.fromTo("#cw27_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 28.64);
+      tl.fromTo("#cw27_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 29.28);
+      tl.fromTo("#cw28_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 29.28);
+      tl.fromTo("#cw28_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 29.60);
+      tl.fromTo("#cw29_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 29.64);
+      tl.fromTo("#cw29_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 29.88);
+      tl.fromTo("#cw29_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 29.88);
+      tl.fromTo("#cw29_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 30.38);
+      tl.fromTo("#cw29_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 30.38);
+      tl.fromTo("#cw29_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 30.84);
+      tl.fromTo("#cw30_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 30.84);
+      tl.fromTo("#cw30_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 31.02);
+      tl.fromTo("#cw30_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 31.02);
+      tl.fromTo("#cw30_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 31.60);
+      tl.fromTo("#cw30_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 31.60);
+      tl.fromTo("#cw30_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 32.08);
+      tl.fromTo("#cw31_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 32.14);
+      tl.fromTo("#cw31_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 32.74);
+      tl.fromTo("#cw31_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 32.74);
+      tl.fromTo("#cw31_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 33.10);
+      tl.fromTo("#cw31_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 33.10);
+      tl.fromTo("#cw31_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 33.44);
+      tl.fromTo("#cw32_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 33.44);
+      tl.fromTo("#cw32_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 33.72);
+      tl.fromTo("#cw32_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 33.72);
+      tl.fromTo("#cw32_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 34.16);
+      tl.fromTo("#cw32_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 34.16);
+      tl.fromTo("#cw32_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 34.31);
+      tl.fromTo("#cw33_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 34.28);
+      tl.fromTo("#cw33_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 34.50);
+      tl.fromTo("#cw33_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 34.50);
+      tl.fromTo("#cw33_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 35.04);
+      tl.fromTo("#cw33_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 35.04);
+      tl.fromTo("#cw33_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 35.56);
+      tl.fromTo("#cw34_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 35.56);
+      tl.fromTo("#cw34_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 35.71);
+      tl.fromTo("#cw34_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 35.70);
+      tl.fromTo("#cw34_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 35.96);
+      tl.fromTo("#cw35_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 36.14);
+      tl.fromTo("#cw35_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 36.56);
+      tl.fromTo("#cw35_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 36.56);
+      tl.fromTo("#cw35_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 36.90);
+      tl.fromTo("#cw35_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 36.90);
+      tl.fromTo("#cw35_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 37.05);
+      tl.fromTo("#cw36_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 37.04);
+      tl.fromTo("#cw36_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 37.58);
+      tl.fromTo("#cw37_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 37.64);
+      tl.fromTo("#cw37_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 37.84);
+      tl.fromTo("#cw37_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 37.84);
+      tl.fromTo("#cw37_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 38.16);
+      tl.fromTo("#cw37_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 38.16);
+      tl.fromTo("#cw37_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 38.31);
+      tl.fromTo("#cw38_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 38.30);
+      tl.fromTo("#cw38_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 38.60);
+      tl.fromTo("#cw39_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 38.82);
+      tl.fromTo("#cw39_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 39.16);
+      tl.fromTo("#cw39_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 39.16);
+      tl.fromTo("#cw39_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 39.62);
+      tl.fromTo("#cw39_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 39.62);
+      tl.fromTo("#cw39_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 39.77);
+      tl.fromTo("#cw40_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 39.74);
+      tl.fromTo("#cw40_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 39.89);
+      tl.fromTo("#cw40_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 39.88);
+      tl.fromTo("#cw40_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 40.38);
+      tl.fromTo("#cw40_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 40.38);
+      tl.fromTo("#cw40_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 40.74);
+      tl.fromTo("#cw41_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 40.74);
+      tl.fromTo("#cw41_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 40.94);
+      tl.fromTo("#cw41_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 40.94);
+      tl.fromTo("#cw41_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 41.28);
+      tl.fromTo("#cw42_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 41.50);
+      tl.fromTo("#cw42_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 41.90);
+      tl.fromTo("#cw42_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 41.90);
+      tl.fromTo("#cw42_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 42.38);
+      tl.fromTo("#cw42_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 42.38);
+      tl.fromTo("#cw42_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 42.90);
+      tl.fromTo("#cw43_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 42.90);
+      tl.fromTo("#cw43_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 43.54);
+      tl.fromTo("#cw43_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 43.54);
+      tl.fromTo("#cw43_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 44.26);
+      tl.fromTo("#cw43_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 44.26);
+      tl.fromTo("#cw43_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 44.66);
+      tl.fromTo("#cw44_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 44.66);
+      tl.fromTo("#cw44_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 45.10);
+      tl.fromTo("#cw44_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 45.10);
+      tl.fromTo("#cw44_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 45.34);
+      tl.fromTo("#cw45_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 45.48);
+      tl.fromTo("#cw45_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 45.82);
+      tl.fromTo("#cw45_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 45.82);
+      tl.fromTo("#cw45_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 46.18);
+      tl.fromTo("#cw46_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 46.24);
+      tl.fromTo("#cw46_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 46.84);
+      tl.fromTo("#cw46_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 46.84);
+      tl.fromTo("#cw46_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 47.04);
+      tl.fromTo("#cw46_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 47.04);
+      tl.fromTo("#cw46_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 47.42);
+      tl.fromTo("#cw47_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 47.42);
+      tl.fromTo("#cw47_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 47.66);
+      tl.fromTo("#cw47_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 47.66);
+      tl.fromTo("#cw47_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 47.81);
+      tl.fromTo("#cw47_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 47.80);
+      tl.fromTo("#cw47_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 48.16);
+      tl.fromTo("#cw48_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 48.24);
+      tl.fromTo("#cw48_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 48.82);
+      tl.fromTo("#cw48_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 48.82);
+      tl.fromTo("#cw48_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 49.14);
+      tl.fromTo("#cw48_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 49.14);
+      tl.fromTo("#cw48_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 49.60);
+      tl.fromTo("#cw49_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 49.60);
+      tl.fromTo("#cw49_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 49.75);
+      tl.fromTo("#cw49_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 49.74);
+      tl.fromTo("#cw49_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 50.38);
+      tl.fromTo("#cw50_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 50.44);
+      tl.fromTo("#cw50_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 51.04);
+      tl.fromTo("#cw50_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 51.04);
+      tl.fromTo("#cw50_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 51.46);
+      tl.fromTo("#cw50_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 51.46);
+      tl.fromTo("#cw50_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 51.68);
+      tl.fromTo("#cw51_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 51.68);
+      tl.fromTo("#cw51_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 52.40);
+      tl.fromTo("#cw52_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 52.74);
+      tl.fromTo("#cw52_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 53.14);
+      tl.fromTo("#cw52_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 53.14);
+      tl.fromTo("#cw52_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 53.32);
+      tl.fromTo("#cw52_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 53.32);
+      tl.fromTo("#cw52_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 53.78);
+      tl.fromTo("#cw53_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 53.78);
+      tl.fromTo("#cw53_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 54.30);
+      tl.fromTo("#cw54_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 54.44);
+      tl.fromTo("#cw54_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 54.96);
+      tl.fromTo("#cw54_1", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 54.96);
+      tl.fromTo("#cw54_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 55.32);
+      tl.fromTo("#cw54_2", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 55.32);
+      tl.fromTo("#cw54_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.12 }, 55.47);
+      tl.fromTo("#cw55_0", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.14, ease: "back.out(3)" }, 55.46);
+      tl.fromTo("#cw55_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.12 }, 55.80);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
