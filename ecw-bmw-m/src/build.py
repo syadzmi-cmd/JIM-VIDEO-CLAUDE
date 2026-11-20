@@ -63,7 +63,7 @@ SFX_LEN = {"whoosh": 0.55, "pop": 0.12, "ding": 1.2, "thud": 0.45, "impact": 2.2
            "shimmer": 1.6, "glitch": 0.25, "tick": 0.04, "riser": 1.0}
 
 # ---------------- captions ----------------
-FIX = {"kupei": "coupe", "laihtbau": "Leichtbau", "eks": "X", "eks-lima": "X5"}
+FIX = {"kupei": "coupe", "laihtbau": "Leichtbau", "eks": "X", "eks-lima": "X5", "kenvertebel": "convertible"}
 KEY = {"m", "m2", "m3", "m4", "m5", "x", "suv", "xm", "x5", "competition", "cs", "csl", "leichtbau", "ringan", "laju",
        "power", "lebih", "m340i", "m135", "sport", "performance", "trim", "penuh", "ecw", "motorsports", "motorsport",
        "follow", "besar", "keliru", "xdrive", "hybrid", "plug-in", "betul", "nombor", "sedan", "coupe", "convertible",

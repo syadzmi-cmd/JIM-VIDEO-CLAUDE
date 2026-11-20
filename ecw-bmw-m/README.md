@@ -1,6 +1,6 @@
 # ECW — "BMW M Decoded" (Hyperframes)
 
-Explainer TikTok (Bahasa Melayu) for ECW Motorsports: every BMW M badge explained in ~65 s.
+Explainer TikTok (Bahasa Melayu) for ECW Motorsport: every BMW M badge explained in ~65 s.
 Original script and graphics; voiceover is Edge TTS `ms-MY-OsmanNeural`.
 Theme: maroon `#430107`, cream `#FFEFEF`, yellow `#FECD00`, hologram neon + perspective grid.
 
