@@ -1,0 +1,1235 @@
+<!doctype html>
+<html lang="ms" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <link rel="stylesheet" href="assets/fonts.css" />
+    <style>
+      :root {
+        --maroon: #430107;
+        --cream: #ffefef;
+        --yellow: #fecd00;
+        --font-display: "Anton", sans-serif;
+        --font-ui: "Poppins", sans-serif;
+        --font-mono: "JetBrains Mono", monospace;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #12000a; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: var(--font-ui); background: #12000a; }
+      .layer { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none; }
+      .row { position: absolute; left: 0; width: 1080px; text-align: center; }
+      .abs { position: absolute; }
+      svg { overflow: visible; }
+
+      /* ---------- background ---------- */
+      .bg { background: radial-gradient(ellipse 900px 1100px at 50% 36%, #6a0b14 0%, #3a0208 45%, #14000a 100%); }
+      .floor { position: absolute; left: -540px; top: 1060px; width: 2160px; height: 1100px; transform-origin: 50% 0;
+               transform: perspective(700px) rotateX(64deg);
+               background-image: linear-gradient(rgba(254,205,0,0.55) 2px, transparent 2px), linear-gradient(90deg, rgba(254,205,0,0.55) 2px, transparent 2px);
+               background-size: 90px 90px; -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 60%, transparent 100%); opacity: 0.5; }
+      .horizon { position: absolute; left: 0; top: 1052px; width: 1080px; height: 6px; background: var(--yellow); opacity: 0.55;
+                 box-shadow: 0 0 30px 8px rgba(254,205,0,0.45); }
+      .scanlines { background: repeating-linear-gradient(to bottom, rgba(255,239,239,0.045) 0 2px, transparent 2px 6px); }
+      .vignette { background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(10,0,4,0.75) 100%); }
+      .grain { background: repeating-linear-gradient(90deg, rgba(254,205,0,0.03) 0 1px, transparent 1px 120px); }
+
+      /* ---------- HUD ---------- */
+      .hud { position: absolute; top: 210px; left: 70px; right: 70px; height: 60px; display: flex; justify-content: space-between; align-items: center; }
+      .hud .l { font-family: var(--font-mono); font-weight: 700; font-size: 28px; letter-spacing: 0.24em; color: var(--cream); opacity: 0.85; }
+      .hud .l b { color: var(--yellow); }
+      .hud .dot { display: inline-block; width: 16px; height: 16px; border-radius: 50%; background: #ff3b3b; margin-right: 14px; box-shadow: 0 0 14px #ff3b3b; vertical-align: 2px; }
+      .chap { position: absolute; top: 216px; right: 70px; font-family: var(--font-mono); font-weight: 700; font-size: 28px; letter-spacing: 0.2em; color: var(--yellow); text-align: right; }
+      .pbar { position: absolute; top: 282px; left: 70px; width: 940px; height: 6px; background: rgba(255,239,239,0.15); border-radius: 3px; overflow: hidden; }
+      .pbar i { position: absolute; left: 0; top: 0; bottom: 0; width: 940px; background: var(--yellow); transform-origin: left center; box-shadow: 0 0 12px var(--yellow); }
+
+      /* ---------- type ---------- */
+      .big { font-family: var(--font-display); text-transform: uppercase; line-height: 0.92; color: var(--cream);
+             text-shadow: 0 6px 0 var(--maroon), 0 12px 0 rgba(0,0,0,0.35), 0 0 40px rgba(254,205,0,0.25); }
+      .big.y { color: var(--yellow); text-shadow: 0 6px 0 var(--maroon), 0 12px 0 rgba(0,0,0,0.35), 0 0 50px rgba(254,205,0,0.6); }
+      .holo { position: relative; display: inline-block; }
+      .holo::before, .holo::after { content: attr(data-t); position: absolute; left: 0; top: 0; opacity: 0.45; mix-blend-mode: screen; text-shadow: none; }
+      .holo::before { color: #ff3b3b; transform: translate(-7px, 0); }
+      .holo::after { color: #7fe7ff; transform: translate(7px, 0); }
+      .skew { display: inline-block; transform: skewX(-8deg); }
+      .mono { font-family: var(--font-mono); font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cream); }
+      .mono.y { color: var(--yellow); }
+      .chip { display: inline-block; font-family: var(--font-mono); font-weight: 700; font-size: 38px; letter-spacing: 0.18em;
+              background: var(--yellow); color: var(--maroon); padding: 12px 28px 10px; border-radius: 999px;
+              box-shadow: 0 0 0 5px var(--maroon), 0 0 0 8px var(--yellow), 0 0 36px rgba(254,205,0,0.6); }
+      .sticker { display: inline-block; font-family: var(--font-ui); font-weight: 900; font-style: italic; text-transform: uppercase;
+                 background: var(--yellow); color: var(--maroon); padding: 10px 34px 6px; border-radius: 18px;
+                 border: 6px solid var(--cream); box-shadow: 10px 10px 0 var(--maroon), 0 0 50px rgba(254,205,0,0.45); }
+      .sticker.m { background: var(--maroon); color: var(--cream); border-color: var(--yellow); box-shadow: 10px 10px 0 rgba(0,0,0,0.45), 0 0 40px rgba(254,205,0,0.35); }
+      .panel { position: absolute; border-radius: 36px; background: rgba(67,1,7,0.88); border: 5px solid var(--yellow);
+               box-shadow: 0 0 0 3px rgba(67,1,7,0.9), 0 0 60px rgba(254,205,0,0.35), inset 0 0 50px rgba(254,205,0,0.12); }
+      .panel::before, .panel::after { content: ""; position: absolute; width: 54px; height: 54px; border: 7px solid var(--cream); }
+      .panel::before { left: -18px; top: -18px; border-right: none; border-bottom: none; border-radius: 18px 0 0 0; }
+      .panel::after { right: -18px; bottom: -18px; border-left: none; border-top: none; border-radius: 0 0 18px 0; }
+
+      /* M badge */
+      .mb { display: inline-flex; align-items: center; gap: 0.08em; font-family: var(--font-ui); font-weight: 900; font-style: italic; color: var(--cream);
+            background: linear-gradient(180deg, #5c0610, var(--maroon)); border: 6px solid var(--yellow); border-radius: 0.22em; padding: 0.04em 0.28em 0 0.2em; line-height: 1.12;
+            box-shadow: 0 0 0 4px var(--maroon), 0 0 40px rgba(254,205,0,0.5), 8px 10px 0 rgba(0,0,0,0.45); }
+      .mb .st { display: inline-flex; gap: 0.05em; margin-right: 0.12em; transform: skewX(-18deg); }
+      .mb .st i { display: block; width: 0.09em; height: 0.62em; background: var(--cream); border-radius: 2px; }
+      .mb .st i:nth-child(2) { background: var(--yellow); }
+      .mb .st i:nth-child(3) { background: #ff3b3b; }
+      .mb .m { color: var(--yellow); text-shadow: 0 0 18px rgba(254,205,0,0.7); }
+      .mb.dim { border-color: rgba(255,239,239,0.5); box-shadow: 0 0 0 4px var(--maroon), 8px 10px 0 rgba(0,0,0,0.45); }
+
+      .xmark, .vmark, .qmark { display: inline-flex; align-items: center; justify-content: center; width: 92px; height: 92px; border-radius: 50%;
+               font-family: var(--font-ui); font-weight: 900; font-size: 60px; vertical-align: middle; }
+      .vmark { background: var(--yellow); color: var(--maroon); box-shadow: 0 0 30px rgba(254,205,0,0.7); }
+      .xmark { background: #ff3b3b; color: var(--cream); box-shadow: 0 0 0 5px var(--maroon), 0 0 30px rgba(255,59,59,0.6); }
+      .qmark { background: var(--cream); color: var(--maroon); box-shadow: 0 0 0 5px var(--maroon); }
+      .item { position: absolute; display: flex; align-items: center; gap: 28px; }
+      .item .t { font-family: var(--font-display); font-size: 92px; color: var(--cream); text-transform: uppercase; line-height: 1;
+                 text-shadow: 0 5px 0 var(--maroon); }
+      .tape { position: absolute; left: -60px; width: 1200px; height: 70px;
+              background: repeating-linear-gradient(-45deg, var(--yellow) 0 44px, #1a0004 44px 88px);
+              border-top: 4px solid var(--cream); border-bottom: 4px solid var(--cream); box-shadow: 0 0 30px rgba(254,205,0,0.5); }
+      .stamp { display: inline-block; font-family: var(--font-display); text-transform: uppercase; color: var(--yellow); border: 10px solid var(--yellow);
+               border-radius: 18px; padding: 6px 30px 0; line-height: 1.05; box-shadow: 0 0 40px rgba(254,205,0,0.5), inset 0 0 30px rgba(254,205,0,0.25); background: rgba(67,1,7,0.6); }
+      .stamp.r { color: #ff4b4b; border-color: #ff4b4b; box-shadow: 0 0 40px rgba(255,59,59,0.5), inset 0 0 30px rgba(255,59,59,0.25); }
+      .neon { fill: none; stroke: var(--cream); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round;
+              filter: drop-shadow(0 0 8px rgba(254,205,0,0.9)) drop-shadow(0 0 22px rgba(254,205,0,0.45)); }
+      .neon.y { stroke: var(--yellow); }
+      .speed { position: absolute; height: 6px; border-radius: 3px; background: linear-gradient(90deg, transparent, var(--cream)); box-shadow: 0 0 12px rgba(254,205,0,0.8); }
+      .meter { position: absolute; height: 74px; border: 6px solid var(--cream); border-radius: 22px; padding: 8px; background: rgba(67,1,7,0.7); box-shadow: 0 0 26px rgba(254,205,0,0.35); }
+      .meter .fill { position: absolute; left: 8px; top: 8px; bottom: 8px; border-radius: 12px; background: linear-gradient(90deg, var(--yellow), #fff3a6);
+                     transform-origin: left center; box-shadow: 0 0 24px rgba(254,205,0,0.8); }
+      .meter .lbl { position: absolute; left: 0; top: -54px; font-family: var(--font-mono); font-weight: 700; font-size: 32px; letter-spacing: 0.16em; color: var(--cream); white-space: nowrap; }
+      .meter .val { position: absolute; right: -10px; top: -54px; font-family: var(--font-mono); font-weight: 700; font-size: 32px; color: var(--yellow); white-space: nowrap; }
+      .sparkle { position: absolute; width: 70px; height: 70px; }
+      .scanbar { position: absolute; left: 0; width: 1080px; height: 26px; background: var(--yellow); box-shadow: 0 0 40px 12px rgba(254,205,0,0.7); }
+
+      /* captions */
+      .scene { top: 80px; }
+      .cap { position: absolute; left: 50px; width: 980px; top: 1500px; text-align: center; }
+      .cap span { display: inline-block; margin: 0 10px; font-family: var(--font-ui); font-weight: 900; font-style: italic; font-size: 70px;
+                  text-transform: uppercase; color: var(--cream); line-height: 1.08;
+                  -webkit-text-stroke: 3px var(--maroon); paint-order: stroke fill;
+                  text-shadow: 0 6px 0 var(--maroon), 0 0 26px rgba(0,0,0,0.6); }
+
+      .car { position: absolute; overflow: visible; }
+      .car .shadow { fill: rgba(0,0,0,0.45); filter: blur(6px); }
+      .car .fillb { fill: rgba(67,1,7,0.78); }
+      .car .glass { fill: rgba(254,239,239,0.10); }
+      .car .draw { fill: none; stroke: var(--cream); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round;
+                   filter: drop-shadow(0 0 6px rgba(254,205,0,0.95)) drop-shadow(0 0 18px rgba(254,205,0,0.45)); }
+      .car .draw.det { stroke-width: 3; stroke: rgba(255,239,239,0.7); }
+      .car .draw.gl { stroke-width: 3.5; stroke: var(--yellow); }
+      .car .draw.tyre { stroke-width: 7; stroke: var(--cream); }
+      .car .draw.rim { stroke-width: 4; stroke: var(--yellow); }
+      .car .spk { stroke: var(--yellow); stroke-width: 4; stroke-linecap: round; fill: none; }
+      .car .cal { stroke: var(--yellow); stroke-width: 9; stroke-linecap: round; fill: none; opacity: 0.9; }
+      .car .lamp { fill: var(--yellow); filter: drop-shadow(0 0 10px var(--yellow)); }
+      .car .lamp.tl { fill: #ff3b3b; filter: drop-shadow(0 0 10px #ff3b3b); }
+      .car.y .draw.body { stroke: var(--yellow); }
+      .car.dim { opacity: 0.35; }
+
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="64.72" data-width="1080" data-height="1920">
+      <svg width="0" height="0" style="position:absolute">
+        <defs>
+          <symbol id="star" viewBox="0 0 100 100">
+            <path d="M50 0 C54 36 64 46 100 50 C64 54 54 64 50 100 C46 64 36 54 0 50 C36 46 46 36 50 0Z" fill="#FECD00"/>
+          </symbol>
+          <symbol id="pin" viewBox="0 0 100 120">
+            <path d="M50 4 C24 4 8 24 8 46 C8 74 50 116 50 116 C50 116 92 74 92 46 C92 24 76 4 50 4Z" fill="#FECD00" stroke="#430107" stroke-width="6"/>
+            <circle cx="50" cy="45" r="16" fill="#430107"/>
+          </symbol>
+          <symbol id="warn" viewBox="0 0 120 108">
+            <path d="M60 6 L114 102 L6 102Z" fill="#FECD00" stroke="#430107" stroke-width="7" stroke-linejoin="round"/>
+            <rect x="54" y="36" width="12" height="38" rx="5" fill="#430107"/><circle cx="60" cy="87" r="7" fill="#430107"/>
+          </symbol>
+          <symbol id="flag" viewBox="0 0 160 100">
+            <path d="M8 4 V98" stroke="#FFEFEF" stroke-width="7" stroke-linecap="round"/>
+            <g transform="translate(12 6)">
+              <rect width="140" height="64" fill="#FFEFEF"/>
+              <path d="M0 0h20v16H0z M40 0h20v16H40z M80 0h20v16H80z M120 0h20v16h-20z M20 16h20v16H20z M60 16h20v16H60z M100 16h20v16h-20z M0 32h20v16H0z M40 32h20v16H40z M80 32h20v16H80z M120 32h20v16h-20z M20 48h20v16H20z M60 48h20v16H60z M100 48h20v16h-20z" fill="#1a0004"/>
+            </g>
+          </symbol>
+        </defs>
+      </svg>
+
+      <!-- ===== persistent look ===== -->
+      <div id="bg" class="clip layer bg" data-start="0" data-duration="64.72" data-track-index="0" style="z-index:0">
+        <div id="floor" class="floor"></div>
+        <div class="horizon"></div>
+      </div>
+      <div id="grain" class="clip layer grain" data-start="0" data-duration="64.72" data-track-index="1" style="z-index:1"></div>
+      <div id="hud" class="clip layer" data-start="0" data-duration="64.72" data-track-index="2" style="z-index:20">
+        <div class="hud"><div class="l"><span class="dot"></span>ECW <b>//</b> BMW M DECODED</div></div>
+        <div class="pbar"><i id="pfill"></i></div>
+      </div>
+      <div id="ch0" class="clip chap" data-start="0.000" data-duration="6.072" data-track-index="2" style="z-index:21">01 · HOOK</div>
+      <div id="ch1" class="clip chap" data-start="6.072" data-duration="7.991" data-track-index="2" style="z-index:21">02 · M = ?</div>
+      <div id="ch2" class="clip chap" data-start="14.063" data-duration="15.683" data-track-index="2" style="z-index:21">03 · MODEL</div>
+      <div id="ch3" class="clip chap" data-start="29.746" data-duration="8.391" data-track-index="2" style="z-index:21">04 · BADGE</div>
+      <div id="ch4" class="clip chap" data-start="38.137" data-duration="9.560" data-track-index="2" style="z-index:21">05 · M PERF</div>
+      <div id="ch5" class="clip chap" data-start="47.697" data-duration="5.915" data-track-index="2" style="z-index:21">06 · M SPORT</div>
+      <div id="ch6" class="clip chap" data-start="53.612" data-duration="4.639" data-track-index="2" style="z-index:21">07 · DECODE</div>
+      <div id="ch7" class="clip chap" data-start="58.251" data-duration="6.469" data-track-index="2" style="z-index:21">ECW</div>
+
+      <!-- ===== L01 HOOK (frame 0 fully composed) ===== -->
+      <div id="sc_L01" class="clip layer scene" data-line="L01" data-start="0.000" data-duration="2.961" data-track-index="3" style="z-index:10">
+        <div id="h_a" class="row big" style="top:340px;font-size:170px"><span class="skew">JANGAN BELI</span></div>
+        <div id="h_b" class="row" style="top:500px"><span class="big y skew" style="font-size:330px"><span class="holo" data-t="BMW M">BMW M</span></span></div>
+        <div id="h_c" class="row mono y" style="top:842px;font-size:40px">SEBELUM TENGOK VIDEO NI</div>
+        <svg id="h_car" class="car y" viewBox="0 0 680 260" style="left:150px;top:930px;width:780px;height:298px"><ellipse class="shadow" cx="340" cy="242" rx="291" ry="12"/><path class="fillb" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 Q300.8 80.0 317.6 76.0 Q373.6 70.0 429.6 78.0 Q457.6 86.0 530.4 124.0 L597.6 126.0 Q614.4 128.0 614.4 146.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="draw body" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 Q300.8 80.0 317.6 76.0 Q373.6 70.0 429.6 78.0 Q457.6 86.0 530.4 124.0 L597.6 126.0 Q614.4 128.0 614.4 146.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="glass" d="M264.4 134.0 Q317.2 89.0 327.2 85.0 L426.8 86.0 Q448.8 91.0 499.6 134.0 Z M384.8 85.0 L380.8 134.0"/><path class="draw gl" d="M264.4 134.0 Q317.2 89.0 327.2 85.0 L426.8 86.0 Q448.8 91.0 499.6 134.0 Z M384.8 85.0 L380.8 134.0"/><path class="draw det" d="M261.6 138.0 L267.6 192.0 M380.8 138.0 L382.8 192.0 M452.0 138.0 Q466.0 170.0 448.0 192.0 M215.2 190.0 L431.2 188.0 M68.4 184.0 L104.8 186.0 M93.6 152.0 L586.4 144.0"/><path class="lamp" d="M66.7 158.0 L99.2 150.0 L102.0 160.0 Z"/><path class="lamp tl" d="M612.2 136.0 L580.8 134.0 L580.8 146.0 L612.2 148.0 Z"/><g class="whl" data-cx="155.2" data-cy="194.0"><circle class="draw tyre" cx="155.2" cy="194.0" r="39"/><circle class="draw rim" cx="155.2" cy="194.0" r="27.7"/><path class="spk" d="M155.2 186.4 L155.2 168.8 M162.4 191.7 L179.2 186.2 M159.6 200.1 L170.0 214.4 M150.8 200.1 L140.4 214.4 M148.0 191.7 L131.2 186.2"/><path class="cal" d="M134.2 180.6 A25.2 25.2 0 0 1 150.2 169.6"/></g><g class="whl" data-cx="491.2" data-cy="194.0"><circle class="draw tyre" cx="491.2" cy="194.0" r="39"/><circle class="draw rim" cx="491.2" cy="194.0" r="27.7"/><path class="spk" d="M491.2 186.4 L491.2 168.8 M498.4 191.7 L515.2 186.2 M495.6 200.1 L506.0 214.4 M486.8 200.1 L476.4 214.4 M484.0 191.7 L467.2 186.2"/><path class="cal" d="M470.2 180.6 A25.2 25.2 0 0 1 486.2 169.6"/></g></svg>
+        <svg id="h_w" class="abs" style="left:800px;top:880px;width:150px;height:135px"><use href="#warn"/></svg>
+        <svg id="h_s1" class="sparkle" style="left:90px;top:560px"><use href="#star"/></svg>
+        <svg id="h_s2" class="sparkle" style="left:930px;top:470px;width:50px;height:50px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== L02 bukan semua M ===== -->
+      <div id="sc_L02" class="clip layer scene" data-line="L02" data-start="2.961" data-duration="3.111" data-track-index="3" style="z-index:10">
+        <div id="b_t" class="row big" style="top:340px;font-size:118px"><span class="skew">BUKAN SEMUA <span style="color:var(--yellow)">"M"</span></span></div>
+        <div id="b_c1" class="abs" style="left:90px;top:560px;width:900px;display:flex;align-items:center;gap:36px">
+          <span class="mb" style="font-size:96px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>3</span>
+          <span id="b_v1" class="qmark">?</span></div>
+        <div id="b_c2" class="abs" style="left:90px;top:770px;width:900px;display:flex;align-items:center;gap:36px">
+          <span class="mb" style="font-size:96px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>340i</span>
+          <span id="b_v2" class="qmark">?</span></div>
+        <div id="b_c3" class="abs" style="left:90px;top:980px;width:900px;display:flex;align-items:center;gap:36px">
+          <span class="mb" style="font-size:96px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>&nbsp;SPORT</span>
+          <span id="b_v3" class="qmark">?</span></div>
+        <div id="b_st" class="abs" style="left:560px;top:1150px"><span class="stamp" style="font-size:96px;transform:rotate(-8deg)">M BETUL?</span></div>
+      </div>
+
+      <!-- ===== L03 M = Motorsport ===== -->
+      <div id="sc_L03" class="clip layer scene" data-line="L03" data-start="6.072" data-duration="2.942" data-track-index="3" style="z-index:10">
+        <svg id="m_ring" class="abs" viewBox="0 0 400 400" style="left:290px;top:330px;width:500px;height:500px">
+          <circle cx="200" cy="200" r="180" class="neon y" stroke-dasharray="26 18"/>
+          <circle cx="200" cy="200" r="150" class="neon" stroke-width="3" opacity="0.6"/>
+        </svg>
+        <div id="m_m" class="row" style="top:368px"><span class="big y skew" style="font-size:380px"><span class="holo" data-t="M">M</span></span></div>
+        <div id="m_t" class="row big" style="top:860px;font-size:150px"><span class="skew">MOTORSPORT</span></div>
+        <div id="m_l" class="row mono y" style="top:1020px;font-size:40px">DIVISYEN LUMBA BMW</div>
+        <svg id="m_f1" class="abs" style="left:70px;top:420px;width:170px;height:106px"><use href="#flag"/></svg>
+        <svg id="m_f2" class="abs" style="left:850px;top:620px;width:170px;height:106px;transform:scaleX(-1)"><use href="#flag"/></svg>
+        <svg id="m_car" class="car " viewBox="0 0 680 260" style="left:260px;top:1110px;width:560px;height:214px"><ellipse class="shadow" cx="340" cy="242" rx="244" ry="12"/><path class="fillb" d="M119.1 200.0 Q105.0 200.0 105.0 184.0 L106.9 172.0 Q114.4 144.0 152.0 146.0 L274.2 136.0 Q325.9 86.0 340.0 82.0 Q372.9 76.0 405.8 84.0 Q448.1 94.0 499.8 128.0 L556.2 130.0 Q570.3 132.0 570.3 150.0 L568.4 194.0 Q565.6 200.0 551.5 200.0 L528.1 200.0 A52 52 0 0 0 424.5 200.0 L241.4 200.0 A52 52 0 0 0 137.8 200.0 Z"/><path class="draw body" d="M119.1 200.0 Q105.0 200.0 105.0 184.0 L106.9 172.0 Q114.4 144.0 152.0 146.0 L274.2 136.0 Q325.9 86.0 340.0 82.0 Q372.9 76.0 405.8 84.0 Q448.1 94.0 499.8 128.0 L556.2 130.0 Q570.3 132.0 570.3 150.0 L568.4 194.0 Q565.6 200.0 551.5 200.0 L528.1 200.0 A52 52 0 0 0 424.5 200.0 L241.4 200.0 A52 52 0 0 0 137.8 200.0 Z"/><path class="glass" d="M290.6 134.0 Q338.7 95.0 348.7 91.0 L403.4 92.0 Q425.4 97.0 466.9 134.0 Z M396.4 92.0 L402.4 134.0"/><path class="draw gl" d="M290.6 134.0 Q338.7 95.0 348.7 91.0 L403.4 92.0 Q425.4 97.0 466.9 134.0 Z M396.4 92.0 L402.4 134.0"/><path class="draw det" d="M288.3 138.0 L294.3 192.0 M405.8 138.0 Q417.8 170.0 401.8 192.0 M249.6 190.0 L416.3 188.0 M112.0 184.0 L142.6 186.0 M133.2 152.0 L546.8 144.0"/><path class="lamp" d="M110.6 158.0 L137.9 150.0 L140.2 160.0 Z"/><path class="lamp tl" d="M568.4 140.0 L542.1 138.0 L542.1 150.0 L568.4 152.0 Z"/><g class="whl" data-cx="189.6" data-cy="195.0"><circle class="draw tyre" cx="189.6" cy="195.0" r="38"/><circle class="draw rim" cx="189.6" cy="195.0" r="27.1"/><path class="spk" d="M189.6 187.6 L189.6 170.4 M196.6 192.7 L213.0 187.4 M193.9 201.0 L204.1 214.9 M185.3 201.0 L175.1 214.9 M182.6 192.7 L166.2 187.4"/><path class="cal" d="M169.1 181.9 A24.6 24.6 0 0 1 184.7 171.2"/></g><g class="whl" data-cx="476.3" data-cy="195.0"><circle class="draw tyre" cx="476.3" cy="195.0" r="38"/><circle class="draw rim" cx="476.3" cy="195.0" r="27.1"/><path class="spk" d="M476.3 187.6 L476.3 170.4 M483.3 192.7 L499.7 187.4 M480.6 201.0 L490.8 214.9 M472.0 201.0 L461.8 214.9 M469.3 192.7 L452.9 187.4"/><path class="cal" d="M455.8 181.9 A24.6 24.6 0 0 1 471.4 171.2"/></g></svg>
+        <div id="m_sp" class="abs" style="left:0;top:1170px;width:400px;height:160px">
+          <div class="speed" style="left:820px;top:10px;width:220px"></div><div class="speed" style="left:860px;top:60px;width:180px"></div><div class="speed" style="left:800px;top:110px;width:240px"></div>
+        </div>
+      </div>
+
+      <!-- ===== L04 formula ===== -->
+      <div id="sc_L04" class="clip layer scene" data-line="L04" data-start="9.014" data-duration="2.532" data-track-index="3" style="z-index:10">
+        <div id="f_t" class="row big" style="top:340px;font-size:150px"><span class="skew">M <span style="color:var(--yellow)">PENUH?</span></span></div>
+        <div class="abs" style="left:0;top:600px;width:1080px;display:flex;justify-content:center;align-items:center;gap:30px">
+          <span id="f_m" class="mb" style="font-size:200px;padding:0 0.3em"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span></span>
+          <span id="f_p" class="big y" style="font-size:180px">+</span>
+          <span id="f_n" class="big" style="font-size:240px;position:relative;display:inline-block;width:150px;height:240px">
+            <span class="fn" style="position:absolute;left:0;top:0">2</span><span class="fn" style="position:absolute;left:0;top:0">3</span><span class="fn" style="position:absolute;left:0;top:0">4</span><span class="fn" style="position:absolute;left:0;top:0;color:var(--yellow)">5</span>
+          </span>
+        </div>
+        <div id="f_lbl" class="row mono y" style="top:900px;font-size:40px">HURUF M + SATU NOMBOR</div>
+        <div id="f_ok" class="row" style="top:1010px"><span class="sticker" style="font-size:80px;transform:rotate(-3deg)">= M PENUH ✓</span></div>
+      </div>
+
+      <!-- ===== L05 size ladder ===== -->
+      <div id="sc_L05" class="clip layer scene" data-line="L05" data-start="11.546" data-duration="2.517" data-track-index="3" style="z-index:10">
+        <div id="z_t" class="row big" style="top:320px;font-size:100px;line-height:1"><span class="skew">NOMBOR <span style="color:var(--yellow)">BESAR</span><br>= KERETA <span style="color:var(--yellow)">BESAR</span></span></div>
+        <div id="z_r1" class="abs" style="left:60px;top:540px;width:960px;height:220px">
+          <span class="mb" style="font-size:64px;position:absolute;left:0;top:70px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>2</span>
+          <svg id="z_c1" class="car " viewBox="0 0 680 260" style="left:300px;top:20px;width:470px;height:180px"><ellipse class="shadow" cx="340" cy="242" rx="244" ry="12"/><path class="fillb" d="M119.1 200.0 Q105.0 200.0 105.0 184.0 L106.9 172.0 Q114.4 144.0 152.0 146.0 L274.2 136.0 Q325.9 86.0 340.0 82.0 Q372.9 76.0 405.8 84.0 Q448.1 94.0 499.8 128.0 L556.2 130.0 Q570.3 132.0 570.3 150.0 L568.4 194.0 Q565.6 200.0 551.5 200.0 L528.1 200.0 A52 52 0 0 0 424.5 200.0 L241.4 200.0 A52 52 0 0 0 137.8 200.0 Z"/><path class="draw body" d="M119.1 200.0 Q105.0 200.0 105.0 184.0 L106.9 172.0 Q114.4 144.0 152.0 146.0 L274.2 136.0 Q325.9 86.0 340.0 82.0 Q372.9 76.0 405.8 84.0 Q448.1 94.0 499.8 128.0 L556.2 130.0 Q570.3 132.0 570.3 150.0 L568.4 194.0 Q565.6 200.0 551.5 200.0 L528.1 200.0 A52 52 0 0 0 424.5 200.0 L241.4 200.0 A52 52 0 0 0 137.8 200.0 Z"/><path class="glass" d="M290.6 134.0 Q338.7 95.0 348.7 91.0 L403.4 92.0 Q425.4 97.0 466.9 134.0 Z M396.4 92.0 L402.4 134.0"/><path class="draw gl" d="M290.6 134.0 Q338.7 95.0 348.7 91.0 L403.4 92.0 Q425.4 97.0 466.9 134.0 Z M396.4 92.0 L402.4 134.0"/><path class="draw det" d="M288.3 138.0 L294.3 192.0 M405.8 138.0 Q417.8 170.0 401.8 192.0 M249.6 190.0 L416.3 188.0 M112.0 184.0 L142.6 186.0 M133.2 152.0 L546.8 144.0"/><path class="lamp" d="M110.6 158.0 L137.9 150.0 L140.2 160.0 Z"/><path class="lamp tl" d="M568.4 140.0 L542.1 138.0 L542.1 150.0 L568.4 152.0 Z"/><g class="whl" data-cx="189.6" data-cy="195.0"><circle class="draw tyre" cx="189.6" cy="195.0" r="38"/><circle class="draw rim" cx="189.6" cy="195.0" r="27.1"/><path class="spk" d="M189.6 187.6 L189.6 170.4 M196.6 192.7 L213.0 187.4 M193.9 201.0 L204.1 214.9 M185.3 201.0 L175.1 214.9 M182.6 192.7 L166.2 187.4"/><path class="cal" d="M169.1 181.9 A24.6 24.6 0 0 1 184.7 171.2"/></g><g class="whl" data-cx="476.3" data-cy="195.0"><circle class="draw tyre" cx="476.3" cy="195.0" r="38"/><circle class="draw rim" cx="476.3" cy="195.0" r="27.1"/><path class="spk" d="M476.3 187.6 L476.3 170.4 M483.3 192.7 L499.7 187.4 M480.6 201.0 L490.8 214.9 M472.0 201.0 L461.8 214.9 M469.3 192.7 L452.9 187.4"/><path class="cal" d="M455.8 181.9 A24.6 24.6 0 0 1 471.4 171.2"/></g></svg>
+        </div>
+        <div id="z_r2" class="abs" style="left:60px;top:750px;width:960px;height:220px">
+          <span class="mb" style="font-size:64px;position:absolute;left:0;top:70px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>3</span>
+          <svg id="z_c2" class="car " viewBox="0 0 680 260" style="left:260px;top:10px;width:560px;height:214px"><ellipse class="shadow" cx="340" cy="242" rx="291" ry="12"/><path class="fillb" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 Q300.8 80.0 317.6 76.0 Q373.6 70.0 429.6 78.0 Q457.6 86.0 530.4 124.0 L597.6 126.0 Q614.4 128.0 614.4 146.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="draw body" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 Q300.8 80.0 317.6 76.0 Q373.6 70.0 429.6 78.0 Q457.6 86.0 530.4 124.0 L597.6 126.0 Q614.4 128.0 614.4 146.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="glass" d="M264.4 134.0 Q317.2 89.0 327.2 85.0 L426.8 86.0 Q448.8 91.0 499.6 134.0 Z M384.8 85.0 L380.8 134.0"/><path class="draw gl" d="M264.4 134.0 Q317.2 89.0 327.2 85.0 L426.8 86.0 Q448.8 91.0 499.6 134.0 Z M384.8 85.0 L380.8 134.0"/><path class="draw det" d="M261.6 138.0 L267.6 192.0 M380.8 138.0 L382.8 192.0 M452.0 138.0 Q466.0 170.0 448.0 192.0 M215.2 190.0 L431.2 188.0 M68.4 184.0 L104.8 186.0 M93.6 152.0 L586.4 144.0"/><path class="lamp" d="M66.7 158.0 L99.2 150.0 L102.0 160.0 Z"/><path class="lamp tl" d="M612.2 136.0 L580.8 134.0 L580.8 146.0 L612.2 148.0 Z"/><g class="whl" data-cx="155.2" data-cy="194.0"><circle class="draw tyre" cx="155.2" cy="194.0" r="39"/><circle class="draw rim" cx="155.2" cy="194.0" r="27.7"/><path class="spk" d="M155.2 186.4 L155.2 168.8 M162.4 191.7 L179.2 186.2 M159.6 200.1 L170.0 214.4 M150.8 200.1 L140.4 214.4 M148.0 191.7 L131.2 186.2"/><path class="cal" d="M134.2 180.6 A25.2 25.2 0 0 1 150.2 169.6"/></g><g class="whl" data-cx="491.2" data-cy="194.0"><circle class="draw tyre" cx="491.2" cy="194.0" r="39"/><circle class="draw rim" cx="491.2" cy="194.0" r="27.7"/><path class="spk" d="M491.2 186.4 L491.2 168.8 M498.4 191.7 L515.2 186.2 M495.6 200.1 L506.0 214.4 M486.8 200.1 L476.4 214.4 M484.0 191.7 L467.2 186.2"/><path class="cal" d="M470.2 180.6 A25.2 25.2 0 0 1 486.2 169.6"/></g></svg>
+        </div>
+        <div id="z_r3" class="abs" style="left:60px;top:970px;width:960px;height:230px">
+          <span class="mb" style="font-size:64px;position:absolute;left:0;top:70px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>5</span>
+          <svg id="z_c3" class="car y" viewBox="0 0 680 260" style="left:240px;top:0px;width:680px;height:260px"><ellipse class="shadow" cx="340" cy="242" rx="322" ry="12"/><path class="fillb" d="M48.6 200.0 Q30.0 200.0 30.0 182.0 L32.5 170.0 Q42.4 142.0 92.0 144.0 L228.4 134.0 Q290.4 76.0 309.0 72.0 Q380.3 66.0 451.6 74.0 Q482.6 82.0 557.0 122.0 L625.2 124.0 Q643.8 126.0 643.8 144.0 L641.3 194.0 Q637.6 200.0 619.0 200.0 L561.8 200.0 A55 55 0 0 0 453.0 200.0 L183.6 200.0 A55 55 0 0 0 74.8 200.0 Z"/><path class="draw body" d="M48.6 200.0 Q30.0 200.0 30.0 182.0 L32.5 170.0 Q42.4 142.0 92.0 144.0 L228.4 134.0 Q290.4 76.0 309.0 72.0 Q380.3 66.0 451.6 74.0 Q482.6 82.0 557.0 122.0 L625.2 124.0 Q643.8 126.0 643.8 144.0 L641.3 194.0 Q637.6 200.0 619.0 200.0 L561.8 200.0 A55 55 0 0 0 453.0 200.0 L183.6 200.0 A55 55 0 0 0 74.8 200.0 Z"/><path class="glass" d="M250.1 132.0 Q309.2 85.0 319.2 81.0 L448.5 82.0 Q470.5 87.0 522.9 132.0 Z M392.7 81.0 L388.7 132.0"/><path class="draw gl" d="M250.1 132.0 Q309.2 85.0 319.2 81.0 L448.5 82.0 Q470.5 87.0 522.9 132.0 Z M392.7 81.0 L388.7 132.0"/><path class="draw det" d="M247.0 136.0 L253.0 192.0 M388.7 136.0 L390.7 192.0 M476.4 136.0 Q490.4 170.0 472.4 192.0 M189.2 190.0 L447.4 188.0 M39.3 184.0 L79.6 186.0 M67.2 150.0 L612.8 142.0"/><path class="lamp" d="M37.4 156.0 L73.4 148.0 L76.5 158.0 Z"/><path class="lamp tl" d="M641.3 134.0 L606.6 132.0 L606.6 144.0 L641.3 146.0 Z"/><g class="whl" data-cx="129.2" data-cy="192.0"><circle class="draw tyre" cx="129.2" cy="192.0" r="41"/><circle class="draw rim" cx="129.2" cy="192.0" r="29.0"/><path class="spk" d="M129.2 184.1 L129.2 165.6 M136.7 189.6 L154.3 183.8 M133.9 198.4 L144.7 213.4 M124.5 198.4 L113.7 213.4 M121.7 189.6 L104.1 183.8"/><path class="cal" d="M107.2 177.9 A26.4 26.4 0 0 1 123.9 166.5"/></g><g class="whl" data-cx="507.4" data-cy="192.0"><circle class="draw tyre" cx="507.4" cy="192.0" r="41"/><circle class="draw rim" cx="507.4" cy="192.0" r="29.0"/><path class="spk" d="M507.4 184.1 L507.4 165.6 M514.9 189.6 L532.5 183.8 M512.1 198.4 L522.9 213.4 M502.7 198.4 L491.9 213.4 M499.9 189.6 L482.3 183.8"/><path class="cal" d="M485.4 177.9 A26.4 26.4 0 0 1 502.1 166.5"/></g></svg>
+        </div>
+        <svg id="z_ar" class="abs" viewBox="0 0 60 700" style="left:990px;top:560px;width:50px;height:620px">
+          <path d="M30 10 V680 M8 650 L30 690 L52 650" class="neon y"/>
+        </svg>
+      </div>
+
+      <!-- ===== L06 M2 ===== -->
+      <div id="sc_L06" class="clip layer scene" data-line="L06" data-start="14.063" data-duration="1.645" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:350px"><span id="m2_b" class="mb" style="font-size:190px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>2</span></div>
+        <svg id="m2_car" class="car y" viewBox="0 0 680 260" style="left:130px;top:650px;width:820px;height:314px"><ellipse class="shadow" cx="340" cy="242" rx="244" ry="12"/><path class="fillb" d="M119.1 200.0 Q105.0 200.0 105.0 184.0 L106.9 172.0 Q114.4 144.0 152.0 146.0 L274.2 136.0 Q325.9 86.0 340.0 82.0 Q372.9 76.0 405.8 84.0 Q448.1 94.0 499.8 128.0 L556.2 130.0 Q570.3 132.0 570.3 150.0 L568.4 194.0 Q565.6 200.0 551.5 200.0 L528.1 200.0 A52 52 0 0 0 424.5 200.0 L241.4 200.0 A52 52 0 0 0 137.8 200.0 Z"/><path class="draw body" d="M119.1 200.0 Q105.0 200.0 105.0 184.0 L106.9 172.0 Q114.4 144.0 152.0 146.0 L274.2 136.0 Q325.9 86.0 340.0 82.0 Q372.9 76.0 405.8 84.0 Q448.1 94.0 499.8 128.0 L556.2 130.0 Q570.3 132.0 570.3 150.0 L568.4 194.0 Q565.6 200.0 551.5 200.0 L528.1 200.0 A52 52 0 0 0 424.5 200.0 L241.4 200.0 A52 52 0 0 0 137.8 200.0 Z"/><path class="glass" d="M290.6 134.0 Q338.7 95.0 348.7 91.0 L403.4 92.0 Q425.4 97.0 466.9 134.0 Z M396.4 92.0 L402.4 134.0"/><path class="draw gl" d="M290.6 134.0 Q338.7 95.0 348.7 91.0 L403.4 92.0 Q425.4 97.0 466.9 134.0 Z M396.4 92.0 L402.4 134.0"/><path class="draw det" d="M288.3 138.0 L294.3 192.0 M405.8 138.0 Q417.8 170.0 401.8 192.0 M249.6 190.0 L416.3 188.0 M112.0 184.0 L142.6 186.0 M133.2 152.0 L546.8 144.0"/><path class="lamp" d="M110.6 158.0 L137.9 150.0 L140.2 160.0 Z"/><path class="lamp tl" d="M568.4 140.0 L542.1 138.0 L542.1 150.0 L568.4 152.0 Z"/><g class="whl" data-cx="189.6" data-cy="195.0"><circle class="draw tyre" cx="189.6" cy="195.0" r="38"/><circle class="draw rim" cx="189.6" cy="195.0" r="27.1"/><path class="spk" d="M189.6 187.6 L189.6 170.4 M196.6 192.7 L213.0 187.4 M193.9 201.0 L204.1 214.9 M185.3 201.0 L175.1 214.9 M182.6 192.7 L166.2 187.4"/><path class="cal" d="M169.1 181.9 A24.6 24.6 0 0 1 184.7 171.2"/></g><g class="whl" data-cx="476.3" data-cy="195.0"><circle class="draw tyre" cx="476.3" cy="195.0" r="38"/><circle class="draw rim" cx="476.3" cy="195.0" r="27.1"/><path class="spk" d="M476.3 187.6 L476.3 170.4 M483.3 192.7 L499.7 187.4 M480.6 201.0 L490.8 214.9 M472.0 201.0 L461.8 214.9 M469.3 192.7 L452.9 187.4"/><path class="cal" d="M455.8 181.9 A24.6 24.6 0 0 1 471.4 171.2"/></g></svg>
+        <div id="m2_l" class="row" style="top:1030px"><span class="sticker" style="font-size:84px;transform:rotate(-3deg)">COUPE KECIL</span></div>
+      </div>
+
+      <!-- ===== L07 M3 ===== -->
+      <div id="sc_L07" class="clip layer scene" data-line="L07" data-start="15.708" data-duration="1.341" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:350px"><span id="m3_b" class="mb" style="font-size:190px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>3</span></div>
+        <svg id="m3_car" class="car y" viewBox="0 0 680 260" style="left:80px;top:650px;width:920px;height:352px"><ellipse class="shadow" cx="340" cy="242" rx="291" ry="12"/><path class="fillb" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 Q300.8 80.0 317.6 76.0 Q373.6 70.0 429.6 78.0 Q457.6 86.0 530.4 124.0 L597.6 126.0 Q614.4 128.0 614.4 146.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="draw body" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 Q300.8 80.0 317.6 76.0 Q373.6 70.0 429.6 78.0 Q457.6 86.0 530.4 124.0 L597.6 126.0 Q614.4 128.0 614.4 146.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="glass" d="M264.4 134.0 Q317.2 89.0 327.2 85.0 L426.8 86.0 Q448.8 91.0 499.6 134.0 Z M384.8 85.0 L380.8 134.0"/><path class="draw gl" d="M264.4 134.0 Q317.2 89.0 327.2 85.0 L426.8 86.0 Q448.8 91.0 499.6 134.0 Z M384.8 85.0 L380.8 134.0"/><path class="draw det" d="M261.6 138.0 L267.6 192.0 M380.8 138.0 L382.8 192.0 M452.0 138.0 Q466.0 170.0 448.0 192.0 M215.2 190.0 L431.2 188.0 M68.4 184.0 L104.8 186.0 M93.6 152.0 L586.4 144.0"/><path class="lamp" d="M66.7 158.0 L99.2 150.0 L102.0 160.0 Z"/><path class="lamp tl" d="M612.2 136.0 L580.8 134.0 L580.8 146.0 L612.2 148.0 Z"/><g class="whl" data-cx="155.2" data-cy="194.0"><circle class="draw tyre" cx="155.2" cy="194.0" r="39"/><circle class="draw rim" cx="155.2" cy="194.0" r="27.7"/><path class="spk" d="M155.2 186.4 L155.2 168.8 M162.4 191.7 L179.2 186.2 M159.6 200.1 L170.0 214.4 M150.8 200.1 L140.4 214.4 M148.0 191.7 L131.2 186.2"/><path class="cal" d="M134.2 180.6 A25.2 25.2 0 0 1 150.2 169.6"/></g><g class="whl" data-cx="491.2" data-cy="194.0"><circle class="draw tyre" cx="491.2" cy="194.0" r="39"/><circle class="draw rim" cx="491.2" cy="194.0" r="27.7"/><path class="spk" d="M491.2 186.4 L491.2 168.8 M498.4 191.7 L515.2 186.2 M495.6 200.1 L506.0 214.4 M486.8 200.1 L476.4 214.4 M484.0 191.7 L467.2 186.2"/><path class="cal" d="M470.2 180.6 A25.2 25.2 0 0 1 486.2 169.6"/></g></svg>
+        <div id="m3_l" class="row" style="top:1030px"><span class="sticker" style="font-size:84px;transform:rotate(3deg)">SEDAN · 4 PINTU</span></div>
+      </div>
+
+      <!-- ===== L08 M4 ===== -->
+      <div id="sc_L08" class="clip layer scene" data-line="L08" data-start="17.049" data-duration="3.415" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:350px"><span id="m4_b" class="mb" style="font-size:190px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>4</span></div>
+        <div id="m4_eq" class="row mono y" style="top:600px;font-size:44px">= M3 VERSI 2 PINTU</div>
+        <svg id="m4_car" class="car y" viewBox="0 0 680 260" style="left:80px;top:660px;width:920px;height:352px"><ellipse class="shadow" cx="340" cy="242" rx="291" ry="12"/><path class="fillb" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 Q306.4 86.0 323.2 82.0 Q370.8 76.0 418.4 84.0 Q476.4 94.0 547.2 126.0 L597.6 128.0 Q614.4 130.0 614.4 148.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="draw body" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 Q306.4 86.0 323.2 82.0 Q370.8 76.0 418.4 84.0 Q476.4 94.0 547.2 126.0 L597.6 128.0 Q614.4 130.0 614.4 148.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="glass" d="M264.4 134.0 Q322.8 95.0 332.8 91.0 L415.6 92.0 Q437.6 97.0 508.0 134.0 Z M407.2 92.0 L413.2 134.0"/><path class="draw gl" d="M264.4 134.0 Q322.8 95.0 332.8 91.0 L415.6 92.0 Q437.6 97.0 508.0 134.0 Z M407.2 92.0 L413.2 134.0"/><path class="draw det" d="M261.6 138.0 L267.6 192.0 M418.4 138.0 Q430.4 170.0 414.4 192.0 M215.2 190.0 L431.2 188.0 M68.4 184.0 L104.8 186.0 M93.6 152.0 L586.4 144.0"/><path class="lamp" d="M66.7 158.0 L99.2 150.0 L102.0 160.0 Z"/><path class="lamp tl" d="M612.2 138.0 L580.8 136.0 L580.8 148.0 L612.2 150.0 Z"/><g class="whl" data-cx="155.2" data-cy="194.0"><circle class="draw tyre" cx="155.2" cy="194.0" r="39"/><circle class="draw rim" cx="155.2" cy="194.0" r="27.7"/><path class="spk" d="M155.2 186.4 L155.2 168.8 M162.4 191.7 L179.2 186.2 M159.6 200.1 L170.0 214.4 M150.8 200.1 L140.4 214.4 M148.0 191.7 L131.2 186.2"/><path class="cal" d="M134.2 180.6 A25.2 25.2 0 0 1 150.2 169.6"/></g><g class="whl" data-cx="491.2" data-cy="194.0"><circle class="draw tyre" cx="491.2" cy="194.0" r="39"/><circle class="draw rim" cx="491.2" cy="194.0" r="27.7"/><path class="spk" d="M491.2 186.4 L491.2 168.8 M498.4 191.7 L515.2 186.2 M495.6 200.1 L506.0 214.4 M486.8 200.1 L476.4 214.4 M484.0 191.7 L467.2 186.2"/><path class="cal" d="M470.2 180.6 A25.2 25.2 0 0 1 486.2 169.6"/></g></svg>
+        <svg id="m4_conv" class="car y" viewBox="0 0 680 260" style="left:80px;top:660px;width:920px;height:352px"><ellipse class="shadow" cx="340" cy="242" rx="291" ry="12"/><path class="fillb" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 L284.0 100.0 L292.4 102.0 L267.2 138.0 L508.0 122.0 Q536.0 104.0 558.4 122.0 L597.6 128.0 Q614.4 130.0 614.4 148.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="draw body" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 L284.0 100.0 L292.4 102.0 L267.2 138.0 L508.0 122.0 Q536.0 104.0 558.4 122.0 L597.6 128.0 Q614.4 130.0 614.4 148.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="draw det" d="M261.6 138.0 L267.6 192.0 M418.4 138.0 Q430.4 170.0 414.4 192.0 M215.2 190.0 L431.2 188.0 M68.4 184.0 L104.8 186.0 M93.6 152.0 L586.4 144.0"/><path class="lamp" d="M66.7 158.0 L99.2 150.0 L102.0 160.0 Z"/><path class="lamp tl" d="M612.2 138.0 L580.8 136.0 L580.8 148.0 L612.2 150.0 Z"/><g class="whl" data-cx="155.2" data-cy="194.0"><circle class="draw tyre" cx="155.2" cy="194.0" r="39"/><circle class="draw rim" cx="155.2" cy="194.0" r="27.7"/><path class="spk" d="M155.2 186.4 L155.2 168.8 M162.4 191.7 L179.2 186.2 M159.6 200.1 L170.0 214.4 M150.8 200.1 L140.4 214.4 M148.0 191.7 L131.2 186.2"/><path class="cal" d="M134.2 180.6 A25.2 25.2 0 0 1 150.2 169.6"/></g><g class="whl" data-cx="491.2" data-cy="194.0"><circle class="draw tyre" cx="491.2" cy="194.0" r="39"/><circle class="draw rim" cx="491.2" cy="194.0" r="27.7"/><path class="spk" d="M491.2 186.4 L491.2 168.8 M498.4 191.7 L515.2 186.2 M495.6 200.1 L506.0 214.4 M486.8 200.1 L476.4 214.4 M484.0 191.7 L467.2 186.2"/><path class="cal" d="M470.2 180.6 A25.2 25.2 0 0 1 486.2 169.6"/></g></svg>
+        <div class="abs" style="left:0;top:1050px;width:1080px;display:flex;justify-content:center;gap:30px">
+          <span id="m4_l1" class="sticker" style="font-size:66px;transform:rotate(-3deg)">COUPE</span>
+          <span id="m4_l2" class="sticker m" style="font-size:66px;transform:rotate(3deg)">CONVERTIBLE</span>
+        </div>
+      </div>
+
+      <!-- ===== L09 M5 ===== -->
+      <div id="sc_L09" class="clip layer scene" data-line="L09" data-start="20.464" data-duration="2.868" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:350px"><span id="m5_b" class="mb" style="font-size:190px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>5</span></div>
+        <div id="m5_eq" class="row mono y" style="top:600px;font-size:44px">SEDAN BESAR</div>
+        <svg id="m5_car" class="car y" viewBox="0 0 680 260" style="left:40px;top:650px;width:1000px;height:382px"><ellipse class="shadow" cx="340" cy="242" rx="322" ry="12"/><path class="fillb" d="M48.6 200.0 Q30.0 200.0 30.0 182.0 L32.5 170.0 Q42.4 142.0 92.0 144.0 L228.4 134.0 Q290.4 76.0 309.0 72.0 Q380.3 66.0 451.6 74.0 Q482.6 82.0 557.0 122.0 L625.2 124.0 Q643.8 126.0 643.8 144.0 L641.3 194.0 Q637.6 200.0 619.0 200.0 L561.8 200.0 A55 55 0 0 0 453.0 200.0 L183.6 200.0 A55 55 0 0 0 74.8 200.0 Z"/><path class="draw body" d="M48.6 200.0 Q30.0 200.0 30.0 182.0 L32.5 170.0 Q42.4 142.0 92.0 144.0 L228.4 134.0 Q290.4 76.0 309.0 72.0 Q380.3 66.0 451.6 74.0 Q482.6 82.0 557.0 122.0 L625.2 124.0 Q643.8 126.0 643.8 144.0 L641.3 194.0 Q637.6 200.0 619.0 200.0 L561.8 200.0 A55 55 0 0 0 453.0 200.0 L183.6 200.0 A55 55 0 0 0 74.8 200.0 Z"/><path class="glass" d="M250.1 132.0 Q309.2 85.0 319.2 81.0 L448.5 82.0 Q470.5 87.0 522.9 132.0 Z M392.7 81.0 L388.7 132.0"/><path class="draw gl" d="M250.1 132.0 Q309.2 85.0 319.2 81.0 L448.5 82.0 Q470.5 87.0 522.9 132.0 Z M392.7 81.0 L388.7 132.0"/><path class="draw det" d="M247.0 136.0 L253.0 192.0 M388.7 136.0 L390.7 192.0 M476.4 136.0 Q490.4 170.0 472.4 192.0 M189.2 190.0 L447.4 188.0 M39.3 184.0 L79.6 186.0 M67.2 150.0 L612.8 142.0"/><path class="lamp" d="M37.4 156.0 L73.4 148.0 L76.5 158.0 Z"/><path class="lamp tl" d="M641.3 134.0 L606.6 132.0 L606.6 144.0 L641.3 146.0 Z"/><g class="whl" data-cx="129.2" data-cy="192.0"><circle class="draw tyre" cx="129.2" cy="192.0" r="41"/><circle class="draw rim" cx="129.2" cy="192.0" r="29.0"/><path class="spk" d="M129.2 184.1 L129.2 165.6 M136.7 189.6 L154.3 183.8 M133.9 198.4 L144.7 213.4 M124.5 198.4 L113.7 213.4 M121.7 189.6 L104.1 183.8"/><path class="cal" d="M107.2 177.9 A26.4 26.4 0 0 1 123.9 166.5"/></g><g class="whl" data-cx="507.4" data-cy="192.0"><circle class="draw tyre" cx="507.4" cy="192.0" r="41"/><circle class="draw rim" cx="507.4" cy="192.0" r="29.0"/><path class="spk" d="M507.4 184.1 L507.4 165.6 M514.9 189.6 L532.5 183.8 M512.1 198.4 L522.9 213.4 M502.7 198.4 L491.9 213.4 M499.9 189.6 L482.3 183.8"/><path class="cal" d="M485.4 177.9 A26.4 26.4 0 0 1 502.1 166.5"/></g></svg>
+        <div id="m5_h" class="abs" style="left:150px;top:1060px;width:780px;height:140px">
+          <svg id="m5_plug" class="abs" viewBox="0 0 120 120" style="left:0;top:0;width:130px;height:130px">
+            <path d="M40 10 V40 M80 10 V40 M24 40 H96 V62 Q96 92 60 92 Q24 92 24 62Z M60 92 V116" class="neon y" stroke-width="8"/>
+          </svg>
+          <div id="m5_bat" class="meter" style="left:160px;top:34px;width:300px"><div id="m5_bf" class="fill" style="width:272px"></div></div>
+          <div id="m5_hl" class="abs big y" style="left:490px;top:28px;font-size:76px;white-space:nowrap">PLUG-IN<br><span style="color:var(--cream);font-size:62px">HYBRID</span></div>
+        </div>
+      </div>
+
+      <!-- ===== L10 X = SUV ===== -->
+      <div id="sc_L10" class="clip layer scene" data-line="L10" data-start="23.332" data-duration="3.604" data-track-index="3" style="z-index:10">
+        <div class="abs" style="left:0;top:330px;width:1080px;display:flex;justify-content:center;align-items:center;gap:30px">
+          <span id="x_p" class="big" style="font-size:150px">+</span>
+          <span id="x_x" class="big y" style="font-size:300px"><span class="holo" data-t="X">X</span></span>
+          <span id="x_eq" class="big" style="font-size:150px">= <span style="color:var(--yellow)">SUV</span></span>
+        </div>
+        <svg id="x_car" class="car y" viewBox="0 0 680 260" style="left:60px;top:660px;width:960px;height:367px"><ellipse class="shadow" cx="340" cy="242" rx="312" ry="12"/><path class="fillb" d="M58.0 190.0 Q40.0 190.0 40.0 162.0 L42.4 150.0 Q52.0 118.0 100.0 120.0 L220.0 110.0 Q268.0 46.0 286.0 42.0 Q421.0 36.0 556.0 44.0 Q622.0 48.0 634.0 100.0 L619.0 102.0 Q637.0 104.0 637.0 122.0 L634.6 184.0 Q631.0 190.0 613.0 190.0 L574.9 190.0 A61 61 0 0 0 453.1 190.0 L202.9 190.0 A61 61 0 0 0 81.1 190.0 Z"/><path class="draw body" d="M58.0 190.0 Q40.0 190.0 40.0 162.0 L42.4 150.0 Q52.0 118.0 100.0 120.0 L220.0 110.0 Q268.0 46.0 286.0 42.0 Q421.0 36.0 556.0 44.0 Q622.0 48.0 634.0 100.0 L619.0 102.0 Q637.0 104.0 637.0 122.0 L634.6 184.0 Q631.0 190.0 613.0 190.0 L574.9 190.0 A61 61 0 0 0 453.1 190.0 L202.9 190.0 A61 61 0 0 0 81.1 190.0 Z"/><path class="glass" d="M241.0 108.0 Q286.0 55.0 296.0 51.0 L553.0 52.0 Q575.0 57.0 619.0 108.0 Z M433.0 51.0 L429.0 108.0"/><path class="draw gl" d="M241.0 108.0 Q286.0 55.0 296.0 51.0 L553.0 52.0 Q575.0 57.0 619.0 108.0 Z M433.0 51.0 L429.0 108.0"/><path class="draw det" d="M238.0 112.0 L244.0 182.0 M429.0 112.0 L431.0 182.0 M580.0 112.0 Q594.0 160.0 576.0 182.0 M202.0 180.0 L454.0 178.0 M49.0 174.0 L88.0 176.0 M76.0 126.0 L607.0 118.0"/><path class="lamp" d="M47.2 132.0 L82.0 124.0 L85.0 134.0 Z"/><path class="lamp tl" d="M634.6 112.0 L601.0 110.0 L601.0 122.0 L634.6 124.0 Z"/><g class="whl" data-cx="142.0" data-cy="186.0"><circle class="draw tyre" cx="142.0" cy="186.0" r="47"/><circle class="draw rim" cx="142.0" cy="186.0" r="33.0"/><path class="spk" d="M142.0 177.0 L142.0 156.0 M150.6 183.2 L170.5 176.7 M147.3 193.3 L159.6 210.3 M136.7 193.3 L124.4 210.3 M133.4 183.2 L113.5 176.7"/><path class="cal" d="M117.0 170.0 A30.0 30.0 0 0 1 136.0 157.0"/></g><g class="whl" data-cx="514.0" data-cy="186.0"><circle class="draw tyre" cx="514.0" cy="186.0" r="47"/><circle class="draw rim" cx="514.0" cy="186.0" r="33.0"/><path class="spk" d="M514.0 177.0 L514.0 156.0 M522.6 183.2 L542.5 176.7 M519.3 193.3 L531.6 210.3 M508.7 193.3 L496.4 210.3 M505.4 183.2 L485.5 176.7"/><path class="cal" d="M489.0 170.0 A30.0 30.0 0 0 1 508.0 157.0"/></g></svg>
+        <div class="row" style="top:1070px"><span id="x_b" class="mb" style="font-size:110px"><span class="st"><i></i><i></i><i></i></span>X5&nbsp;<span class="m">M</span></span></div>
+      </div>
+
+      <!-- ===== L11 XM ===== -->
+      <div id="sc_L11" class="clip layer scene" data-line="L11" data-start="26.936" data-duration="2.810" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:340px"><span id="xm_b" class="mb" style="font-size:190px"><span class="st"><i></i><i></i><i></i></span>X<span class="m">M</span></span></div>
+        <svg id="xm_car" class="car y" viewBox="0 0 680 260" style="left:60px;top:620px;width:960px;height:367px"><ellipse class="shadow" cx="340" cy="242" rx="317" ry="12"/><path class="fillb" d="M53.3 178.0 Q35.0 178.0 35.0 144.0 L37.4 132.0 Q47.2 100.0 96.0 102.0 L211.9 92.0 Q266.8 26.0 285.1 22.0 Q373.5 16.0 462.0 24.0 Q525.1 34.0 602.3 90.0 L623.6 92.0 Q642.0 94.0 642.0 112.0 L639.5 172.0 Q635.9 178.0 617.5 178.0 L583.9 178.0 A67 67 0 0 0 449.9 178.0 L205.7 178.0 A67 67 0 0 0 71.7 178.0 Z"/><path class="draw body" d="M53.3 178.0 Q35.0 178.0 35.0 144.0 L37.4 132.0 Q47.2 100.0 96.0 102.0 L211.9 92.0 Q266.8 26.0 285.1 22.0 Q373.5 16.0 462.0 24.0 Q525.1 34.0 602.3 90.0 L623.6 92.0 Q642.0 94.0 642.0 112.0 L639.5 172.0 Q635.9 178.0 617.5 178.0 L583.9 178.0 A67 67 0 0 0 449.9 178.0 L205.7 178.0 A67 67 0 0 0 71.7 178.0 Z"/><path class="glass" d="M233.2 90.0 Q285.2 35.0 295.2 31.0 L458.9 32.0 Q480.9 37.0 559.6 90.0 Z M385.8 31.0 L381.8 90.0"/><path class="draw gl" d="M233.2 90.0 Q285.2 35.0 295.2 31.0 L458.9 32.0 Q480.9 37.0 559.6 90.0 Z M385.8 31.0 L381.8 90.0"/><path class="draw det" d="M230.2 94.0 L236.2 170.0 M381.8 94.0 L383.8 170.0 M486.4 94.0 Q500.4 148.0 482.4 170.0 M198.7 168.0 L456.9 166.0 M44.1 162.0 L83.8 164.0 M71.6 108.0 L611.4 100.0"/><path class="lamp" d="M42.3 114.0 L77.7 106.0 L80.8 116.0 Z"/><path class="lamp tl" d="M639.5 102.0 L605.4 100.0 L605.4 112.0 L639.5 114.0 Z"/><g class="whl" data-cx="138.7" data-cy="180.0"><circle class="draw tyre" cx="138.7" cy="180.0" r="53"/><circle class="draw rim" cx="138.7" cy="180.0" r="37.0"/><path class="spk" d="M138.7 169.9 L138.7 146.4 M148.3 176.9 L170.7 169.6 M144.6 188.2 L158.4 207.2 M132.8 188.2 L119.0 207.2 M129.1 176.9 L106.7 169.6"/><path class="cal" d="M110.7 162.1 A33.6 33.6 0 0 1 132.0 147.5"/></g><g class="whl" data-cx="516.9" data-cy="180.0"><circle class="draw tyre" cx="516.9" cy="180.0" r="53"/><circle class="draw rim" cx="516.9" cy="180.0" r="37.0"/><path class="spk" d="M516.9 169.9 L516.9 146.4 M526.5 176.9 L548.9 169.6 M522.8 188.2 L536.6 207.2 M511.0 188.2 L497.2 207.2 M507.3 176.9 L484.9 169.6"/><path class="cal" d="M488.9 162.1 A33.6 33.6 0 0 1 510.2 147.5"/></g></svg>
+        <div id="xm_s" class="abs" style="left:520px;top:1010px"><span class="stamp" style="font-size:96px;transform:rotate(-7deg)">M SAHAJA</span></div>
+        <div id="xm_l" class="abs mono" style="left:90px;top:1060px;font-size:34px;line-height:1.5">TAKDE VERSI<br><span style="color:var(--yellow)">"BIASA"</span></div>
+        <svg id="xm_s1" class="sparkle" style="left:880px;top:380px"><use href="#star"/></svg>
+        <svg id="xm_s2" class="sparkle" style="left:140px;top:560px;width:50px;height:50px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== L12 Competition ===== -->
+      <div id="sc_L12" class="clip layer scene" data-line="L12" data-start="29.746" data-duration="1.817" data-track-index="3" style="z-index:10">
+        <div id="c_l" class="row mono y" style="top:350px;font-size:40px">NAMPAK BADGE NI?</div>
+        <div class="row" style="top:420px"><span id="c_b" class="sticker m" style="font-size:118px;transform:rotate(-3deg);font-style:italic">COMPETITION</span></div>
+        <svg id="c_g" class="abs" viewBox="0 0 300 190" style="left:240px;top:640px;width:600px;height:380px">
+          <path d="M40 160 A115 115 0 1 1 260 160" class="neon" />
+          <path d="M58 160 L72 160 M150 48 L150 62 M228 160 L242 160 M84 90 L94 100 M216 90 L206 100" class="neon y" stroke-width="5"/>
+          <line id="c_n" x1="150" y1="160" x2="150" y2="66" stroke="#FECD00" stroke-width="10" stroke-linecap="round" style="filter:drop-shadow(0 0 10px #FECD00)"/>
+          <circle cx="150" cy="160" r="14" fill="#FFEFEF"/>
+        </svg>
+        <div id="c_p" class="row" style="top:1040px"><span class="big y skew" style="font-size:180px"><span class="holo" data-t="+ POWER">+ POWER</span></span></div>
+      </div>
+
+      <!-- ===== L13 CS ===== -->
+      <div id="sc_L13" class="clip layer scene" data-line="L13" data-start="31.563" data-duration="2.956" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:340px"><span id="cs_b" class="mb" style="font-size:170px"><span class="st"><i></i><i></i><i></i></span><span class="m">CS</span></span></div>
+        <div id="cs_t" class="row big" style="top:590px;font-size:130px"><span class="skew">CLUB <span style="color:var(--yellow)">SPORT</span></span></div>
+        <div id="cs_panel" class="panel" style="left:130px;top:780px;width:820px;height:380px"></div>
+        <div id="cs_i1" class="item" style="left:200px;top:820px"><span class="vmark">↓</span><span class="t">LAGI RINGAN</span></div>
+        <div id="cs_i2" class="item" style="left:200px;top:990px"><span class="vmark">⚡</span><span class="t" style="color:var(--yellow)">LAGI LAJU</span></div>
+      </div>
+
+      <!-- ===== L14 CSL ===== -->
+      <div id="sc_L14" class="clip layer scene" data-line="L14" data-start="34.519" data-duration="3.618" data-track-index="3" style="z-index:10">
+        <div class="abs" style="left:0;top:340px;width:1080px;display:flex;justify-content:center">
+          <span id="sl_b" class="mb" style="font-size:170px"><span class="st"><i></i><i></i><i></i></span><span class="m">CS</span><span id="sl_L" style="color:var(--cream)">L</span></span>
+        </div>
+        <svg id="sl_ln" class="abs" viewBox="0 0 200 220" style="left:600px;top:560px;width:200px;height:220px">
+          <path d="M40 0 V110 Q40 140 70 140 H120" class="neon y" stroke-dasharray="14 12"/>
+        </svg>
+        <div id="sl_w" class="row" style="top:720px"><span class="big y skew" style="font-size:150px"><span class="holo" data-t="LEICHTBAU">LEICHTBAU</span></span></div>
+        <div id="sl_de" class="row mono" style="top:890px;font-size:38px">BAHASA JERMAN</div>
+        <div id="sl_eq" class="row" style="top:970px"><span class="sticker" style="font-size:96px;transform:rotate(-3deg)">= RINGAN</span></div>
+        <div id="sl_kg" class="abs mono y" style="left:820px;top:1000px;font-size:44px">−KG</div>
+      </div>
+
+      <!-- ===== L15 one level down ===== -->
+      <div id="sc_L15" class="clip layer scene" data-line="L15" data-start="38.137" data-duration="1.966" data-track-index="3" style="z-index:10">
+        <div id="lv_t" class="row big" style="top:340px;font-size:120px"><span class="skew">TURUN <span style="color:var(--yellow)">SATU LEVEL</span></span></div>
+        <div id="lv_1" class="abs" style="left:150px;top:560px;width:780px;height:150px;border:5px solid var(--cream);border-radius:28px;background:rgba(67,1,7,0.8);display:flex;align-items:center;padding-left:40px">
+          <span class="big" style="font-size:80px">M PENUH</span><span class="mono y" style="margin-left:auto;margin-right:36px;font-size:34px">LV.1</span></div>
+        <div id="lv_2" class="abs" style="left:150px;top:760px;width:780px;height:150px;border:5px solid var(--yellow);border-radius:28px;background:rgba(67,1,7,0.9);display:flex;align-items:center;padding-left:40px;box-shadow:0 0 50px rgba(254,205,0,0.45)">
+          <span class="big y" style="font-size:80px">M PERFORMANCE</span><span class="mono y" style="margin-left:auto;margin-right:36px;font-size:34px">LV.2</span></div>
+        <div id="lv_3" class="abs" style="left:150px;top:960px;width:780px;height:150px;border:5px dashed rgba(255,239,239,0.4);border-radius:28px;background:rgba(67,1,7,0.5);display:flex;align-items:center;padding-left:40px">
+          <span class="big" style="font-size:80px;opacity:0.5">M SPORT</span><span class="mono" style="margin-left:auto;margin-right:36px;font-size:34px;opacity:0.5">LV.3</span></div>
+        <svg id="lv_ar" class="abs" viewBox="0 0 100 100" style="left:40px;top:600px;width:96px;height:96px">
+          <path d="M20 50 H80 M55 22 L82 50 L55 78" class="neon y" stroke-width="10"/>
+        </svg>
+      </div>
+
+      <!-- ===== L16 M in front ===== -->
+      <div id="sc_L16" class="clip layer scene" data-line="L16" data-start="40.103" data-duration="4.375" data-track-index="3" style="z-index:10">
+        <div id="mp_t" class="row big" style="top:340px;font-size:112px"><span class="skew"><span style="color:var(--yellow)">M</span> DEPAN NOMBOR</span></div>
+        <div class="row" style="top:520px"><span id="mp_b1" class="mb" style="font-size:150px"><span class="st"><i></i><i></i><i></i></span><span id="mp_m1" class="m">M</span>340i</span></div>
+        <svg id="mp_c1" class="car " viewBox="0 0 680 260" style="left:160px;top:700px;width:760px;height:290px"><ellipse class="shadow" cx="340" cy="242" rx="291" ry="12"/><path class="fillb" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 Q300.8 80.0 317.6 76.0 Q373.6 70.0 429.6 78.0 Q457.6 86.0 530.4 124.0 L597.6 126.0 Q614.4 128.0 614.4 146.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="draw body" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 Q300.8 80.0 317.6 76.0 Q373.6 70.0 429.6 78.0 Q457.6 86.0 530.4 124.0 L597.6 126.0 Q614.4 128.0 614.4 146.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="glass" d="M264.4 134.0 Q317.2 89.0 327.2 85.0 L426.8 86.0 Q448.8 91.0 499.6 134.0 Z M384.8 85.0 L380.8 134.0"/><path class="draw gl" d="M264.4 134.0 Q317.2 89.0 327.2 85.0 L426.8 86.0 Q448.8 91.0 499.6 134.0 Z M384.8 85.0 L380.8 134.0"/><path class="draw det" d="M261.6 138.0 L267.6 192.0 M380.8 138.0 L382.8 192.0 M452.0 138.0 Q466.0 170.0 448.0 192.0 M215.2 190.0 L431.2 188.0 M68.4 184.0 L104.8 186.0 M93.6 152.0 L586.4 144.0"/><path class="lamp" d="M66.7 158.0 L99.2 150.0 L102.0 160.0 Z"/><path class="lamp tl" d="M612.2 136.0 L580.8 134.0 L580.8 146.0 L612.2 148.0 Z"/><g class="whl" data-cx="155.2" data-cy="194.0"><circle class="draw tyre" cx="155.2" cy="194.0" r="39"/><circle class="draw rim" cx="155.2" cy="194.0" r="27.7"/><path class="spk" d="M155.2 186.4 L155.2 168.8 M162.4 191.7 L179.2 186.2 M159.6 200.1 L170.0 214.4 M150.8 200.1 L140.4 214.4 M148.0 191.7 L131.2 186.2"/><path class="cal" d="M134.2 180.6 A25.2 25.2 0 0 1 150.2 169.6"/></g><g class="whl" data-cx="491.2" data-cy="194.0"><circle class="draw tyre" cx="491.2" cy="194.0" r="39"/><circle class="draw rim" cx="491.2" cy="194.0" r="27.7"/><path class="spk" d="M491.2 186.4 L491.2 168.8 M498.4 191.7 L515.2 186.2 M495.6 200.1 L506.0 214.4 M486.8 200.1 L476.4 214.4 M484.0 191.7 L467.2 186.2"/><path class="cal" d="M470.2 180.6 A25.2 25.2 0 0 1 486.2 169.6"/></g></svg>
+        <div class="row" style="top:520px"><span id="mp_b2" class="mb" style="font-size:150px"><span class="st"><i></i><i></i><i></i></span><span id="mp_m2" class="m">M</span>135</span></div>
+        <svg id="mp_c2" class="car " viewBox="0 0 680 260" style="left:180px;top:700px;width:720px;height:275px"><ellipse class="shadow" cx="340" cy="242" rx="250" ry="12"/><path class="fillb" d="M114.4 200.0 Q100.0 200.0 100.0 180.0 L101.9 168.0 Q109.6 140.0 148.0 142.0 L263.2 132.0 Q306.4 76.0 320.8 72.0 Q402.4 66.0 484.0 74.0 Q556.0 78.0 565.6 116.0 L563.2 118.0 Q577.6 120.0 577.6 138.0 L575.7 194.0 Q572.8 200.0 558.4 200.0 L539.6 200.0 A51 51 0 0 0 438.0 200.0 L237.2 200.0 A51 51 0 0 0 135.6 200.0 Z"/><path class="draw body" d="M114.4 200.0 Q100.0 200.0 100.0 180.0 L101.9 168.0 Q109.6 140.0 148.0 142.0 L263.2 132.0 Q306.4 76.0 320.8 72.0 Q402.4 66.0 484.0 74.0 Q556.0 78.0 565.6 116.0 L563.2 118.0 Q577.6 120.0 577.6 138.0 L575.7 194.0 Q572.8 200.0 558.4 200.0 L539.6 200.0 A51 51 0 0 0 438.0 200.0 L237.2 200.0 A51 51 0 0 0 135.6 200.0 Z"/><path class="glass" d="M280.0 130.0 Q319.6 85.0 329.6 81.0 L481.6 82.0 Q503.6 87.0 553.6 130.0 Z M412.0 81.0 L408.0 130.0"/><path class="draw gl" d="M280.0 130.0 Q319.6 85.0 329.6 81.0 L481.6 82.0 Q503.6 87.0 553.6 130.0 Z M412.0 81.0 L408.0 130.0"/><path class="draw det" d="M277.6 134.0 L283.6 192.0 M408.0 134.0 L410.0 192.0 M503.2 134.0 Q517.2 170.0 499.2 192.0 M246.4 190.0 L428.8 188.0 M107.2 184.0 L138.4 186.0 M128.8 148.0 L553.6 140.0"/><path class="lamp" d="M105.8 154.0 L133.6 146.0 L136.0 156.0 Z"/><path class="lamp tl" d="M575.7 128.0 L548.8 126.0 L548.8 138.0 L575.7 140.0 Z"/><g class="whl" data-cx="186.4" data-cy="196.0"><circle class="draw tyre" cx="186.4" cy="196.0" r="37"/><circle class="draw rim" cx="186.4" cy="196.0" r="26.4"/><path class="spk" d="M186.4 188.8 L186.4 172.0 M193.2 193.8 L209.2 188.6 M190.6 201.8 L200.5 215.4 M182.2 201.8 L172.3 215.4 M179.6 193.8 L163.6 188.6"/><path class="cal" d="M166.4 183.2 A24.0 24.0 0 0 1 181.6 172.8"/></g><g class="whl" data-cx="488.8" data-cy="196.0"><circle class="draw tyre" cx="488.8" cy="196.0" r="37"/><circle class="draw rim" cx="488.8" cy="196.0" r="26.4"/><path class="spk" d="M488.8 188.8 L488.8 172.0 M495.6 193.8 L511.6 188.6 M493.0 201.8 L502.9 215.4 M484.6 201.8 L474.7 215.4 M482.0 193.8 L466.0 188.6"/><path class="cal" d="M468.8 183.2 A24.0 24.0 0 0 1 484.0 172.8"/></g></svg>
+        <svg id="mp_arw" class="abs" viewBox="0 0 120 120" style="left:110px;top:552px;width:100px;height:100px">
+          <path d="M10 60 H100 M72 30 L106 60 L72 90" class="neon y" stroke-width="10"/>
+        </svg>
+        <div id="mp_lbl" class="row mono y" style="top:1040px;font-size:40px">M PERFORMANCE</div>
+      </div>
+
+      <!-- ===== L17 comparison bars ===== -->
+      <div id="sc_L17" class="clip layer scene" data-line="L17" data-start="44.478" data-duration="3.219" data-track-index="3" style="z-index:10">
+        <div id="cp_t" class="row big" style="top:340px;font-size:120px"><span class="skew">LAJU, <span style="color:var(--yellow)">TAPI...</span></span></div>
+        <div id="cp_m1" class="meter" style="left:110px;top:600px;width:860px"><div class="fill" style="width:360px"></div><div class="lbl">BMW BIASA</div></div>
+        <div id="cp_m2" class="meter" style="left:110px;top:790px;width:860px"><div class="fill" style="width:600px"></div><div class="lbl" style="color:var(--yellow)">M PERFORMANCE</div></div>
+        <div id="cp_m3" class="meter" style="left:110px;top:980px;width:860px"><div class="fill" style="width:832px;background:linear-gradient(90deg,#ff3b3b,var(--yellow))"></div><div class="lbl">M PENUH</div></div>
+        <div id="cp_x" class="abs" style="left:770px;top:770px"><span class="stamp r" style="font-size:64px;transform:rotate(-8deg)">BUKAN M PENUH</span></div>
+      </div>
+
+      <!-- ===== L18 M Sport warning ===== -->
+      <div id="sc_L18" class="clip layer scene" data-line="L18" data-start="47.697" data-duration="2.041" data-track-index="3" style="z-index:10">
+        <div id="ms_t1" class="tape" style="top:350px;transform:rotate(-3deg)"></div>
+        <div id="ms_l" class="row mono y" style="top:480px;font-size:44px">PALING RAMAI KELIRU</div>
+        <svg id="ms_w" class="abs" style="left:450px;top:560px;width:180px;height:162px"><use href="#warn"/></svg>
+        <div class="row" style="top:760px"><span id="ms_b" class="mb" style="font-size:180px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>&nbsp;SPORT</span></div>
+        <div id="ms_t2" class="tape" style="top:1060px;transform:rotate(2deg)"></div>
+      </div>
+
+      <!-- ===== L19 just a trim ===== -->
+      <div id="sc_L19" class="clip layer scene" data-line="L19" data-start="49.738" data-duration="3.874" data-track-index="3" style="z-index:10">
+        <div id="tr_t" class="row" style="top:330px"><span class="stamp" style="font-size:120px;transform:rotate(-3deg)">CUMA TRIM</span></div>
+        <svg id="tr_car" class="car " viewBox="0 0 680 260" style="left:200px;top:500px;width:680px;height:260px"><ellipse class="shadow" cx="340" cy="242" rx="291" ry="12"/><path class="fillb" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 Q300.8 80.0 317.6 76.0 Q373.6 70.0 429.6 78.0 Q457.6 86.0 530.4 124.0 L597.6 126.0 Q614.4 128.0 614.4 146.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="draw body" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 Q300.8 80.0 317.6 76.0 Q373.6 70.0 429.6 78.0 Q457.6 86.0 530.4 124.0 L597.6 126.0 Q614.4 128.0 614.4 146.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="glass" d="M264.4 134.0 Q317.2 89.0 327.2 85.0 L426.8 86.0 Q448.8 91.0 499.6 134.0 Z M384.8 85.0 L380.8 134.0"/><path class="draw gl" d="M264.4 134.0 Q317.2 89.0 327.2 85.0 L426.8 86.0 Q448.8 91.0 499.6 134.0 Z M384.8 85.0 L380.8 134.0"/><path class="draw det" d="M261.6 138.0 L267.6 192.0 M380.8 138.0 L382.8 192.0 M452.0 138.0 Q466.0 170.0 448.0 192.0 M215.2 190.0 L431.2 188.0 M68.4 184.0 L104.8 186.0 M93.6 152.0 L586.4 144.0"/><path class="lamp" d="M66.7 158.0 L99.2 150.0 L102.0 160.0 Z"/><path class="lamp tl" d="M612.2 136.0 L580.8 134.0 L580.8 146.0 L612.2 148.0 Z"/><g class="whl" data-cx="155.2" data-cy="194.0"><circle class="draw tyre" cx="155.2" cy="194.0" r="39"/><circle class="draw rim" cx="155.2" cy="194.0" r="27.7"/><path class="spk" d="M155.2 186.4 L155.2 168.8 M162.4 191.7 L179.2 186.2 M159.6 200.1 L170.0 214.4 M150.8 200.1 L140.4 214.4 M148.0 191.7 L131.2 186.2"/><path class="cal" d="M134.2 180.6 A25.2 25.2 0 0 1 150.2 169.6"/></g><g class="whl" data-cx="491.2" data-cy="194.0"><circle class="draw tyre" cx="491.2" cy="194.0" r="39"/><circle class="draw rim" cx="491.2" cy="194.0" r="27.7"/><path class="spk" d="M491.2 186.4 L491.2 168.8 M498.4 191.7 L515.2 186.2 M495.6 200.1 L506.0 214.4 M486.8 200.1 L476.4 214.4 M484.0 191.7 L467.2 186.2"/><path class="cal" d="M470.2 180.6 A25.2 25.2 0 0 1 486.2 169.6"/></g></svg>
+        <div id="tr_panel" class="panel" style="left:110px;top:790px;width:860px;height:470px"></div>
+        <div id="tr_i1" class="item" style="left:170px;top:820px"><span class="vmark">✓</span><span class="t">RIM BESAR</span></div>
+        <div id="tr_i2" class="item" style="left:170px;top:960px"><span class="vmark">✓</span><span class="t">BUMPER SPORTY</span></div>
+        <div id="tr_i3" class="item" style="left:170px;top:1100px"><span class="xmark">✕</span><span class="t" style="color:#ff6b6b">+ POWER</span><span class="mono y" style="font-size:40px;margin-left:10px">+0 HP</span></div>
+      </div>
+
+      <!-- ===== L20 decoder ===== -->
+      <div id="sc_L20" class="clip layer scene" data-line="L20" data-start="53.612" data-duration="4.639" data-track-index="3" style="z-index:10">
+        <div id="dc_l" class="row mono y" style="top:340px;font-size:40px">DECODE BADGE</div>
+        <div class="abs" style="left:0;top:410px;width:1080px;display:flex;justify-content:center;gap:16px;align-items:center">
+          <span id="dc_1" class="mb" style="font-size:96px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>4</span>
+          <span id="dc_2" class="sticker m" style="font-size:52px;padding:14px 22px 10px">COMPETITION</span>
+          <span id="dc_3" class="sticker" style="font-size:52px;padding:14px 22px 10px;text-transform:none">xDrive</span>
+        </div>
+        <div id="dc_r1" class="item" style="left:120px;top:620px"><span class="mono y" style="font-size:44px;width:170px">M4</span><span class="t" style="font-size:96px">= M PENUH</span></div>
+        <div id="dc_r2" class="item" style="left:120px;top:760px"><span class="mono y" style="font-size:44px;width:170px">COMP</span><span class="t" style="font-size:96px">= POWER LEBIH</span></div>
+        <div id="dc_r3" class="item" style="left:120px;top:900px"><span class="mono y" style="font-size:44px;width:170px">xDRV</span><span class="t" style="font-size:96px;color:var(--yellow)">= 4WD</span></div>
+        <svg id="dc_ch" class="abs" viewBox="0 0 300 420" style="left:760px;top:840px;width:200px;height:280px">
+          <path d="M150 60 V360 M60 90 H240 M60 330 H240" class="neon" stroke-width="7"/>
+          <rect class="dw" x="22" y="50" width="44" height="84" rx="12" fill="#FECD00" stroke="#430107" stroke-width="5"/>
+          <rect class="dw" x="234" y="50" width="44" height="84" rx="12" fill="#FECD00" stroke="#430107" stroke-width="5"/>
+          <rect class="dw" x="22" y="288" width="44" height="84" rx="12" fill="#FECD00" stroke="#430107" stroke-width="5"/>
+          <rect class="dw" x="234" y="288" width="44" height="84" rx="12" fill="#FECD00" stroke="#430107" stroke-width="5"/>
+        </svg>
+      </div>
+
+      <!-- ===== L21 ECW CTA ===== -->
+      <div id="sc_L21" class="clip layer scene" data-line="L21" data-start="58.251" data-duration="3.920" data-track-index="3" style="z-index:10">
+        <div id="e_q" class="row big" style="top:340px;font-size:110px"><span class="skew">NAK BMW YANG <span style="color:var(--yellow)">BERBALOI?</span></span></div>
+        <svg id="e_c1" class="car y" viewBox="0 0 680 260" style="left:120px;top:500px;width:840px;height:321px"><ellipse class="shadow" cx="340" cy="242" rx="291" ry="12"/><path class="fillb" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 Q306.4 86.0 323.2 82.0 Q370.8 76.0 418.4 84.0 Q476.4 94.0 547.2 126.0 L597.6 128.0 Q614.4 130.0 614.4 148.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="draw body" d="M76.8 200.0 Q60.0 200.0 60.0 184.0 L62.2 172.0 Q71.2 144.0 116.0 146.0 L244.8 136.0 Q306.4 86.0 323.2 82.0 Q370.8 76.0 418.4 84.0 Q476.4 94.0 547.2 126.0 L597.6 128.0 Q614.4 130.0 614.4 148.0 L612.2 194.0 Q608.8 200.0 592.0 200.0 L543.9 200.0 A53 53 0 0 0 438.5 200.0 L207.9 200.0 A53 53 0 0 0 102.5 200.0 Z"/><path class="glass" d="M264.4 134.0 Q322.8 95.0 332.8 91.0 L415.6 92.0 Q437.6 97.0 508.0 134.0 Z M407.2 92.0 L413.2 134.0"/><path class="draw gl" d="M264.4 134.0 Q322.8 95.0 332.8 91.0 L415.6 92.0 Q437.6 97.0 508.0 134.0 Z M407.2 92.0 L413.2 134.0"/><path class="draw det" d="M261.6 138.0 L267.6 192.0 M418.4 138.0 Q430.4 170.0 414.4 192.0 M215.2 190.0 L431.2 188.0 M68.4 184.0 L104.8 186.0 M93.6 152.0 L586.4 144.0"/><path class="lamp" d="M66.7 158.0 L99.2 150.0 L102.0 160.0 Z"/><path class="lamp tl" d="M612.2 138.0 L580.8 136.0 L580.8 148.0 L612.2 150.0 Z"/><g class="whl" data-cx="155.2" data-cy="194.0"><circle class="draw tyre" cx="155.2" cy="194.0" r="39"/><circle class="draw rim" cx="155.2" cy="194.0" r="27.7"/><path class="spk" d="M155.2 186.4 L155.2 168.8 M162.4 191.7 L179.2 186.2 M159.6 200.1 L170.0 214.4 M150.8 200.1 L140.4 214.4 M148.0 191.7 L131.2 186.2"/><path class="cal" d="M134.2 180.6 A25.2 25.2 0 0 1 150.2 169.6"/></g><g class="whl" data-cx="491.2" data-cy="194.0"><circle class="draw tyre" cx="491.2" cy="194.0" r="39"/><circle class="draw rim" cx="491.2" cy="194.0" r="27.7"/><path class="spk" d="M491.2 186.4 L491.2 168.8 M498.4 191.7 L515.2 186.2 M495.6 200.1 L506.0 214.4 M486.8 200.1 L476.4 214.4 M484.0 191.7 L467.2 186.2"/><path class="cal" d="M470.2 180.6 A25.2 25.2 0 0 1 486.2 169.6"/></g></svg>
+        <div id="e_panel" class="panel" style="left:110px;top:850px;width:860px;height:360px"></div>
+        <svg id="e_pin" class="abs" style="left:150px;top:900px;width:120px;height:144px"><use href="#pin"/></svg>
+        <div id="e_a" class="abs mono y" style="left:300px;top:900px;font-size:40px">JUMPA KAMI DI</div>
+        <div id="e_b" class="abs big" style="left:300px;top:960px;font-size:118px;line-height:1">ECW</div>
+        <div id="e_c" class="abs big y" style="left:300px;top:1080px;font-size:84px;line-height:1">MOTORSPORTS</div>
+      </div>
+
+      <!-- ===== L22 follow / end ===== -->
+      <div id="sc_L22" class="clip layer scene" data-line="L22" data-start="62.171" data-duration="2.549" data-track-index="3" style="z-index:10">
+        <div id="fo_m" class="row" style="top:420px"><span class="mb" style="font-size:150px"><span class="st"><i></i><i></i><i></i></span>ECW</span></div>
+        <div class="row" style="top:690px"><span id="fo_b" class="sticker" style="font-size:130px;transform:rotate(-3deg)">+ FOLLOW</span></div>
+        <div id="fo_t" class="row mono y" style="top:975px;font-size:44px">LEBIH BANYAK TIPS KERETA</div>
+        <svg id="fo_s1" class="sparkle" style="left:860px;top:640px"><use href="#star"/></svg>
+        <svg id="fo_s2" class="sparkle" style="left:160px;top:860px;width:50px;height:50px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== transition flashes ===== -->
+      <div id="tr1" class="clip layer" data-start="2.961" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr2" class="clip layer" data-start="6.072" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr3" class="clip layer" data-start="9.014" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr4" class="clip layer" data-start="11.546" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr5" class="clip layer" data-start="14.063" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr6" class="clip layer" data-start="15.708" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr7" class="clip layer" data-start="17.049" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr8" class="clip layer" data-start="20.464" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr9" class="clip layer" data-start="23.332" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr10" class="clip layer" data-start="26.936" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr11" class="clip layer" data-start="29.746" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr12" class="clip layer" data-start="31.563" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr13" class="clip layer" data-start="34.519" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr14" class="clip layer" data-start="38.137" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr15" class="clip layer" data-start="40.103" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr16" class="clip layer" data-start="44.478" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr17" class="clip layer" data-start="47.697" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr18" class="clip layer" data-start="49.738" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr19" class="clip layer" data-start="53.612" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr20" class="clip layer" data-start="58.251" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+      <div id="tr21" class="clip layer" data-start="62.171" data-duration="0.32" data-track-index="9" style="z-index:24"><div class="scanbar"></div></div>
+
+      <!-- ===== top look ===== -->
+      <div id="vig" class="clip layer vignette" data-start="0" data-duration="64.72" data-track-index="4" style="z-index:25"></div>
+      <div id="scan" class="clip layer scanlines" data-start="0" data-duration="64.72" data-track-index="4" style="z-index:26"></div>
+
+      <!-- ===== CAPTIONS ===== -->
+      <div id="cap0" class="clip cap" data-start="2.991" data-duration="0.970" data-track-index="8" style="z-index:30"><span id="cw0_0">Sebab</span><span id="cw0_1">bukan</span><span id="cw0_2">semua</span></div>
+      <div id="cap1" class="clip cap" data-start="3.961" data-duration="0.679" data-track-index="8" style="z-index:30"><span id="cw1_0">yang</span><span id="cw1_1">ada</span><span id="cw1_2">huruf</span></div>
+      <div id="cap2" class="clip cap" data-start="4.640" data-duration="0.432" data-track-index="8" style="z-index:30"><span id="cw2_0">M</span></div>
+      <div id="cap3" class="clip cap" data-start="5.072" data-duration="1.030" data-track-index="8" style="z-index:30"><span id="cw3_0">tu</span><span id="cw3_1">M</span><span id="cw3_2">betul</span></div>
+      <div id="cap4" class="clip cap" data-start="6.102" data-duration="1.307" data-track-index="8" style="z-index:30"><span id="cw4_0">M</span><span id="cw4_1">maksudnya</span><span id="cw4_2">Motorsport</span></div>
+      <div id="cap5" class="clip cap" data-start="7.409" data-duration="1.635" data-track-index="8" style="z-index:30"><span id="cw5_0">divisyen</span><span id="cw5_1">lumba</span><span id="cw5_2">BMW</span></div>
+      <div id="cap6" class="clip cap" data-start="9.044" data-duration="0.878" data-track-index="8" style="z-index:30"><span id="cw6_0">M</span><span id="cw6_1">penuh</span><span id="cw6_2">Huruf</span></div>
+      <div id="cap7" class="clip cap" data-start="9.922" data-duration="0.419" data-track-index="8" style="z-index:30"><span id="cw7_0">M</span></div>
+      <div id="cap8" class="clip cap" data-start="10.341" data-duration="1.235" data-track-index="8" style="z-index:30"><span id="cw8_0">campur</span><span id="cw8_1">satu</span><span id="cw8_2">nombor</span></div>
+      <div id="cap9" class="clip cap" data-start="11.576" data-duration="1.228" data-track-index="8" style="z-index:30"><span id="cw9_0">Makin</span><span id="cw9_1">besar</span><span id="cw9_2">nombor</span></div>
+      <div id="cap10" class="clip cap" data-start="12.804" data-duration="1.289" data-track-index="8" style="z-index:30"><span id="cw10_0">makin</span><span id="cw10_1">besar</span><span id="cw10_2">kereta</span></div>
+      <div id="cap11" class="clip cap" data-start="14.093" data-duration="0.681" data-track-index="8" style="z-index:30"><span id="cw11_0">M2</span></div>
+      <div id="cap12" class="clip cap" data-start="14.774" data-duration="0.964" data-track-index="8" style="z-index:30"><span id="cw12_0">coupe</span><span id="cw12_1">kecil</span></div>
+      <div id="cap13" class="clip cap" data-start="15.738" data-duration="0.700" data-track-index="8" style="z-index:30"><span id="cw13_0">M3</span></div>
+      <div id="cap14" class="clip cap" data-start="16.438" data-duration="0.641" data-track-index="8" style="z-index:30"><span id="cw14_0">sedan</span></div>
+      <div id="cap15" class="clip cap" data-start="17.079" data-duration="1.307" data-track-index="8" style="z-index:30"><span id="cw15_0">M4</span><span id="cw15_1">M3</span><span id="cw15_2">dua</span></div>
+      <div id="cap16" class="clip cap" data-start="18.386" data-duration="0.510" data-track-index="8" style="z-index:30"><span id="cw16_0">pintu</span></div>
+      <div id="cap17" class="clip cap" data-start="18.896" data-duration="1.598" data-track-index="8" style="z-index:30"><span id="cw17_0">coupe</span><span id="cw17_1">atau</span><span id="cw17_2">convertible</span></div>
+      <div id="cap18" class="clip cap" data-start="20.494" data-duration="0.657" data-track-index="8" style="z-index:30"><span id="cw18_0">M5</span></div>
+      <div id="cap19" class="clip cap" data-start="21.151" data-duration="1.062" data-track-index="8" style="z-index:30"><span id="cw19_0">sedan</span><span id="cw19_1">besar</span><span id="cw19_2">Sekarang</span></div>
+      <div id="cap20" class="clip cap" data-start="22.213" data-duration="1.149" data-track-index="8" style="z-index:30"><span id="cw20_0">plug-in</span><span id="cw20_1">hybrid</span></div>
+      <div id="cap21" class="clip cap" data-start="23.362" data-duration="0.987" data-track-index="8" style="z-index:30"><span id="cw21_0">Tambah</span><span id="cw21_1">X</span></div>
+      <div id="cap22" class="clip cap" data-start="24.349" data-duration="0.990" data-track-index="8" style="z-index:30"><span id="cw22_0">jadi</span><span id="cw22_1">SUV</span></div>
+      <div id="cap23" class="clip cap" data-start="25.339" data-duration="1.627" data-track-index="8" style="z-index:30"><span id="cw23_0">Macam</span><span id="cw23_1">X5</span><span id="cw23_2">M</span></div>
+      <div id="cap24" class="clip cap" data-start="26.966" data-duration="0.950" data-track-index="8" style="z-index:30"><span id="cw24_0">XM</span><span id="cw24_1">pula</span></div>
+      <div id="cap25" class="clip cap" data-start="27.916" data-duration="0.937" data-track-index="8" style="z-index:30"><span id="cw25_0">memang</span><span id="cw25_1">lahir</span><span id="cw25_2">sebagai</span></div>
+      <div id="cap26" class="clip cap" data-start="28.853" data-duration="0.923" data-track-index="8" style="z-index:30"><span id="cw26_0">M</span><span id="cw26_1">sahaja</span></div>
+      <div id="cap27" class="clip cap" data-start="29.776" data-duration="1.317" data-track-index="8" style="z-index:30"><span id="cw27_0">Ada</span><span id="cw27_1">Competition</span><span id="cw27_2">Power</span></div>
+      <div id="cap28" class="clip cap" data-start="31.093" data-duration="0.500" data-track-index="8" style="z-index:30"><span id="cw28_0">lebih</span></div>
+      <div id="cap29" class="clip cap" data-start="31.593" data-duration="0.671" data-track-index="8" style="z-index:30"><span id="cw29_0">CS</span></div>
+      <div id="cap30" class="clip cap" data-start="32.264" data-duration="0.976" data-track-index="8" style="z-index:30"><span id="cw30_0">Club</span><span id="cw30_1">Sport</span><span id="cw30_2">Lagi</span></div>
+      <div id="cap31" class="clip cap" data-start="33.240" data-duration="0.474" data-track-index="8" style="z-index:30"><span id="cw31_0">ringan</span></div>
+      <div id="cap32" class="clip cap" data-start="33.714" data-duration="0.835" data-track-index="8" style="z-index:30"><span id="cw32_0">lagi</span><span id="cw32_1">laju</span></div>
+      <div id="cap33" class="clip cap" data-start="34.549" data-duration="1.767" data-track-index="8" style="z-index:30"><span id="cw33_0">CSL</span><span id="cw33_1">tambah</span><span id="cw33_2">Leichtbau</span></div>
+      <div id="cap34" class="clip cap" data-start="36.316" data-duration="0.648" data-track-index="8" style="z-index:30"><span id="cw34_0">Jerman</span></div>
+      <div id="cap35" class="clip cap" data-start="36.964" data-duration="1.203" data-track-index="8" style="z-index:30"><span id="cw35_0">maksudnya</span><span id="cw35_1">ringan</span></div>
+      <div id="cap36" class="clip cap" data-start="38.167" data-duration="1.002" data-track-index="8" style="z-index:30"><span id="cw36_0">Turun</span><span id="cw36_1">satu</span><span id="cw36_2">level</span></div>
+      <div id="cap37" class="clip cap" data-start="39.169" data-duration="0.964" data-track-index="8" style="z-index:30"><span id="cw37_0">M</span><span id="cw37_1">Performance</span></div>
+      <div id="cap38" class="clip cap" data-start="40.133" data-duration="0.722" data-track-index="8" style="z-index:30"><span id="cw38_0">M</span><span id="cw38_1">duduk</span><span id="cw38_2">depan</span></div>
+      <div id="cap39" class="clip cap" data-start="40.855" data-duration="2.387" data-track-index="8" style="z-index:30"><span id="cw39_0">nombor</span><span id="cw39_1">Macam</span><span id="cw39_2">M340i</span></div>
+      <div id="cap40" class="clip cap" data-start="43.242" data-duration="1.266" data-track-index="8" style="z-index:30"><span id="cw40_0">M135</span></div>
+      <div id="cap41" class="clip cap" data-start="44.508" data-duration="1.239" data-track-index="8" style="z-index:30"><span id="cw41_0">Laju</span><span id="cw41_1">dari</span><span id="cw41_2">BMW</span></div>
+      <div id="cap42" class="clip cap" data-start="45.747" data-duration="0.568" data-track-index="8" style="z-index:30"><span id="cw42_0">biasa</span></div>
+      <div id="cap43" class="clip cap" data-start="46.315" data-duration="0.748" data-track-index="8" style="z-index:30"><span id="cw43_0">tapi</span><span id="cw43_1">bukan</span><span id="cw43_2">M</span></div>
+      <div id="cap44" class="clip cap" data-start="47.063" data-duration="0.664" data-track-index="8" style="z-index:30"><span id="cw44_0">penuh</span></div>
+      <div id="cap45" class="clip cap" data-start="47.727" data-duration="0.754" data-track-index="8" style="z-index:30"><span id="cw45_0">Yang</span><span id="cw45_1">paling</span><span id="cw45_2">ramai</span></div>
+      <div id="cap46" class="clip cap" data-start="48.481" data-duration="0.528" data-track-index="8" style="z-index:30"><span id="cw46_0">keliru</span></div>
+      <div id="cap47" class="clip cap" data-start="49.009" data-duration="0.759" data-track-index="8" style="z-index:30"><span id="cw47_0">M</span><span id="cw47_1">Sport</span></div>
+      <div id="cap48" class="clip cap" data-start="49.768" data-duration="0.961" data-track-index="8" style="z-index:30"><span id="cw48_0">Cuma</span><span id="cw48_1">trim</span><span id="cw48_2">Rim</span></div>
+      <div id="cap49" class="clip cap" data-start="50.729" data-duration="0.496" data-track-index="8" style="z-index:30"><span id="cw49_0">besar</span></div>
+      <div id="cap50" class="clip cap" data-start="51.225" data-duration="0.923" data-track-index="8" style="z-index:30"><span id="cw50_0">bumper</span><span id="cw50_1">sporty</span></div>
+      <div id="cap51" class="clip cap" data-start="52.148" data-duration="0.711" data-track-index="8" style="z-index:30"><span id="cw51_0">power</span><span id="cw51_1">tak</span><span id="cw51_2">tambah</span></div>
+      <div id="cap52" class="clip cap" data-start="52.859" data-duration="0.783" data-track-index="8" style="z-index:30"><span id="cw52_0">langsung</span></div>
+      <div id="cap53" class="clip cap" data-start="53.642" data-duration="1.379" data-track-index="8" style="z-index:30"><span id="cw53_0">Jadi</span><span id="cw53_1">M4</span><span id="cw53_2">Competition</span></div>
+      <div id="cap54" class="clip cap" data-start="55.021" data-duration="1.268" data-track-index="8" style="z-index:30"><span id="cw54_0">xDrive</span><span id="cw54_1">M</span><span id="cw54_2">penuh</span></div>
+      <div id="cap55" class="clip cap" data-start="56.289" data-duration="0.650" data-track-index="8" style="z-index:30"><span id="cw55_0">power</span><span id="cw55_1">lebih</span></div>
+      <div id="cap56" class="clip cap" data-start="56.939" data-duration="1.342" data-track-index="8" style="z-index:30"><span id="cw56_0">pacuan</span><span id="cw56_1">empat</span><span id="cw56_2">roda</span></div>
+      <div id="cap57" class="clip cap" data-start="58.281" data-duration="1.067" data-track-index="8" style="z-index:30"><span id="cw57_0">Nak</span><span id="cw57_1">BMW</span><span id="cw57_2">yang</span></div>
+      <div id="cap58" class="clip cap" data-start="59.348" data-duration="0.650" data-track-index="8" style="z-index:30"><span id="cw58_0">berbaloi</span></div>
+      <div id="cap59" class="clip cap" data-start="59.998" data-duration="2.203" data-track-index="8" style="z-index:30"><span id="cw59_0">Jumpa</span><span id="cw59_1">ECW</span><span id="cw59_2">Motorsports</span></div>
+      <div id="cap60" class="clip cap" data-start="62.201" data-duration="0.874" data-track-index="8" style="z-index:30"><span id="cw60_0">Follow</span><span id="cw60_1">untuk</span><span id="cw60_2">tips</span></div>
+      <div id="cap61" class="clip cap" data-start="63.075" data-duration="1.050" data-track-index="8" style="z-index:30"><span id="cw61_0">kereta</span><span id="cw61_1">lagi</span></div>
+
+      <!-- ===== AUDIO ===== -->
+      <audio id="vo" src="assets/audio/voice.wav" data-start="0" data-duration="63.815" data-track-index="19" data-volume="1"></audio>
+      <audio id="music" src="assets/audio/music_ducked.wav" data-start="0" data-duration="64.72" data-track-index="20" data-volume="1"></audio>
+      <audio id="sfx0" src="assets/sfx/impact.wav" data-start="0.000" data-duration="2.200" data-track-index="21" data-volume="0.75"></audio>
+      <audio id="sfx1" src="assets/sfx/shimmer.wav" data-start="0.050" data-duration="1.600" data-track-index="22" data-volume="0.3"></audio>
+      <audio id="sfx2" src="assets/sfx/glitch.wav" data-start="0.569" data-duration="0.250" data-track-index="23" data-volume="0.18"></audio>
+      <audio id="sfx3" src="assets/sfx/whoosh.wav" data-start="2.961" data-duration="0.550" data-track-index="21" data-volume="0.22"></audio>
+      <audio id="sfx4" src="assets/sfx/whoosh.wav" data-start="3.616" data-duration="0.550" data-track-index="21" data-volume="0.14"></audio>
+      <audio id="sfx5" src="assets/sfx/whoosh.wav" data-start="3.866" data-duration="0.550" data-track-index="22" data-volume="0.12"></audio>
+      <audio id="sfx6" src="assets/sfx/whoosh.wav" data-start="4.116" data-duration="0.550" data-track-index="23" data-volume="0.12"></audio>
+      <audio id="sfx7" src="assets/sfx/pop.wav" data-start="4.338" data-duration="0.120" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx8" src="assets/sfx/thud.wav" data-start="5.190" data-duration="0.450" data-track-index="21" data-volume="0.5"></audio>
+      <audio id="sfx9" src="assets/sfx/impact.wav" data-start="6.072" data-duration="2.200" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx10" src="assets/sfx/riser.wav" data-start="6.749" data-duration="1.000" data-track-index="22" data-volume="0.18"></audio>
+      <audio id="sfx11" src="assets/sfx/whoosh.wav" data-start="6.849" data-duration="0.550" data-track-index="23" data-volume="0.22"></audio>
+      <audio id="sfx12" src="assets/sfx/tick.wav" data-start="7.409" data-duration="0.040" data-track-index="23" data-volume="0.35"></audio>
+      <audio id="sfx13" src="assets/sfx/whoosh.wav" data-start="9.014" data-duration="0.550" data-track-index="21" data-volume="0.22"></audio>
+      <audio id="sfx14" src="assets/sfx/pop.wav" data-start="9.922" data-duration="0.120" data-track-index="21" data-volume="0.45"></audio>
+      <audio id="sfx15" src="assets/sfx/pop.wav" data-start="10.341" data-duration="0.120" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx16" src="assets/sfx/tick.wav" data-start="10.677" data-duration="0.040" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx17" src="assets/sfx/tick.wav" data-start="10.807" data-duration="0.040" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx18" src="assets/sfx/tick.wav" data-start="10.937" data-duration="0.040" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx19" src="assets/sfx/pop.wav" data-start="11.067" data-duration="0.120" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx20" src="assets/sfx/whoosh.wav" data-start="11.546" data-duration="0.550" data-track-index="21" data-volume="0.22"></audio>
+      <audio id="sfx21" src="assets/sfx/ding.wav" data-start="11.756" data-duration="1.200" data-track-index="22" data-volume="0.3"></audio>
+      <audio id="sfx22" src="assets/sfx/pop.wav" data-start="11.920" data-duration="0.120" data-track-index="23" data-volume="0.3"></audio>
+      <audio id="sfx23" src="assets/sfx/pop.wav" data-start="12.244" data-duration="0.120" data-track-index="21" data-volume="0.3"></audio>
+      <audio id="sfx24" src="assets/sfx/pop.wav" data-start="13.074" data-duration="0.120" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx25" src="assets/sfx/whoosh.wav" data-start="14.063" data-duration="0.550" data-track-index="21" data-volume="0.24"></audio>
+      <audio id="sfx26" src="assets/sfx/pop.wav" data-start="14.083" data-duration="0.120" data-track-index="22" data-volume="0.4"></audio>
+      <audio id="sfx27" src="assets/sfx/pop.wav" data-start="14.774" data-duration="0.120" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx28" src="assets/sfx/whoosh.wav" data-start="15.708" data-duration="0.550" data-track-index="21" data-volume="0.24"></audio>
+      <audio id="sfx29" src="assets/sfx/pop.wav" data-start="15.728" data-duration="0.120" data-track-index="22" data-volume="0.4"></audio>
+      <audio id="sfx30" src="assets/sfx/pop.wav" data-start="16.438" data-duration="0.120" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx31" src="assets/sfx/whoosh.wav" data-start="17.049" data-duration="0.550" data-track-index="21" data-volume="0.24"></audio>
+      <audio id="sfx32" src="assets/sfx/pop.wav" data-start="17.069" data-duration="0.120" data-track-index="22" data-volume="0.4"></audio>
+      <audio id="sfx33" src="assets/sfx/tick.wav" data-start="17.756" data-duration="0.040" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx34" src="assets/sfx/pop.wav" data-start="18.896" data-duration="0.120" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx35" src="assets/sfx/glitch.wav" data-start="19.606" data-duration="0.250" data-track-index="21" data-volume="0.15"></audio>
+      <audio id="sfx36" src="assets/sfx/pop.wav" data-start="19.626" data-duration="0.120" data-track-index="22" data-volume="0.4"></audio>
+      <audio id="sfx37" src="assets/sfx/whoosh.wav" data-start="20.464" data-duration="0.550" data-track-index="21" data-volume="0.24"></audio>
+      <audio id="sfx38" src="assets/sfx/pop.wav" data-start="20.484" data-duration="0.120" data-track-index="22" data-volume="0.4"></audio>
+      <audio id="sfx39" src="assets/sfx/riser.wav" data-start="22.113" data-duration="1.000" data-track-index="21" data-volume="0.2"></audio>
+      <audio id="sfx40" src="assets/sfx/impact.wav" data-start="22.213" data-duration="2.200" data-track-index="22" data-volume="0.3"></audio>
+      <audio id="sfx41" src="assets/sfx/ding.wav" data-start="23.113" data-duration="1.200" data-track-index="21" data-volume="0.3"></audio>
+      <audio id="sfx42" src="assets/sfx/pop.wav" data-start="23.332" data-duration="0.120" data-track-index="23" data-volume="0.35"></audio>
+      <audio id="sfx43" src="assets/sfx/impact.wav" data-start="23.707" data-duration="2.200" data-track-index="23" data-volume="0.45"></audio>
+      <audio id="sfx44" src="assets/sfx/glitch.wav" data-start="23.727" data-duration="0.250" data-track-index="24" data-volume="0.15"></audio>
+      <audio id="sfx45" src="assets/sfx/whoosh.wav" data-start="24.349" data-duration="0.550" data-track-index="21" data-volume="0.22"></audio>
+      <audio id="sfx46" src="assets/sfx/pop.wav" data-start="25.722" data-duration="0.120" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx47" src="assets/sfx/whoosh.wav" data-start="26.936" data-duration="0.550" data-track-index="21" data-volume="0.24"></audio>
+      <audio id="sfx48" src="assets/sfx/pop.wav" data-start="26.956" data-duration="0.120" data-track-index="22" data-volume="0.4"></audio>
+      <audio id="sfx49" src="assets/sfx/tick.wav" data-start="28.217" data-duration="0.040" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx50" src="assets/sfx/thud.wav" data-start="28.853" data-duration="0.450" data-track-index="21" data-volume="0.45"></audio>
+      <audio id="sfx51" src="assets/sfx/shimmer.wav" data-start="28.903" data-duration="1.600" data-track-index="22" data-volume="0.25"></audio>
+      <audio id="sfx52" src="assets/sfx/tick.wav" data-start="29.746" data-duration="0.040" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx53" src="assets/sfx/pop.wav" data-start="30.056" data-duration="0.120" data-track-index="21" data-volume="0.45"></audio>
+      <audio id="sfx54" src="assets/sfx/riser.wav" data-start="30.813" data-duration="1.000" data-track-index="21" data-volume="0.2"></audio>
+      <audio id="sfx55" src="assets/sfx/impact.wav" data-start="30.863" data-duration="2.200" data-track-index="22" data-volume="0.4"></audio>
+      <audio id="sfx56" src="assets/sfx/whoosh.wav" data-start="31.563" data-duration="0.550" data-track-index="23" data-volume="0.22"></audio>
+      <audio id="sfx57" src="assets/sfx/pop.wav" data-start="31.583" data-duration="0.120" data-track-index="24" data-volume="0.4"></audio>
+      <audio id="sfx58" src="assets/sfx/ding.wav" data-start="32.930" data-duration="1.200" data-track-index="21" data-volume="0.28"></audio>
+      <audio id="sfx59" src="assets/sfx/ding.wav" data-start="33.714" data-duration="1.200" data-track-index="22" data-volume="0.28"></audio>
+      <audio id="sfx60" src="assets/sfx/whoosh.wav" data-start="34.005" data-duration="0.550" data-track-index="23" data-volume="0.2"></audio>
+      <audio id="sfx61" src="assets/sfx/pop.wav" data-start="34.519" data-duration="0.120" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx62" src="assets/sfx/impact.wav" data-start="35.615" data-duration="2.200" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx63" src="assets/sfx/glitch.wav" data-start="35.635" data-duration="0.250" data-track-index="22" data-volume="0.14"></audio>
+      <audio id="sfx64" src="assets/sfx/tick.wav" data-start="36.316" data-duration="0.040" data-track-index="22" data-volume="0.35"></audio>
+      <audio id="sfx65" src="assets/sfx/pop.wav" data-start="37.360" data-duration="0.120" data-track-index="22" data-volume="0.4"></audio>
+      <audio id="sfx66" src="assets/sfx/whoosh.wav" data-start="38.137" data-duration="0.550" data-track-index="21" data-volume="0.22"></audio>
+      <audio id="sfx67" src="assets/sfx/whoosh.wav" data-start="38.287" data-duration="0.550" data-track-index="22" data-volume="0.12"></audio>
+      <audio id="sfx68" src="assets/sfx/thud.wav" data-start="38.695" data-duration="0.450" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx69" src="assets/sfx/pop.wav" data-start="39.169" data-duration="0.120" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx70" src="assets/sfx/whoosh.wav" data-start="40.103" data-duration="0.550" data-track-index="21" data-volume="0.2"></audio>
+      <audio id="sfx71" src="assets/sfx/pop.wav" data-start="41.380" data-duration="0.120" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx72" src="assets/sfx/ding.wav" data-start="41.731" data-duration="1.200" data-track-index="21" data-volume="0.25"></audio>
+      <audio id="sfx73" src="assets/sfx/whoosh.wav" data-start="43.042" data-duration="0.550" data-track-index="21" data-volume="0.22"></audio>
+      <audio id="sfx74" src="assets/sfx/pop.wav" data-start="43.242" data-duration="0.120" data-track-index="22" data-volume="0.4"></audio>
+      <audio id="sfx75" src="assets/sfx/whoosh.wav" data-start="44.478" data-duration="0.550" data-track-index="21" data-volume="0.22"></audio>
+      <audio id="sfx76" src="assets/sfx/riser.wav" data-start="45.068" data-duration="1.000" data-track-index="21" data-volume="0.15"></audio>
+      <audio id="sfx77" src="assets/sfx/thud.wav" data-start="46.567" data-duration="0.450" data-track-index="21" data-volume="0.5"></audio>
+      <audio id="sfx78" src="assets/sfx/riser.wav" data-start="46.869" data-duration="1.000" data-track-index="22" data-volume="0.15"></audio>
+      <audio id="sfx79" src="assets/sfx/glitch.wav" data-start="47.697" data-duration="0.250" data-track-index="21" data-volume="0.2"></audio>
+      <audio id="sfx80" src="assets/sfx/whoosh.wav" data-start="47.717" data-duration="0.550" data-track-index="23" data-volume="0.24"></audio>
+      <audio id="sfx81" src="assets/sfx/pop.wav" data-start="48.191" data-duration="0.120" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx82" src="assets/sfx/impact.wav" data-start="49.009" data-duration="2.200" data-track-index="21" data-volume="0.45"></audio>
+      <audio id="sfx83" src="assets/sfx/thud.wav" data-start="49.738" data-duration="0.450" data-track-index="22" data-volume="0.5"></audio>
+      <audio id="sfx84" src="assets/sfx/ding.wav" data-start="50.525" data-duration="1.200" data-track-index="22" data-volume="0.28"></audio>
+      <audio id="sfx85" src="assets/sfx/ding.wav" data-start="51.225" data-duration="1.200" data-track-index="21" data-volume="0.28"></audio>
+      <audio id="sfx86" src="assets/sfx/thud.wav" data-start="52.148" data-duration="0.450" data-track-index="22" data-volume="0.5"></audio>
+      <audio id="sfx87" src="assets/sfx/glitch.wav" data-start="52.557" data-duration="0.250" data-track-index="21" data-volume="0.14"></audio>
+      <audio id="sfx88" src="assets/sfx/tick.wav" data-start="53.612" data-duration="0.040" data-track-index="21" data-volume="0.35"></audio>
+      <audio id="sfx89" src="assets/sfx/pop.wav" data-start="53.954" data-duration="0.120" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx90" src="assets/sfx/pop.wav" data-start="54.504" data-duration="0.120" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx91" src="assets/sfx/pop.wav" data-start="55.021" data-duration="0.120" data-track-index="21" data-volume="0.4"></audio>
+      <audio id="sfx92" src="assets/sfx/whoosh.wav" data-start="55.649" data-duration="0.550" data-track-index="21" data-volume="0.18"></audio>
+      <audio id="sfx93" src="assets/sfx/whoosh.wav" data-start="56.289" data-duration="0.550" data-track-index="21" data-volume="0.18"></audio>
+      <audio id="sfx94" src="assets/sfx/whoosh.wav" data-start="56.939" data-duration="0.550" data-track-index="21" data-volume="0.18"></audio>
+      <audio id="sfx95" src="assets/sfx/ding.wav" data-start="57.283" data-duration="1.200" data-track-index="22" data-volume="0.28"></audio>
+      <audio id="sfx96" src="assets/sfx/riser.wav" data-start="57.651" data-duration="1.000" data-track-index="21" data-volume="0.22"></audio>
+      <audio id="sfx97" src="assets/sfx/whoosh.wav" data-start="58.251" data-duration="0.550" data-track-index="23" data-volume="0.24"></audio>
+      <audio id="sfx98" src="assets/sfx/thud.wav" data-start="59.998" data-duration="0.450" data-track-index="21" data-volume="0.3"></audio>
+      <audio id="sfx99" src="assets/sfx/impact.wav" data-start="60.354" data-duration="2.200" data-track-index="22" data-volume="0.4"></audio>
+      <audio id="sfx100" src="assets/sfx/shimmer.wav" data-start="61.129" data-duration="1.600" data-track-index="21" data-volume="0.25"></audio>
+      <audio id="sfx101" src="assets/sfx/pop.wav" data-start="62.171" data-duration="0.120" data-track-index="23" data-volume="0.4"></audio>
+      <audio id="sfx102" src="assets/sfx/impact.wav" data-start="62.251" data-duration="2.200" data-track-index="24" data-volume="0.35"></audio>
+      <audio id="sfx103" src="assets/sfx/shimmer.wav" data-start="62.817" data-duration="1.600" data-track-index="21" data-volume="0.35"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const W = {"lines": {"L01": [0.0, 2.871], "L02": [2.961, 5.872], "L03": [6.072, 8.924], "L04": [9.014, 11.456], "L05": [11.546, 13.863], "L06": [14.063, 15.618], "L07": [15.708, 16.959], "L08": [17.049, 20.374], "L09": [20.464, 23.132], "L10": [23.332, 26.846], "L11": [26.936, 29.546], "L12": [29.746, 31.473], "L13": [31.563, 34.429], "L14": [34.519, 37.937], "L15": [38.137, 40.013], "L16": [40.103, 44.388], "L17": [44.478, 47.497], "L18": [47.697, 49.648], "L19": [49.738, 53.412], "L20": [53.612, 58.051], "L21": [58.251, 62.081], "L22": [62.171, 63.725]}, "words": {"L01": [0.03, 0.353, 0.569, 1.226, 1.672, 2.006, 2.243, 2.577], "L02": [2.991, 3.336, 3.616, 3.961, 4.079, 4.338, 4.64, 5.072, 5.19, 5.362], "L03": [6.102, 6.253, 6.749, 7.409, 7.8, 8.113], "L04": [9.044, 9.205, 9.621, 9.922, 10.341, 10.677, 10.946], "L05": [11.576, 11.92, 12.244, 12.804, 13.074, 13.408], "L06": [14.093, 14.774, 15.108], "L07": [15.738, 16.438], "L08": [17.079, 17.756, 18.202, 18.386, 18.896, 19.304, 19.606], "L09": [20.494, 21.151, 21.402, 21.861, 22.213, 22.58], "L10": [23.362, 23.707, 24.349, 24.629, 25.339, 25.722, 26.412], "L11": [26.966, 27.418, 27.916, 28.217, 28.508, 28.853, 29.025], "L12": [29.776, 30.056, 30.813, 31.093], "L13": [31.593, 32.264, 32.501, 32.93, 33.24, 33.714, 34.005], "L14": [34.549, 35.26, 35.615, 36.316, 36.964, 37.46], "L15": [38.167, 38.437, 38.695, 39.169, 39.353], "L16": [40.133, 40.316, 40.607, 40.855, 41.38, 41.731, 43.242], "L17": [44.508, 44.874, 45.068, 45.747, 46.315, 46.567, 46.869, 47.063], "L18": [47.727, 47.943, 48.191, 48.481, 49.009, 49.171], "L19": [49.768, 50.081, 50.525, 50.729, 51.225, 51.551, 52.148, 52.428, 52.557, 52.859], "L20": [53.642, 53.954, 54.504, 55.021, 55.649, 55.794, 56.289, 56.526, 56.939, 57.283, 57.606], "L21": [58.281, 58.507, 59.197, 59.348, 59.998, 60.354, 60.58, 60.774, 61.129], "L22": [62.201, 62.526, 62.817, 63.075, 63.334]}};
+      const w = (id, i) => W.words[id][i];
+      const ls = (id) => W.lines[id][0];
+      const le = (id) => W.lines[id][1];
+      const tl = gsap.timeline({ paused: true });
+      const qa = (s) => Array.from(document.querySelectorAll(s));
+      // helpers ------------------------------------------------------------
+      const pop = (sel, t, extra = {}) => tl.fromTo(sel, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.38, ease: "back.out(2.4)", ...extra }, t);
+      const slam = (sel, t) => tl.fromTo(sel, { scale: 1.9, opacity: 0, filter: "blur(14px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.28, ease: "power3.out" }, t);
+      const rise = (sel, t, d = 0.4) => tl.fromTo(sel, { y: 80, opacity: 0, filter: "blur(10px)" }, { y: 0, opacity: 1, filter: "blur(0px)", duration: d, ease: "power3.out" }, t);
+      const type = (sel, t, d = 0.45) => tl.fromTo(sel, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: d, ease: "steps(14)" }, t);
+      const wipe = (sel, t, d = 0.35) => tl.fromTo(sel, { clipPath: "inset(0 100% 0 0)", x: -30 }, { clipPath: "inset(0 0% 0 0)", x: 0, duration: d, ease: "power3.out" }, t);
+      const out = (sel, t, d = 0.2) => tl.to(sel, { opacity: 0, scale: 0.85, duration: d, ease: "power2.in" }, t);
+      const outUp = (sel, t, d = 0.22) => tl.to(sel, { opacity: 0, y: -60, filter: "blur(8px)", duration: d, ease: "power2.in" }, t);
+      const shake = (sel, t, n = 5, a = 9) => tl.fromTo(sel, { x: 0 }, { x: a, duration: 0.04, yoyo: true, repeat: n, ease: "none" }, t);
+      const twinkle = (sel, t, d) => tl.fromTo(sel, { scale: 0, rotation: -90, opacity: 0 }, { scale: 1, rotation: 90, opacity: 1, duration: 0.45, ease: "back.out(3)" }, t)
+                                        .to(sel, { scale: 0.6, rotation: 180, duration: d, ease: "sine.inOut", yoyo: true, repeat: 1 }, t + 0.45);
+      const drawPaths = (sel, t, d) => qa(sel).forEach((p, i) => {
+        const L = p.getTotalLength ? Math.ceil(p.getTotalLength()) + 2 : 1500;
+        tl.fromTo(p, { strokeDasharray: L, strokeDashoffset: L }, { strokeDashoffset: 0, duration: d, ease: "power2.inOut" }, t + i * 0.05);
+      });
+      const spin = (car, t, d, turns = 2) => qa(car + " .whl").forEach((g) => {
+        tl.fromTo(g, { rotation: 0, svgOrigin: `${g.dataset.cx} ${g.dataset.cy}` }, { rotation: 360 * turns, svgOrigin: `${g.dataset.cx} ${g.dataset.cy}`, duration: d, ease: "power2.out" }, t);
+      });
+      const drawCar = (car, t, d = 0.7) => {
+        drawPaths(car + " .draw", t, d);
+        tl.fromTo([car + " .fillb", car + " .glass", car + " .shadow"], { opacity: 0 }, { opacity: 1, duration: 0.3 }, t + d * 0.6);
+        tl.fromTo([car + " .lamp", car + " .spk", car + " .cal"], { opacity: 0 }, { opacity: 1, duration: 0.15 }, t + d * 0.8);
+        tl.fromTo(car + " .lamp", { opacity: 1 }, { opacity: 0.2, duration: 0.06, yoyo: true, repeat: 3 }, t + d * 0.95);
+      };
+      const driveIn = (car, t, d = 0.55, from = -1100) => {
+        tl.fromTo(car, { x: from, skewX: from < 0 ? -10 : 10 }, { x: 0, skewX: 0, duration: d, ease: "power3.out" }, t);
+        spin(car, t, d + 0.3, 2);
+      };
+      const idle = (sel, t, d) => tl.to(sel, { y: -6, duration: 0.5, yoyo: true, repeat: Math.max(1, Math.floor(d / 0.5) - 1), ease: "sine.inOut" }, t);
+
+      // ===== persistent =====
+      tl.fromTo("#floor", { backgroundPositionY: "0px" }, { backgroundPositionY: `${90 * Math.round(64.72 * 1.6)}px`, duration: 64.72, ease: "none" }, 0);
+      tl.fromTo("#pfill", { scaleX: 0 }, { scaleX: 1, duration: 64.72, ease: "none" }, 0);
+
+      // ===== L01 HOOK — fully visible on frame 0 =====
+      tl.set(["#h_a", "#h_b", "#h_c", "#h_car", "#h_w"], { opacity: 1 }, 0);
+      tl.fromTo("#h_b", { scale: 1.0 }, { scale: 1.06, duration: 2.8, ease: "sine.out" }, 0);
+      tl.fromTo("#h_a", { scale: 1.0 }, { scale: 1.03, duration: 2.8, ease: "sine.out" }, 0);
+      tl.fromTo("#h_w", { rotation: -8 }, { rotation: 8, duration: 0.35, yoyo: true, repeat: 7, ease: "sine.inOut" }, 0);
+      spin("#h_car", 0, 2.8, 3);
+      tl.fromTo("#h_car .lamp", { opacity: 1 }, { opacity: 0.2, duration: 0.07, yoyo: true, repeat: 5 }, w("L01", 3));
+      shake("#h_b", w("L01", 2), 5, 10);
+      twinkle("#h_s1", 0.1, 0.6); twinkle("#h_s2", 0.4, 0.6);
+
+      // ===== L02 =====
+      slam("#b_t", ls("L02"));
+      [["#b_c1", w("L02", 2)], ["#b_c2", w("L02", 2) + 0.25], ["#b_c3", w("L02", 2) + 0.5]].forEach(([s, t]) => tl.fromTo(s, { x: -900, opacity: 0 }, { x: 0, opacity: 1, duration: 0.4, ease: "power3.out" }, t));
+      ["#b_v1", "#b_v2", "#b_v3"].forEach((s, i) => pop(s, w("L02", 5) + i * 0.12));
+      tl.fromTo(["#b_v1", "#b_v2", "#b_v3"], { rotation: -12 }, { rotation: 12, duration: 0.2, yoyo: true, repeat: 5, ease: "sine.inOut" }, w("L02", 6));
+      tl.fromTo("#b_st", { scale: 3, opacity: 0, rotation: -20 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, w("L02", 8));
+
+      // ===== L03 =====
+      slam("#m_m", ls("L03"));
+      tl.fromTo("#m_ring", { scale: 0.4, opacity: 0, rotation: -90 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.5, ease: "power3.out" }, ls("L03"));
+      tl.to("#m_ring", { rotation: 120, duration: 3, ease: "none" }, ls("L03") + 0.5);
+      wipe("#m_t", w("L03", 2), 0.35);
+      type("#m_l", w("L03", 3), 0.5);
+      pop("#m_f1", w("L03", 4)); pop("#m_f2", w("L03", 4) + 0.1);
+      tl.to(["#m_f1", "#m_f2"], { rotation: 6, duration: 0.25, yoyo: true, repeat: 5, ease: "sine.inOut" }, w("L03", 4) + 0.3);
+      drawCar("#m_car", w("L03", 2), 0.5);
+      tl.fromTo("#m_car", { x: 700 }, { x: -60, duration: 1.4, ease: "power2.out" }, w("L03", 2));
+      spin("#m_car", w("L03", 2), 1.6, -4);
+      tl.fromTo("#m_sp .speed", { scaleX: 0, opacity: 0, transformOrigin: "right center" }, { scaleX: 1, opacity: 1, duration: 0.3, stagger: 0.06 }, w("L03", 2) + 0.3);
+
+      // ===== L04 =====
+      rise("#f_t", ls("L04"), 0.3);
+      pop("#f_m", w("L04", 3));
+      pop("#f_p", w("L04", 4));
+      const fns = qa("#f_n .fn");
+      tl.set(fns, { opacity: 0 }, 0);
+      fns.forEach((n, i) => { tl.set(n, { opacity: 1 }, w("L04", 5) + i * 0.13); if (i < 3) tl.set(n, { opacity: 0 }, w("L04", 5) + (i + 1) * 0.13); });
+      pop("#f_n", w("L04", 5), { duration: 0.25 });
+      type("#f_lbl", w("L04", 5), 0.4);
+      pop("#f_ok", le("L04") - 0.15, { rotation: -3 });
+
+      // ===== L05 =====
+      rise("#z_t", ls("L05"), 0.3);
+      [["#z_r1", "#z_c1", w("L05", 1)], ["#z_r2", "#z_c2", w("L05", 2)], ["#z_r3", "#z_c3", w("L05", 4)]].forEach(([r, c, t]) => {
+        tl.fromTo(r, { opacity: 0, x: -200 }, { opacity: 1, x: 0, duration: 0.3, ease: "power3.out" }, t);
+        drawCar(c, t, 0.45);
+      });
+      tl.fromTo("#z_ar", { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 1.2, ease: "power2.inOut" }, w("L05", 1));
+      tl.fromTo("#z_c3", { scale: 1 }, { scale: 1.06, duration: 0.25, yoyo: true, repeat: 1 }, w("L05", 5));
+
+      // ===== L06 M2 / L07 M3 =====
+      [["L06", "#m2_b", "#m2_car", "#m2_l"], ["L07", "#m3_b", "#m3_car", "#m3_l"]].forEach(([id, b, c, l]) => {
+        tl.fromTo(b, { scale: 2.4, opacity: 0, rotation: -12 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, ls(id));
+        drawCar(c, ls(id) + 0.05, 0.45);
+        driveIn(c, ls(id), 0.5);
+        pop(l, w(id, 1), { rotation: id === "L06" ? -3 : 3 });
+        idle(b, ls(id) + 0.4, le(id) - ls(id));
+      });
+
+      // ===== L08 M4 =====
+      tl.fromTo("#m4_b", { scale: 2.4, opacity: 0, rotation: -12 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, ls("L08"));
+      type("#m4_eq", w("L08", 1), 0.4);
+      drawCar("#m4_car", ls("L08") + 0.05, 0.45); driveIn("#m4_car", ls("L08"), 0.5, 1100);
+      tl.set("#m4_conv", { opacity: 0 }, 0);
+      pop("#m4_l1", w("L08", 4), { rotation: -3 });
+      tl.set("#m4_conv", { opacity: 1 }, w("L08", 6));
+      tl.set("#m4_car", { opacity: 0 }, w("L08", 6));
+      tl.fromTo("#m4_conv", { y: -14 }, { y: 0, duration: 0.25, ease: "bounce.out" }, w("L08", 6));
+      tl.to("#m4_l1", { opacity: 0.35, scale: 0.9, duration: 0.15 }, w("L08", 6));
+      pop("#m4_l2", w("L08", 6), { rotation: 3 });
+
+      // ===== L09 M5 =====
+      tl.fromTo("#m5_b", { scale: 2.4, opacity: 0, rotation: -12 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, ls("L09"));
+      type("#m5_eq", w("L09", 1), 0.4);
+      drawCar("#m5_car", ls("L09") + 0.05, 0.5); driveIn("#m5_car", ls("L09"), 0.55);
+      tl.fromTo("#m5_h", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, w("L09", 4) - 0.1);
+      drawPaths("#m5_plug path", w("L09", 4) - 0.1, 0.4);
+      tl.fromTo("#m5_bf", { scaleX: 0.05 }, { scaleX: 1, duration: 0.9, ease: "power1.inOut" }, w("L09", 4));
+      tl.to("#m5_bf", { opacity: 0.5, duration: 0.12, yoyo: true, repeat: 3 }, w("L09", 4) + 0.9);
+      slam("#m5_hl", w("L09", 4));
+
+      // ===== L10 X =====
+      pop("#x_p", ls("L10"));
+      slam("#x_x", w("L10", 1));
+      shake("#x_x", w("L10", 1) + 0.25, 5, 10);
+      wipe("#x_eq", w("L10", 3), 0.3);
+      drawCar("#x_car", w("L10", 2), 0.6); driveIn("#x_car", w("L10", 2), 0.55);
+      pop("#x_b", w("L10", 5));
+
+      // ===== L11 XM =====
+      tl.fromTo("#xm_b", { scale: 2.4, opacity: 0, rotation: 12 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, ls("L11"));
+      drawCar("#xm_car", ls("L11") + 0.05, 0.55); driveIn("#xm_car", ls("L11"), 0.55, 1100);
+      type("#xm_l", w("L11", 3), 0.45);
+      tl.fromTo("#xm_s", { scale: 3, opacity: 0, rotation: -25 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, w("L11", 5));
+      twinkle("#xm_s1", w("L11", 5), 0.5); twinkle("#xm_s2", w("L11", 5) + 0.2, 0.5);
+
+      // ===== L12 Competition =====
+      type("#c_l", ls("L12"), 0.35);
+      tl.fromTo("#c_b", { scale: 2.2, opacity: 0, rotation: -14 }, { scale: 1, opacity: 1, rotation: -3, duration: 0.3, ease: "back.out(1.6)" }, w("L12", 1));
+      pop("#c_g", w("L12", 1) + 0.15, { duration: 0.3 });
+      tl.fromTo("#c_n", { rotation: -100, svgOrigin: "150 160" }, { rotation: 82, svgOrigin: "150 160", duration: 0.8, ease: "power3.out" }, w("L12", 2));
+      tl.to("#c_n", { rotation: 76, svgOrigin: "150 160", duration: 0.06, yoyo: true, repeat: 7, ease: "none" }, w("L12", 2) + 0.8);
+      slam("#c_p", w("L12", 2));
+      shake("#c_p", w("L12", 3), 5, 8);
+
+      // ===== L13 CS =====
+      tl.fromTo("#cs_b", { scale: 2.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.6)" }, ls("L13"));
+      wipe("#cs_t", w("L13", 1), 0.35);
+      pop("#cs_panel", w("L13", 3) - 0.15, { duration: 0.3 });
+      pop("#cs_i1 .vmark", w("L13", 3)); rise("#cs_i1 .t", w("L13", 3), 0.3);
+      tl.fromTo("#cs_i1 .vmark", { y: -10 }, { y: 10, duration: 0.2, yoyo: true, repeat: 3 }, w("L13", 4));
+      pop("#cs_i2 .vmark", w("L13", 5)); rise("#cs_i2 .t", w("L13", 5), 0.3);
+      shake("#cs_i2", w("L13", 6), 5, 7);
+
+      // ===== L14 CSL =====
+      tl.fromTo("#sl_b", { scale: 2.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.6)" }, ls("L14"));
+      tl.fromTo("#sl_L", { color: "#FFEFEF" }, { color: "#FECD00", duration: 0.1, yoyo: true, repeat: 5 }, w("L14", 1));
+      drawPaths("#sl_ln path", w("L14", 1), 0.4);
+      slam("#sl_w", w("L14", 2));
+      type("#sl_de", w("L14", 3), 0.4);
+      pop("#sl_eq", w("L14", 5) - 0.1, { rotation: -3 });
+      tl.fromTo("#sl_kg", { y: -40, opacity: 0 }, { y: 30, opacity: 1, duration: 0.6, ease: "power2.out" }, w("L14", 5));
+
+      // ===== L15 levels =====
+      rise("#lv_t", ls("L15"), 0.3);
+      [["#lv_1", 0], ["#lv_2", 0.1], ["#lv_3", 0.2]].forEach(([s, d]) => tl.fromTo(s, { x: 900, opacity: 0 }, { x: 0, opacity: 1, duration: 0.35, ease: "power3.out" }, ls("L15") + 0.15 + d));
+      pop("#lv_ar", ls("L15") + 0.4);
+      tl.to("#lv_ar", { y: 200, duration: 0.35, ease: "back.out(2)" }, w("L15", 2));
+      tl.to("#lv_2", { scale: 1.06, duration: 0.2, yoyo: true, repeat: 1 }, w("L15", 3));
+      tl.to("#lv_1", { opacity: 0.45, duration: 0.2 }, w("L15", 2));
+
+      // ===== L16 M in front =====
+      rise("#mp_t", ls("L16"), 0.3);
+      tl.set(["#mp_b2", "#mp_c2"], { opacity: 0 }, 0);
+      pop("#mp_b1", w("L16", 4));
+      drawCar("#mp_c1", w("L16", 4), 0.45); driveIn("#mp_c1", w("L16", 4), 0.5);
+      tl.fromTo("#mp_arw", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: "back.out(2)" }, w("L16", 5));
+      tl.fromTo("#mp_m1", { scale: 1 }, { scale: 1.3, duration: 0.18, yoyo: true, repeat: 3 }, w("L16", 5));
+      type("#mp_lbl", w("L16", 5), 0.4);
+      tl.to(["#mp_b1", "#mp_c1"], { opacity: 0, x: -600, duration: 0.25, ease: "power2.in" }, w("L16", 6) - 0.2);
+      tl.set(["#mp_b2", "#mp_c2"], { opacity: 1 }, w("L16", 6) - 0.05);
+      pop("#mp_b2", w("L16", 6) - 0.05);
+      drawCar("#mp_c2", w("L16", 6), 0.4); driveIn("#mp_c2", w("L16", 6) - 0.05, 0.5, 1100);
+      tl.fromTo("#mp_m2", { scale: 1 }, { scale: 1.3, duration: 0.18, yoyo: true, repeat: 3 }, w("L16", 6) + 0.3);
+
+      // ===== L17 bars =====
+      rise("#cp_t", ls("L17"), 0.3);
+      [["#cp_m1", w("L17", 2)], ["#cp_m2", w("L17", 2) + 0.35], ["#cp_m3", w("L17", 6)]].forEach(([m, t]) => {
+        tl.fromTo(m, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.25 }, t - 0.1);
+        tl.fromTo(m + " .fill", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power3.out" }, t);
+      });
+      tl.fromTo("#cp_x", { scale: 3, opacity: 0, rotation: -25 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.28, ease: "back.out(1.6)" }, w("L17", 5));
+
+      // ===== L18 M Sport =====
+      tl.fromTo("#ms_t1", { x: -1200 }, { x: 0, duration: 0.35, ease: "power3.out" }, ls("L18"));
+      tl.fromTo("#ms_t2", { x: 1200 }, { x: 0, duration: 0.35, ease: "power3.out" }, ls("L18") + 0.05);
+      tl.to("#ms_t1", { x: -88, duration: 1.8, ease: "none" }, ls("L18") + 0.35);
+      tl.to("#ms_t2", { x: 88, duration: 1.8, ease: "none" }, ls("L18") + 0.4);
+      type("#ms_l", w("L18", 1), 0.45);
+      pop("#ms_w", w("L18", 2));
+      tl.to("#ms_w", { scale: 1.12, duration: 0.15, yoyo: true, repeat: 5 }, w("L18", 3));
+      slam("#ms_b", w("L18", 4));
+      shake("#ms_b", w("L18", 5), 5, 10);
+
+      // ===== L19 trim =====
+      tl.fromTo("#tr_t", { scale: 3, opacity: 0, rotation: -15 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.28, ease: "back.out(1.6)" }, ls("L19"));
+      drawCar("#tr_car", ls("L19") + 0.1, 0.45);
+      pop("#tr_panel", w("L19", 2) - 0.15, { duration: 0.3 });
+      pop("#tr_i1 .vmark", w("L19", 2)); rise("#tr_i1 .t", w("L19", 2), 0.3);
+      tl.to("#tr_car .whl", { scale: 1.18, transformOrigin: "50% 50%", duration: 0.2, yoyo: true, repeat: 1 }, w("L19", 2));
+      tl.to("#tr_car .tyre", { stroke: "#FECD00", duration: 0.1 }, w("L19", 2));
+      pop("#tr_i2 .vmark", w("L19", 4)); rise("#tr_i2 .t", w("L19", 4), 0.3);
+      pop("#tr_i3 .xmark", w("L19", 6)); rise(["#tr_i3 .t", "#tr_i3 .mono"], w("L19", 6), 0.3);
+      shake("#tr_i3", w("L19", 8), 5, 9);
+
+      // ===== L20 decoder =====
+      type("#dc_l", ls("L20"), 0.35);
+      pop("#dc_1", w("L20", 1)); pop("#dc_2", w("L20", 2)); pop("#dc_3", w("L20", 3));
+      [["#dc_r1", w("L20", 4)], ["#dc_r2", w("L20", 6)], ["#dc_r3", w("L20", 8)]].forEach(([s, t]) => wipe(s, t, 0.3));
+      tl.fromTo(["#dc_1", "#dc_2", "#dc_3"], { y: 0 }, { y: -10, duration: 0.12, yoyo: true, repeat: 1, stagger: 0.6 }, w("L20", 4));
+      pop("#dc_ch", w("L20", 8), { duration: 0.3 });
+      tl.fromTo("#dc_ch .dw", { opacity: 0.3 }, { opacity: 1, duration: 0.1, stagger: 0.1 }, w("L20", 9));
+      tl.to("#dc_ch .dw", { opacity: 0.4, duration: 0.1, yoyo: true, repeat: 3 }, w("L20", 10) + 0.2);
+
+      // ===== L21 CTA =====
+      rise("#e_q", ls("L21"), 0.3);
+      drawCar("#e_c1", ls("L21") + 0.05, 0.5); driveIn("#e_c1", ls("L21"), 0.55);
+      pop("#e_panel", w("L21", 4) - 0.1, { duration: 0.3 });
+      tl.fromTo("#e_pin", { y: -500, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "bounce.out" }, w("L21", 4));
+      type("#e_a", w("L21", 4), 0.35);
+      slam("#e_b", w("L21", 5));
+      wipe("#e_c", w("L21", 8), 0.35);
+      tl.to("#e_pin", { y: -20, duration: 0.25, yoyo: true, repeat: 3, ease: "sine.inOut" }, w("L21", 8) + 0.4);
+
+      // ===== L22 follow =====
+      pop("#fo_m", ls("L22"));
+      tl.fromTo("#fo_b", { scale: 2.6, opacity: 0, rotation: -20 }, { scale: 1, opacity: 1, rotation: -3, duration: 0.3, ease: "back.out(1.6)" }, w("L22", 0) + 0.05);
+      tl.to("#fo_b", { scale: 1.07, duration: 0.3, yoyo: true, repeat: 5, ease: "sine.inOut" }, w("L22", 0) + 0.45);
+      type("#fo_t", w("L22", 2), 0.6);
+      twinkle("#fo_s1", w("L22", 1), 0.6); twinkle("#fo_s2", w("L22", 2), 0.6);
+
+      // ===== scene exits + transitions =====
+      tl.to("#sc_L01", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 2.861);
+      tl.fromTo("#tr1 .scanbar", { y: 700, opacity: 0.6, scaleY: 0.4 }, { y: 1300, opacity: 0, duration: 0.3, ease: "power2.out" }, 2.961);
+      tl.fromTo("#sc_L02", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 2.961);
+      tl.to("#sc_L02", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 5.972);
+      tl.fromTo("#tr2 .scanbar", { y: -40, opacity: 1, scaleY: 1 }, { y: 1940, opacity: 0, duration: 0.3, ease: "power2.out" }, 6.072);
+      tl.fromTo("#sc_L03", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 6.072);
+      tl.to("#sc_L03", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 8.914);
+      tl.fromTo("#tr3 .scanbar", { y: 700, opacity: 0.6, scaleY: 0.4 }, { y: 1300, opacity: 0, duration: 0.3, ease: "power2.out" }, 9.014);
+      tl.fromTo("#sc_L04", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 9.014);
+      tl.to("#sc_L04", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 11.446);
+      tl.fromTo("#tr4 .scanbar", { y: 700, opacity: 0.6, scaleY: 0.4 }, { y: 1300, opacity: 0, duration: 0.3, ease: "power2.out" }, 11.546);
+      tl.fromTo("#sc_L05", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 11.546);
+      tl.to("#sc_L05", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 13.963);
+      tl.fromTo("#tr5 .scanbar", { y: -40, opacity: 1, scaleY: 1 }, { y: 1940, opacity: 0, duration: 0.3, ease: "power2.out" }, 14.063);
+      tl.fromTo("#sc_L06", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 14.063);
+      tl.to("#sc_L06", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 15.608);
+      tl.fromTo("#tr6 .scanbar", { y: 700, opacity: 0.6, scaleY: 0.4 }, { y: 1300, opacity: 0, duration: 0.3, ease: "power2.out" }, 15.708);
+      tl.fromTo("#sc_L07", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 15.708);
+      tl.to("#sc_L07", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 16.949);
+      tl.fromTo("#tr7 .scanbar", { y: 700, opacity: 0.6, scaleY: 0.4 }, { y: 1300, opacity: 0, duration: 0.3, ease: "power2.out" }, 17.049);
+      tl.fromTo("#sc_L08", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 17.049);
+      tl.to("#sc_L08", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 20.364);
+      tl.fromTo("#tr8 .scanbar", { y: 700, opacity: 0.6, scaleY: 0.4 }, { y: 1300, opacity: 0, duration: 0.3, ease: "power2.out" }, 20.464);
+      tl.fromTo("#sc_L09", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 20.464);
+      tl.to("#sc_L09", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 23.232);
+      tl.fromTo("#tr9 .scanbar", { y: 700, opacity: 0.6, scaleY: 0.4 }, { y: 1300, opacity: 0, duration: 0.3, ease: "power2.out" }, 23.332);
+      tl.fromTo("#sc_L10", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 23.332);
+      tl.to("#sc_L10", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 26.836);
+      tl.fromTo("#tr10 .scanbar", { y: 700, opacity: 0.6, scaleY: 0.4 }, { y: 1300, opacity: 0, duration: 0.3, ease: "power2.out" }, 26.936);
+      tl.fromTo("#sc_L11", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 26.936);
+      tl.to("#sc_L11", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 29.646);
+      tl.fromTo("#tr11 .scanbar", { y: -40, opacity: 1, scaleY: 1 }, { y: 1940, opacity: 0, duration: 0.3, ease: "power2.out" }, 29.746);
+      tl.fromTo("#sc_L12", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 29.746);
+      tl.to("#sc_L12", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 31.463);
+      tl.fromTo("#tr12 .scanbar", { y: 700, opacity: 0.6, scaleY: 0.4 }, { y: 1300, opacity: 0, duration: 0.3, ease: "power2.out" }, 31.563);
+      tl.fromTo("#sc_L13", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 31.563);
+      tl.to("#sc_L13", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 34.419);
+      tl.fromTo("#tr13 .scanbar", { y: 700, opacity: 0.6, scaleY: 0.4 }, { y: 1300, opacity: 0, duration: 0.3, ease: "power2.out" }, 34.519);
+      tl.fromTo("#sc_L14", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 34.519);
+      tl.to("#sc_L14", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 38.037);
+      tl.fromTo("#tr14 .scanbar", { y: -40, opacity: 1, scaleY: 1 }, { y: 1940, opacity: 0, duration: 0.3, ease: "power2.out" }, 38.137);
+      tl.fromTo("#sc_L15", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 38.137);
+      tl.to("#sc_L15", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 40.003);
+      tl.fromTo("#tr15 .scanbar", { y: 700, opacity: 0.6, scaleY: 0.4 }, { y: 1300, opacity: 0, duration: 0.3, ease: "power2.out" }, 40.103);
+      tl.fromTo("#sc_L16", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 40.103);
+      tl.to("#sc_L16", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 44.378);
+      tl.fromTo("#tr16 .scanbar", { y: 700, opacity: 0.6, scaleY: 0.4 }, { y: 1300, opacity: 0, duration: 0.3, ease: "power2.out" }, 44.478);
+      tl.fromTo("#sc_L17", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 44.478);
+      tl.to("#sc_L17", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 47.597);
+      tl.fromTo("#tr17 .scanbar", { y: -40, opacity: 1, scaleY: 1 }, { y: 1940, opacity: 0, duration: 0.3, ease: "power2.out" }, 47.697);
+      tl.fromTo("#sc_L18", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 47.697);
+      tl.to("#sc_L18", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 49.638);
+      tl.fromTo("#tr18 .scanbar", { y: 700, opacity: 0.6, scaleY: 0.4 }, { y: 1300, opacity: 0, duration: 0.3, ease: "power2.out" }, 49.738);
+      tl.fromTo("#sc_L19", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 49.738);
+      tl.to("#sc_L19", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 53.512);
+      tl.fromTo("#tr19 .scanbar", { y: -40, opacity: 1, scaleY: 1 }, { y: 1940, opacity: 0, duration: 0.3, ease: "power2.out" }, 53.612);
+      tl.fromTo("#sc_L20", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 53.612);
+      tl.to("#sc_L20", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 58.151);
+      tl.fromTo("#tr20 .scanbar", { y: -40, opacity: 1, scaleY: 1 }, { y: 1940, opacity: 0, duration: 0.3, ease: "power2.out" }, 58.251);
+      tl.fromTo("#sc_L21", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 58.251);
+      tl.to("#sc_L21", { opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.1, ease: "power2.in" }, 62.071);
+      tl.fromTo("#tr21 .scanbar", { y: 700, opacity: 0.6, scaleY: 0.4 }, { y: 1300, opacity: 0, duration: 0.3, ease: "power2.out" }, 62.171);
+      tl.fromTo("#sc_L22", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.12, ease: "power2.out" }, 62.171);
+
+      // ===== captions =====
+      tl.fromTo("#cw0_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 2.991);
+      tl.fromTo("#cw0_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 3.336);
+      tl.fromTo("#cw0_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 3.336);
+      tl.fromTo("#cw0_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 3.605);
+      tl.fromTo("#cw0_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 3.616);
+      tl.fromTo("#cw0_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 3.928);
+      tl.fromTo("#cw1_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 3.961);
+      tl.fromTo("#cw1_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 4.081);
+      tl.fromTo("#cw1_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 4.079);
+      tl.fromTo("#cw1_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 4.316);
+      tl.fromTo("#cw1_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 4.338);
+      tl.fromTo("#cw1_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 4.629);
+      tl.fromTo("#cw2_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 4.640);
+      tl.fromTo("#cw2_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 4.941);
+      tl.fromTo("#cw3_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 5.072);
+      tl.fromTo("#cw3_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 5.192);
+      tl.fromTo("#cw3_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 5.190);
+      tl.fromTo("#cw3_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 5.341);
+      tl.fromTo("#cw3_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 5.362);
+      tl.fromTo("#cw3_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 5.772);
+      tl.fromTo("#cw4_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 6.102);
+      tl.fromTo("#cw4_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 6.253);
+      tl.fromTo("#cw4_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 6.253);
+      tl.fromTo("#cw4_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 6.738);
+      tl.fromTo("#cw4_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 6.749);
+      tl.fromTo("#cw4_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 7.320);
+      tl.fromTo("#cw5_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 7.409);
+      tl.fromTo("#cw5_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 7.789);
+      tl.fromTo("#cw5_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 7.800);
+      tl.fromTo("#cw5_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 8.080);
+      tl.fromTo("#cw5_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 8.113);
+      tl.fromTo("#cw5_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 8.824);
+      tl.fromTo("#cw6_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 9.044);
+      tl.fromTo("#cw6_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 9.173);
+      tl.fromTo("#cw6_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 9.205);
+      tl.fromTo("#cw6_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 9.507);
+      tl.fromTo("#cw6_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 9.621);
+      tl.fromTo("#cw6_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 9.911);
+      tl.fromTo("#cw7_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 9.922);
+      tl.fromTo("#cw7_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 10.202);
+      tl.fromTo("#cw8_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 10.341);
+      tl.fromTo("#cw8_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 10.644);
+      tl.fromTo("#cw8_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 10.677);
+      tl.fromTo("#cw8_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 10.914);
+      tl.fromTo("#cw8_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 10.946);
+      tl.fromTo("#cw8_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 11.356);
+      tl.fromTo("#cw9_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 11.576);
+      tl.fromTo("#cw9_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 11.910);
+      tl.fromTo("#cw9_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 11.920);
+      tl.fromTo("#cw9_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 12.201);
+      tl.fromTo("#cw9_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 12.244);
+      tl.fromTo("#cw9_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 12.642);
+      tl.fromTo("#cw10_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 12.804);
+      tl.fromTo("#cw10_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 13.063);
+      tl.fromTo("#cw10_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 13.074);
+      tl.fromTo("#cw10_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 13.364);
+      tl.fromTo("#cw10_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 13.408);
+      tl.fromTo("#cw10_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 13.763);
+      tl.fromTo("#cw11_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 14.093);
+      tl.fromTo("#cw11_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 14.578);
+      tl.fromTo("#cw12_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 14.774);
+      tl.fromTo("#cw12_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 15.076);
+      tl.fromTo("#cw12_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 15.108);
+      tl.fromTo("#cw12_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 15.518);
+      tl.fromTo("#cw13_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 15.738);
+      tl.fromTo("#cw13_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 16.266);
+      tl.fromTo("#cw14_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 16.438);
+      tl.fromTo("#cw14_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 16.859);
+      tl.fromTo("#cw15_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 17.079);
+      tl.fromTo("#cw15_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 17.661);
+      tl.fromTo("#cw15_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 17.756);
+      tl.fromTo("#cw15_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 18.170);
+      tl.fromTo("#cw15_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 18.202);
+      tl.fromTo("#cw15_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 18.364);
+      tl.fromTo("#cw16_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 18.386);
+      tl.fromTo("#cw16_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 18.730);
+      tl.fromTo("#cw17_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 18.896);
+      tl.fromTo("#cw17_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 19.294);
+      tl.fromTo("#cw17_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 19.304);
+      tl.fromTo("#cw17_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 19.563);
+      tl.fromTo("#cw17_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 19.606);
+      tl.fromTo("#cw17_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 20.274);
+      tl.fromTo("#cw18_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 20.494);
+      tl.fromTo("#cw18_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 20.979);
+      tl.fromTo("#cw19_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 21.151);
+      tl.fromTo("#cw19_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 21.391);
+      tl.fromTo("#cw19_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 21.402);
+      tl.fromTo("#cw19_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 21.757);
+      tl.fromTo("#cw19_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 21.861);
+      tl.fromTo("#cw19_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 22.181);
+      tl.fromTo("#cw20_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 22.213);
+      tl.fromTo("#cw20_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 22.569);
+      tl.fromTo("#cw20_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 22.580);
+      tl.fromTo("#cw20_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 23.032);
+      tl.fromTo("#cw21_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 23.362);
+      tl.fromTo("#cw21_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 23.686);
+      tl.fromTo("#cw21_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 23.707);
+      tl.fromTo("#cw21_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 24.192);
+      tl.fromTo("#cw22_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 24.349);
+      tl.fromTo("#cw22_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 24.629);
+      tl.fromTo("#cw22_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 24.629);
+      tl.fromTo("#cw22_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 25.190);
+      tl.fromTo("#cw23_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 25.339);
+      tl.fromTo("#cw23_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 25.700);
+      tl.fromTo("#cw23_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 25.722);
+      tl.fromTo("#cw23_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 26.401);
+      tl.fromTo("#cw23_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 26.412);
+      tl.fromTo("#cw23_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 26.746);
+      tl.fromTo("#cw24_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 26.966);
+      tl.fromTo("#cw24_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 27.397);
+      tl.fromTo("#cw24_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 27.418);
+      tl.fromTo("#cw24_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 27.720);
+      tl.fromTo("#cw25_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 27.916);
+      tl.fromTo("#cw25_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 28.207);
+      tl.fromTo("#cw25_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 28.217);
+      tl.fromTo("#cw25_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 28.487);
+      tl.fromTo("#cw25_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 28.508);
+      tl.fromTo("#cw25_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 28.853);
+      tl.fromTo("#cw26_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 28.853);
+      tl.fromTo("#cw26_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 29.015);
+      tl.fromTo("#cw26_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 29.025);
+      tl.fromTo("#cw26_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 29.446);
+      tl.fromTo("#cw27_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 29.776);
+      tl.fromTo("#cw27_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 30.024);
+      tl.fromTo("#cw27_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 30.056);
+      tl.fromTo("#cw27_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 30.702);
+      tl.fromTo("#cw27_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 30.813);
+      tl.fromTo("#cw27_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 31.050);
+      tl.fromTo("#cw28_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 31.093);
+      tl.fromTo("#cw28_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 31.373);
+      tl.fromTo("#cw29_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 31.593);
+      tl.fromTo("#cw29_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 32.132);
+      tl.fromTo("#cw30_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 32.264);
+      tl.fromTo("#cw30_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 32.479);
+      tl.fromTo("#cw30_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 32.501);
+      tl.fromTo("#cw30_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 32.856);
+      tl.fromTo("#cw30_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 32.930);
+      tl.fromTo("#cw30_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 33.197);
+      tl.fromTo("#cw31_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 33.240);
+      tl.fromTo("#cw31_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 33.574);
+      tl.fromTo("#cw32_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 33.714);
+      tl.fromTo("#cw32_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 33.962);
+      tl.fromTo("#cw32_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 34.005);
+      tl.fromTo("#cw32_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 34.329);
+      tl.fromTo("#cw33_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 34.549);
+      tl.fromTo("#cw33_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 35.238);
+      tl.fromTo("#cw33_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 35.260);
+      tl.fromTo("#cw33_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 35.605);
+      tl.fromTo("#cw33_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 35.615);
+      tl.fromTo("#cw33_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 36.133);
+      tl.fromTo("#cw34_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 36.316);
+      tl.fromTo("#cw34_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 36.803);
+      tl.fromTo("#cw35_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 36.964);
+      tl.fromTo("#cw35_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 37.449);
+      tl.fromTo("#cw35_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 37.460);
+      tl.fromTo("#cw35_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 37.837);
+      tl.fromTo("#cw36_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 38.167);
+      tl.fromTo("#cw36_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 38.426);
+      tl.fromTo("#cw36_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 38.437);
+      tl.fromTo("#cw36_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 38.663);
+      tl.fromTo("#cw36_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 38.695);
+      tl.fromTo("#cw36_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 39.040);
+      tl.fromTo("#cw37_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 39.169);
+      tl.fromTo("#cw37_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 39.331);
+      tl.fromTo("#cw37_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 39.353);
+      tl.fromTo("#cw37_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 39.913);
+      tl.fromTo("#cw38_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 40.133);
+      tl.fromTo("#cw38_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 40.295);
+      tl.fromTo("#cw38_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 40.316);
+      tl.fromTo("#cw38_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 40.586);
+      tl.fromTo("#cw38_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 40.607);
+      tl.fromTo("#cw38_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 40.833);
+      tl.fromTo("#cw39_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 40.855);
+      tl.fromTo("#cw39_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 41.286);
+      tl.fromTo("#cw39_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 41.380);
+      tl.fromTo("#cw39_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 41.731);
+      tl.fromTo("#cw39_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 41.731);
+      tl.fromTo("#cw39_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 43.100);
+      tl.fromTo("#cw40_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 43.242);
+      tl.fromTo("#cw40_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 44.288);
+      tl.fromTo("#cw41_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 44.508);
+      tl.fromTo("#cw41_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 44.842);
+      tl.fromTo("#cw41_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 44.874);
+      tl.fromTo("#cw41_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 45.046);
+      tl.fromTo("#cw41_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 45.068);
+      tl.fromTo("#cw41_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 45.725);
+      tl.fromTo("#cw42_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 45.747);
+      tl.fromTo("#cw42_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 46.135);
+      tl.fromTo("#cw43_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 46.315);
+      tl.fromTo("#cw43_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 46.546);
+      tl.fromTo("#cw43_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 46.567);
+      tl.fromTo("#cw43_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 46.869);
+      tl.fromTo("#cw43_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 46.869);
+      tl.fromTo("#cw43_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 47.031);
+      tl.fromTo("#cw44_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 47.063);
+      tl.fromTo("#cw44_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 47.397);
+      tl.fromTo("#cw45_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 47.727);
+      tl.fromTo("#cw45_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 47.910);
+      tl.fromTo("#cw45_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 47.943);
+      tl.fromTo("#cw45_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 48.158);
+      tl.fromTo("#cw45_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 48.191);
+      tl.fromTo("#cw45_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 48.438);
+      tl.fromTo("#cw46_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 48.481);
+      tl.fromTo("#cw46_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 48.869);
+      tl.fromTo("#cw47_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 49.009);
+      tl.fromTo("#cw47_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 49.160);
+      tl.fromTo("#cw47_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 49.171);
+      tl.fromTo("#cw47_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 49.548);
+      tl.fromTo("#cw48_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 49.768);
+      tl.fromTo("#cw48_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 50.038);
+      tl.fromTo("#cw48_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 50.081);
+      tl.fromTo("#cw48_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 50.415);
+      tl.fromTo("#cw48_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 50.525);
+      tl.fromTo("#cw48_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 50.707);
+      tl.fromTo("#cw49_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 50.729);
+      tl.fromTo("#cw49_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 51.073);
+      tl.fromTo("#cw50_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 51.225);
+      tl.fromTo("#cw50_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 51.529);
+      tl.fromTo("#cw50_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 51.551);
+      tl.fromTo("#cw50_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 51.960);
+      tl.fromTo("#cw51_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 52.148);
+      tl.fromTo("#cw51_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 52.385);
+      tl.fromTo("#cw51_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 52.428);
+      tl.fromTo("#cw51_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 52.548);
+      tl.fromTo("#cw51_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 52.557);
+      tl.fromTo("#cw51_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 52.859);
+      tl.fromTo("#cw52_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 52.859);
+      tl.fromTo("#cw52_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 53.312);
+      tl.fromTo("#cw53_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 53.642);
+      tl.fromTo("#cw53_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 53.954);
+      tl.fromTo("#cw53_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 53.954);
+      tl.fromTo("#cw53_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 54.461);
+      tl.fromTo("#cw53_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 54.504);
+      tl.fromTo("#cw53_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 55.021);
+      tl.fromTo("#cw54_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 55.021);
+      tl.fromTo("#cw54_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 55.603);
+      tl.fromTo("#cw54_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 55.649);
+      tl.fromTo("#cw54_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 55.769);
+      tl.fromTo("#cw54_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 55.794);
+      tl.fromTo("#cw54_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 56.106);
+      tl.fromTo("#cw55_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 56.289);
+      tl.fromTo("#cw55_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 56.494);
+      tl.fromTo("#cw55_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 56.526);
+      tl.fromTo("#cw55_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 56.785);
+      tl.fromTo("#cw56_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 56.939);
+      tl.fromTo("#cw56_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 57.283);
+      tl.fromTo("#cw56_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 57.283);
+      tl.fromTo("#cw56_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 57.574);
+      tl.fromTo("#cw56_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 57.606);
+      tl.fromTo("#cw56_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 57.951);
+      tl.fromTo("#cw57_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 58.281);
+      tl.fromTo("#cw57_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 58.497);
+      tl.fromTo("#cw57_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 58.507);
+      tl.fromTo("#cw57_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 59.175);
+      tl.fromTo("#cw57_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 59.197);
+      tl.fromTo("#cw57_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 59.317);
+      tl.fromTo("#cw58_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 59.348);
+      tl.fromTo("#cw58_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 59.833);
+      tl.fromTo("#cw59_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 59.998);
+      tl.fromTo("#cw59_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 60.343);
+      tl.fromTo("#cw59_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 60.354);
+      tl.fromTo("#cw59_1", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 61.108);
+      tl.fromTo("#cw59_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 61.129);
+      tl.fromTo("#cw59_2", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 61.981);
+      tl.fromTo("#cw60_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 62.201);
+      tl.fromTo("#cw60_0", { color: "#FECD00" }, { color: "#FECD00", duration: 0.1 }, 62.526);
+      tl.fromTo("#cw60_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 62.526);
+      tl.fromTo("#cw60_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 62.784);
+      tl.fromTo("#cw60_2", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 62.817);
+      tl.fromTo("#cw60_2", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 63.054);
+      tl.fromTo("#cw61_0", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 63.075);
+      tl.fromTo("#cw61_0", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 63.312);
+      tl.fromTo("#cw61_1", { scale: 0.6, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.12, ease: "back.out(3)" }, 63.334);
+      tl.fromTo("#cw61_1", { color: "#FECD00" }, { color: "#FFEFEF", duration: 0.1 }, 63.625);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
