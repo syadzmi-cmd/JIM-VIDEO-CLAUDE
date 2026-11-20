@@ -105,13 +105,23 @@
       .scanbar { position: absolute; left: 0; width: 1080px; height: 26px; background: var(--yellow); box-shadow: 0 0 40px 12px rgba(254,205,0,0.7); }
 
       /* captions */
-      .scene { top: 80px; }
-      .cap { position: absolute; left: 50px; width: 980px; top: 1500px; text-align: center; }
-      .cap span { display: inline-block; margin: 0 10px; font-family: var(--font-ui); font-weight: 900; font-style: italic; font-size: 70px;
-                  text-transform: uppercase; color: var(--cream); line-height: 1.08;
+      .scene { top: 40px; }
+      .cap { position: absolute; left: 420px; width: 620px; top: 1380px; text-align: center; }
+      .cap span { display: inline-block; margin: 0 10px; font-family: var(--font-ui); font-weight: 900; font-style: italic; font-size: 62px;
+                  text-transform: uppercase; color: var(--cream); line-height: 1.1;
                   -webkit-text-stroke: 3px var(--maroon); paint-order: stroke fill;
                   text-shadow: 0 6px 0 var(--maroon), 0 0 26px rgba(0,0,0,0.6); }
 __CARCSS__
+      /* Kemal narrator */
+      .kwrap { position: absolute; left: 14px; top: 1205px; width: 400px; height: 430px; }
+      .kbody { position: absolute; left: 0; top: 0; width: 400px; height: 430px; transform-origin: 50% 100%; }
+      .kf { position: absolute; left: 0; top: 0; width: 400px; height: 430px; display: flex; justify-content: center; align-items: flex-end; opacity: 0; transform-origin: 50% 100%; }
+      .kf img { height: 410px; filter: drop-shadow(0 12px 18px rgba(0,0,0,0.55)); }
+      .kdesk { position: absolute; left: 0; top: 1598px; width: 440px; height: 92px; display: flex; align-items: center; gap: 14px; padding-left: 34px;
+               background: linear-gradient(180deg, #6a0b14, var(--maroon)); border-top: 5px solid var(--yellow); border-right: 5px solid var(--yellow);
+               border-radius: 0 28px 0 0; box-shadow: 0 0 34px rgba(254,205,0,0.4); font-family: var(--font-mono); font-weight: 700; font-size: 34px; letter-spacing: 0.2em; color: var(--cream); }
+      .kdesk b { color: var(--yellow); }
+      .kdesk i { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: #ff3b3b; box-shadow: 0 0 12px #ff3b3b; }
     </style>
   </head>
   <body>
@@ -177,8 +187,8 @@ __CHAPTERS__
         <div id="b_st" class="abs" style="left:560px;top:1150px"><span class="stamp" style="font-size:96px;transform:rotate(-8deg)">M BETUL?</span></div>
       </div>
 
-      <!-- ===== L03 M = Motorsport ===== -->
-      <div id="sc_L03" class="clip layer scene" data-line="L03" data-track-index="3" style="z-index:10">
+      <!-- ===== L04 M = Motorsport ===== -->
+      <div id="sc_L04" class="clip layer scene" data-line="L04" data-track-index="3" style="z-index:10">
         <svg id="m_ring" class="abs" viewBox="0 0 400 400" style="left:290px;top:330px;width:500px;height:500px">
           <circle cx="200" cy="200" r="180" class="neon y" stroke-dasharray="26 18"/>
           <circle cx="200" cy="200" r="150" class="neon" stroke-width="3" opacity="0.6"/>
@@ -194,8 +204,8 @@ __CHAPTERS__
         </div>
       </div>
 
-      <!-- ===== L04 formula ===== -->
-      <div id="sc_L04" class="clip layer scene" data-line="L04" data-track-index="3" style="z-index:10">
+      <!-- ===== L05 formula ===== -->
+      <div id="sc_L05" class="clip layer scene" data-line="L05" data-track-index="3" style="z-index:10">
         <div id="f_t" class="row big" style="top:340px;font-size:150px"><span class="skew">M <span style="color:var(--yellow)">PENUH?</span></span></div>
         <div class="abs" style="left:0;top:600px;width:1080px;display:flex;justify-content:center;align-items:center;gap:30px">
           <span id="f_m" class="mb" style="font-size:200px;padding:0 0.3em"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span></span>
@@ -208,8 +218,8 @@ __CHAPTERS__
         <div id="f_ok" class="row" style="top:1010px"><span class="sticker" style="font-size:80px;transform:rotate(-3deg)">= M PENUH ✓</span></div>
       </div>
 
-      <!-- ===== L05 size ladder ===== -->
-      <div id="sc_L05" class="clip layer scene" data-line="L05" data-track-index="3" style="z-index:10">
+      <!-- ===== L06 size ladder ===== -->
+      <div id="sc_L06" class="clip layer scene" data-line="L06" data-track-index="3" style="z-index:10">
         <div id="z_t" class="row big" style="top:320px;font-size:100px;line-height:1"><span class="skew">NOMBOR <span style="color:var(--yellow)">BESAR</span><br>= KERETA <span style="color:var(--yellow)">BESAR</span></span></div>
         <div id="z_r1" class="abs" style="left:60px;top:540px;width:960px;height:220px">
           <span class="mb" style="font-size:64px;position:absolute;left:0;top:70px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>2</span>
@@ -228,22 +238,23 @@ __CHAPTERS__
         </svg>
       </div>
 
-      <!-- ===== L06 M2 ===== -->
-      <div id="sc_L06" class="clip layer scene" data-line="L06" data-track-index="3" style="z-index:10">
+      <!-- ===== L07 M2 ===== -->
+      <div id="sc_L07" class="clip layer scene" data-line="L07" data-track-index="3" style="z-index:10">
         <div class="row" style="top:350px"><span id="m2_b" class="mb" style="font-size:190px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>2</span></div>
         __CAR:coupe:m2_car:y:left:130px;top:650px;width:820px;height:314px__
-        <div id="m2_l" class="row" style="top:1030px"><span class="sticker" style="font-size:84px;transform:rotate(-3deg)">COUPE KECIL</span></div>
+        <div id="m2_l" class="row" style="top:1010px"><span class="sticker" style="font-size:84px;transform:rotate(-3deg)">COUPE KECIL</span></div>
+        <div id="m2_f" class="abs" style="left:640px;top:600px"><span class="sticker m" style="font-size:56px;transform:rotate(8deg)">PALING FUN!</span></div>
       </div>
 
-      <!-- ===== L07 M3 ===== -->
-      <div id="sc_L07" class="clip layer scene" data-line="L07" data-track-index="3" style="z-index:10">
+      <!-- ===== L08 M3 ===== -->
+      <div id="sc_L08" class="clip layer scene" data-line="L08" data-track-index="3" style="z-index:10">
         <div class="row" style="top:350px"><span id="m3_b" class="mb" style="font-size:190px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>3</span></div>
         __CAR:sedan:m3_car:y:left:80px;top:650px;width:920px;height:352px__
         <div id="m3_l" class="row" style="top:1030px"><span class="sticker" style="font-size:84px;transform:rotate(3deg)">SEDAN · 4 PINTU</span></div>
       </div>
 
-      <!-- ===== L08 M4 ===== -->
-      <div id="sc_L08" class="clip layer scene" data-line="L08" data-track-index="3" style="z-index:10">
+      <!-- ===== L10 M4 ===== -->
+      <div id="sc_L10" class="clip layer scene" data-line="L10" data-track-index="3" style="z-index:10">
         <div class="row" style="top:350px"><span id="m4_b" class="mb" style="font-size:190px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>4</span></div>
         <div id="m4_eq" class="row mono y" style="top:600px;font-size:44px">= M3 VERSI 2 PINTU</div>
         __CAR:coupe4:m4_car:y:left:80px;top:660px;width:920px;height:352px__
@@ -254,8 +265,8 @@ __CHAPTERS__
         </div>
       </div>
 
-      <!-- ===== L09 M5 ===== -->
-      <div id="sc_L09" class="clip layer scene" data-line="L09" data-track-index="3" style="z-index:10">
+      <!-- ===== L11 M5 ===== -->
+      <div id="sc_L11" class="clip layer scene" data-line="L11" data-track-index="3" style="z-index:10">
         <div class="row" style="top:350px"><span id="m5_b" class="mb" style="font-size:190px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>5</span></div>
         <div id="m5_eq" class="row mono y" style="top:600px;font-size:44px">SEDAN BESAR</div>
         __CAR:big:m5_car:y:left:40px;top:650px;width:1000px;height:382px__
@@ -268,30 +279,30 @@ __CHAPTERS__
         </div>
       </div>
 
-      <!-- ===== L10 X = SUV ===== -->
-      <div id="sc_L10" class="clip layer scene" data-line="L10" data-track-index="3" style="z-index:10">
+      <!-- ===== L12 X = SUV ===== -->
+      <div id="sc_L12" class="clip layer scene" data-line="L12" data-track-index="3" style="z-index:10">
         <div class="abs" style="left:0;top:330px;width:1080px;display:flex;justify-content:center;align-items:center;gap:30px">
           <span id="x_p" class="big" style="font-size:150px">+</span>
           <span id="x_x" class="big y" style="font-size:300px"><span class="holo" data-t="X">X</span></span>
           <span id="x_eq" class="big" style="font-size:150px">= <span style="color:var(--yellow)">SUV</span></span>
         </div>
         __CAR:suv:x_car:y:left:60px;top:660px;width:960px;height:367px__
-        <div class="row" style="top:1070px"><span id="x_b" class="mb" style="font-size:110px"><span class="st"><i></i><i></i><i></i></span>X5&nbsp;<span class="m">M</span></span></div>
+        <div class="abs" style="left:0;top:1060px;width:1080px;display:flex;justify-content:center;gap:40px"><span id="x_b" class="mb" style="font-size:100px"><span class="st"><i></i><i></i><i></i></span>X5&nbsp;<span class="m">M</span></span><span id="x_b2" class="mb" style="font-size:100px"><span class="st"><i></i><i></i><i></i></span>X6&nbsp;<span class="m">M</span></span></div>
       </div>
 
-      <!-- ===== L11 XM ===== -->
-      <div id="sc_L11" class="clip layer scene" data-line="L11" data-track-index="3" style="z-index:10">
+      <!-- ===== L13 XM ===== -->
+      <div id="sc_L13" class="clip layer scene" data-line="L13" data-track-index="3" style="z-index:10">
         <div class="row" style="top:340px"><span id="xm_b" class="mb" style="font-size:190px"><span class="st"><i></i><i></i><i></i></span>X<span class="m">M</span></span></div>
         __CAR:xm:xm_car:y:left:60px;top:620px;width:960px;height:367px__
-        <div id="xm_s" class="abs" style="left:520px;top:1010px"><span class="stamp" style="font-size:96px;transform:rotate(-7deg)">M SAHAJA</span></div>
-        <div id="xm_l" class="abs mono" style="left:90px;top:1060px;font-size:34px;line-height:1.5">TAKDE VERSI<br><span style="color:var(--yellow)">"BIASA"</span></div>
+        <div id="xm_s" class="abs" style="left:560px;top:1000px"><span class="stamp" style="font-size:96px;transform:rotate(-7deg)">M SAHAJA</span></div>
+        <div id="xm_l" class="abs mono" style="left:80px;top:1040px;font-size:36px;line-height:1.5">MODEL M SENDIRI<br><span style="color:var(--yellow)">PERTAMA SEJAK M1</span></div>
         <svg id="xm_s1" class="sparkle" style="left:880px;top:380px"><use href="#star"/></svg>
         <svg id="xm_s2" class="sparkle" style="left:140px;top:560px;width:50px;height:50px"><use href="#star"/></svg>
       </div>
 
-      <!-- ===== L12 Competition ===== -->
-      <div id="sc_L12" class="clip layer scene" data-line="L12" data-track-index="3" style="z-index:10">
-        <div id="c_l" class="row mono y" style="top:350px;font-size:40px">NAMPAK BADGE NI?</div>
+      <!-- ===== L14 Competition ===== -->
+      <div id="sc_L14" class="clip layer scene" data-line="L14" data-track-index="3" style="z-index:10">
+        <div id="c_l" class="row mono y" style="top:350px;font-size:40px">BADGE BELAKANG</div>
         <div class="row" style="top:420px"><span id="c_b" class="sticker m" style="font-size:118px;transform:rotate(-3deg);font-style:italic">COMPETITION</span></div>
         <svg id="c_g" class="abs" viewBox="0 0 300 190" style="left:240px;top:640px;width:600px;height:380px">
           <path d="M40 160 A115 115 0 1 1 260 160" class="neon" />
@@ -302,8 +313,8 @@ __CHAPTERS__
         <div id="c_p" class="row" style="top:1040px"><span class="big y skew" style="font-size:180px"><span class="holo" data-t="+ POWER">+ POWER</span></span></div>
       </div>
 
-      <!-- ===== L13 CS ===== -->
-      <div id="sc_L13" class="clip layer scene" data-line="L13" data-track-index="3" style="z-index:10">
+      <!-- ===== L15 CS ===== -->
+      <div id="sc_L15" class="clip layer scene" data-line="L15" data-track-index="3" style="z-index:10">
         <div class="row" style="top:340px"><span id="cs_b" class="mb" style="font-size:170px"><span class="st"><i></i><i></i><i></i></span><span class="m">CS</span></span></div>
         <div id="cs_t" class="row big" style="top:590px;font-size:130px"><span class="skew">CLUB <span style="color:var(--yellow)">SPORT</span></span></div>
         <div id="cs_panel" class="panel" style="left:130px;top:780px;width:820px;height:380px"></div>
@@ -311,8 +322,8 @@ __CHAPTERS__
         <div id="cs_i2" class="item" style="left:200px;top:990px"><span class="vmark">⚡</span><span class="t" style="color:var(--yellow)">LAGI LAJU</span></div>
       </div>
 
-      <!-- ===== L14 CSL ===== -->
-      <div id="sc_L14" class="clip layer scene" data-line="L14" data-track-index="3" style="z-index:10">
+      <!-- ===== L16 CSL ===== -->
+      <div id="sc_L16" class="clip layer scene" data-line="L16" data-track-index="3" style="z-index:10">
         <div class="abs" style="left:0;top:340px;width:1080px;display:flex;justify-content:center">
           <span id="sl_b" class="mb" style="font-size:170px"><span class="st"><i></i><i></i><i></i></span><span class="m">CS</span><span id="sl_L" style="color:var(--cream)">L</span></span>
         </div>
@@ -323,10 +334,11 @@ __CHAPTERS__
         <div id="sl_de" class="row mono" style="top:890px;font-size:38px">BAHASA JERMAN</div>
         <div id="sl_eq" class="row" style="top:970px"><span class="sticker" style="font-size:96px;transform:rotate(-3deg)">= RINGAN</span></div>
         <div id="sl_kg" class="abs mono y" style="left:820px;top:1000px;font-size:44px">−KG</div>
+        <div id="sl_u" class="abs" style="left:70px;top:560px"><span class="stamp r" style="font-size:64px;transform:rotate(8deg)"><span id="sl_n">1000</span> UNIT</span></div>
       </div>
 
-      <!-- ===== L15 one level down ===== -->
-      <div id="sc_L15" class="clip layer scene" data-line="L15" data-track-index="3" style="z-index:10">
+      <!-- ===== L17 one level down ===== -->
+      <div id="sc_L17" class="clip layer scene" data-line="L17" data-track-index="3" style="z-index:10">
         <div id="lv_t" class="row big" style="top:340px;font-size:120px"><span class="skew">TURUN <span style="color:var(--yellow)">SATU LEVEL</span></span></div>
         <div id="lv_1" class="abs" style="left:150px;top:560px;width:780px;height:150px;border:5px solid var(--cream);border-radius:28px;background:rgba(67,1,7,0.8);display:flex;align-items:center;padding-left:40px">
           <span class="big" style="font-size:80px">M PENUH</span><span class="mono y" style="margin-left:auto;margin-right:36px;font-size:34px">LV.1</span></div>
@@ -339,8 +351,8 @@ __CHAPTERS__
         </svg>
       </div>
 
-      <!-- ===== L16 M in front ===== -->
-      <div id="sc_L16" class="clip layer scene" data-line="L16" data-track-index="3" style="z-index:10">
+      <!-- ===== L18 M in front ===== -->
+      <div id="sc_L18" class="clip layer scene" data-line="L18" data-track-index="3" style="z-index:10">
         <div id="mp_t" class="row big" style="top:340px;font-size:112px"><span class="skew"><span style="color:var(--yellow)">M</span> DEPAN NOMBOR</span></div>
         <div class="row" style="top:520px"><span id="mp_b1" class="mb" style="font-size:150px"><span class="st"><i></i><i></i><i></i></span><span id="mp_m1" class="m">M</span>340i</span></div>
         __CAR:sedan:mp_c1::left:160px;top:700px;width:760px;height:290px__
@@ -352,8 +364,8 @@ __CHAPTERS__
         <div id="mp_lbl" class="row mono y" style="top:1040px;font-size:40px">M PERFORMANCE</div>
       </div>
 
-      <!-- ===== L17 comparison bars ===== -->
-      <div id="sc_L17" class="clip layer scene" data-line="L17" data-track-index="3" style="z-index:10">
+      <!-- ===== L19 comparison bars ===== -->
+      <div id="sc_L19" class="clip layer scene" data-line="L19" data-track-index="3" style="z-index:10">
         <div id="cp_t" class="row big" style="top:340px;font-size:120px"><span class="skew">LAJU, <span style="color:var(--yellow)">TAPI...</span></span></div>
         <div id="cp_m1" class="meter" style="left:110px;top:600px;width:860px"><div class="fill" style="width:360px"></div><div class="lbl">BMW BIASA</div></div>
         <div id="cp_m2" class="meter" style="left:110px;top:790px;width:860px"><div class="fill" style="width:600px"></div><div class="lbl" style="color:var(--yellow)">M PERFORMANCE</div></div>
@@ -361,8 +373,8 @@ __CHAPTERS__
         <div id="cp_x" class="abs" style="left:770px;top:770px"><span class="stamp r" style="font-size:64px;transform:rotate(-8deg)">BUKAN M PENUH</span></div>
       </div>
 
-      <!-- ===== L18 M Sport warning ===== -->
-      <div id="sc_L18" class="clip layer scene" data-line="L18" data-track-index="3" style="z-index:10">
+      <!-- ===== L20 M Sport warning ===== -->
+      <div id="sc_L20" class="clip layer scene" data-line="L20" data-track-index="3" style="z-index:10">
         <div id="ms_t1" class="tape" style="top:350px;transform:rotate(-3deg)"></div>
         <div id="ms_l" class="row mono y" style="top:480px;font-size:44px">PALING RAMAI KELIRU</div>
         <svg id="ms_w" class="abs" style="left:450px;top:560px;width:180px;height:162px"><use href="#warn"/></svg>
@@ -370,8 +382,8 @@ __CHAPTERS__
         <div id="ms_t2" class="tape" style="top:1060px;transform:rotate(2deg)"></div>
       </div>
 
-      <!-- ===== L19 just a trim ===== -->
-      <div id="sc_L19" class="clip layer scene" data-line="L19" data-track-index="3" style="z-index:10">
+      <!-- ===== L21 just a trim ===== -->
+      <div id="sc_L21" class="clip layer scene" data-line="L21" data-track-index="3" style="z-index:10">
         <div id="tr_t" class="row" style="top:330px"><span class="stamp" style="font-size:120px;transform:rotate(-3deg)">CUMA TRIM</span></div>
         __CAR:sedan:tr_car::left:200px;top:500px;width:680px;height:260px__
         <div id="tr_panel" class="panel" style="left:110px;top:790px;width:860px;height:470px"></div>
@@ -380,8 +392,8 @@ __CHAPTERS__
         <div id="tr_i3" class="item" style="left:170px;top:1100px"><span class="xmark">✕</span><span class="t" style="color:#ff6b6b">+ POWER</span><span class="mono y" style="font-size:40px;margin-left:10px">+0 HP</span></div>
       </div>
 
-      <!-- ===== L20 decoder ===== -->
-      <div id="sc_L20" class="clip layer scene" data-line="L20" data-track-index="3" style="z-index:10">
+      <!-- ===== L24 decoder ===== -->
+      <div id="sc_L24" class="clip layer scene" data-line="L24" data-track-index="3" style="z-index:10">
         <div id="dc_l" class="row mono y" style="top:340px;font-size:40px">DECODE BADGE</div>
         <div class="abs" style="left:0;top:410px;width:1080px;display:flex;justify-content:center;gap:16px;align-items:center">
           <span id="dc_1" class="mb" style="font-size:96px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>4</span>
@@ -400,8 +412,8 @@ __CHAPTERS__
         </svg>
       </div>
 
-      <!-- ===== L21 ECW CTA ===== -->
-      <div id="sc_L21" class="clip layer scene" data-line="L21" data-track-index="3" style="z-index:10">
+      <!-- ===== L25 ECW CTA ===== -->
+      <div id="sc_L25" class="clip layer scene" data-line="L25" data-track-index="3" style="z-index:10">
         <div id="e_q" class="row big" style="top:340px;font-size:110px"><span class="skew">NAK BMW YANG <span style="color:var(--yellow)">BERBALOI?</span></span></div>
         __CAR:coupe4:e_c1:y:left:120px;top:500px;width:840px;height:321px__
         <div id="e_panel" class="panel" style="left:110px;top:850px;width:860px;height:360px"></div>
@@ -411,13 +423,71 @@ __CHAPTERS__
         <div id="e_c" class="abs big y" style="left:300px;top:1080px;font-size:84px;line-height:1">MOTORSPORT</div>
       </div>
 
-      <!-- ===== L22 follow / end ===== -->
-      <div id="sc_L22" class="clip layer scene" data-line="L22" data-track-index="3" style="z-index:10">
+      <!-- ===== L26 follow / end ===== -->
+      <div id="sc_L26" class="clip layer scene" data-line="L26" data-track-index="3" style="z-index:10">
         <div id="fo_m" class="row" style="top:420px"><span class="mb" style="font-size:150px"><span class="st"><i></i><i></i><i></i></span>ECW</span></div>
         <div class="row" style="top:690px"><span id="fo_b" class="sticker" style="font-size:130px;transform:rotate(-3deg)">+ FOLLOW</span></div>
-        <div id="fo_t" class="row mono y" style="top:975px;font-size:44px">LEBIH BANYAK TIPS KERETA</div>
+        <div id="fo_t" class="row mono y" style="top:975px;font-size:44px">TIPS KERETA DARI KEMAL</div>
         <svg id="fo_s1" class="sparkle" style="left:860px;top:640px"><use href="#star"/></svg>
         <svg id="fo_s2" class="sparkle" style="left:160px;top:860px;width:50px;height:50px"><use href="#star"/></svg>
+      </div>
+
+
+      <!-- ===== L03 Kemal intro ===== -->
+      <div id="sc_L03" class="clip layer scene" data-line="L03" data-track-index="3" style="z-index:10">
+        <div id="in_k" class="abs" style="left:250px;top:330px;width:580px;height:620px;display:flex;justify-content:center;align-items:flex-end">
+          <img id="in_ki" src="assets/kemal/hai.png" alt="Kemal" style="width:580px;filter:drop-shadow(0 20px 30px rgba(0,0,0,0.6))">
+        </div>
+        <div id="in_np" class="abs" style="left:170px;top:930px;width:740px;height:100px;border-radius:24px;background:linear-gradient(180deg,#6a0b14,var(--maroon));border:5px solid var(--yellow);box-shadow:0 0 40px rgba(254,205,0,0.45);display:flex;align-items:center;justify-content:center">
+          <span class="mono" style="font-size:34px;letter-spacing:0.16em;white-space:nowrap">KEMAL <span style="color:var(--yellow)">// ECW MOTORSPORT</span></span>
+        </div>
+        <div id="in_hi" class="abs" style="left:590px;top:350px"><span class="sticker" style="font-size:76px;transform:rotate(8deg)">HAI GENG!</span></div>
+        <div id="in_t" class="row big" style="top:1080px;font-size:130px"><span class="skew">DECODE <span style="color:var(--yellow)">BADGE M</span></span></div>
+        <svg id="in_s1" class="sparkle" style="left:170px;top:420px"><use href="#star"/></svg>
+        <svg id="in_s2" class="sparkle" style="left:880px;top:700px;width:50px;height:50px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== L09 M3 Touring ===== -->
+      <div id="sc_L09" class="clip layer scene" data-line="L09" data-track-index="3" style="z-index:10">
+        <div class="row" style="top:350px"><span id="to_b" class="mb" style="font-size:150px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>3&nbsp;<span style="font-size:0.6em">TOURING</span></span></div>
+        __CAR:wagon:to_car:y:left:60px;top:600px;width:960px;height:367px__
+        <div id="to_w" class="abs" style="left:110px;top:560px"><span class="sticker" style="font-size:72px;transform:rotate(-6deg)">WAGON!</span></div>
+        <div id="to_s" class="row" style="top:1010px"><span class="stamp" style="font-size:78px;transform:rotate(-3deg)">PERTAMA DALAM SEJARAH</span></div>
+        <svg id="to_s1" class="sparkle" style="left:880px;top:560px"><use href="#star"/></svg>
+      </div>
+
+      <!-- ===== L22 330e M Sport ===== -->
+      <div id="sc_L22" class="clip layer scene" data-line="L22" data-track-index="3" style="z-index:10">
+        <div id="ex_l" class="row mono y" style="top:350px;font-size:40px">CONTOH</div>
+        <div class="row" style="top:410px"><span id="ex_b" class="mb dim" style="font-size:120px"><span class="st"><i></i><i></i><i></i></span>330e&nbsp;<span class="m">M</span>&nbsp;SPORT</span></div>
+        <div id="ex_p1" class="panel" style="left:90px;top:640px;width:390px;height:400px"></div>
+        <div id="ex_p2" class="panel" style="left:600px;top:640px;width:390px;height:400px"></div>
+        <svg id="ex_e1" class="abs" viewBox="0 0 200 140" style="left:155px;top:690px;width:260px;height:182px"><path class="neon y" d="M30 40 H120 L140 60 H170 V110 H140 L120 130 H50 L30 110 Z M60 40 V20 H100 V40 M10 70 H30 M10 70 V100 M170 80 H190"/></svg>
+        <svg id="ex_e2" class="abs" viewBox="0 0 200 140" style="left:665px;top:690px;width:260px;height:182px"><path class="neon y" d="M30 40 H120 L140 60 H170 V110 H140 L120 130 H50 L30 110 Z M60 40 V20 H100 V40 M10 70 H30 M10 70 V100 M170 80 H190"/></svg>
+        <div id="ex_t1" class="abs big" style="left:90px;top:900px;width:390px;text-align:center;font-size:62px"><span style="text-transform:none">330e</span> <span style="color:var(--yellow)">M SPORT</span></div>
+        <div id="ex_t2" class="abs big" style="left:600px;top:900px;width:390px;text-align:center;font-size:62px"><span style="text-transform:none">330e</span> <span style="color:var(--yellow)">BIASA</span></div>
+        <div id="ex_eq" class="abs big y" style="left:490px;top:740px;width:100px;text-align:center;font-size:150px">=</div>
+        <div id="ex_ok" class="row" style="top:1065px"><span class="sticker" style="font-size:72px;transform:rotate(-3deg)">ENJIN SAMA ✓</span></div>
+      </div>
+
+      <!-- ===== L23 badge tip ===== -->
+      <div id="sc_L23" class="clip layer scene" data-line="L23" data-track-index="3" style="z-index:10">
+        <div id="bt_l" class="row mono y" style="top:340px;font-size:40px">TIP PEMBELI</div>
+        __CAR:sedan:bt_car::left:180px;top:385px;width:720px;height:275px__
+        <div id="bt_badge" class="abs" style="left:700px;top:505px"><span class="mb" style="font-size:54px"><span class="st"><i></i><i></i><i></i></span><span class="m">M</span>3</span></div>
+        <div id="bt_st" class="abs" style="left:150px;top:690px"><span class="stamp r" style="font-size:60px;transform:rotate(-5deg)">BOLEH PASANG SENDIRI!</span></div>
+        <div id="bt_panel" class="panel" style="left:110px;top:810px;width:860px;height:385px"></div>
+        <div id="bt_i1" class="item" style="left:170px;top:835px"><span class="vmark">✓</span><span class="t">CHECK SPEC</span></div>
+        <div id="bt_i2" class="item" style="left:170px;top:955px"><span class="vmark">✓</span><span class="t">CHECK DOKUMEN</span></div>
+        <div id="bt_i3" class="item" style="left:170px;top:1075px"><span class="xmark">✕</span><span class="t" style="color:#ff6b6b">BADGE JE</span></div>
+      </div>
+
+      <!-- ===== Kemal narrator ===== -->
+      <div id="kem" class="clip layer" data-start="0" data-duration="__DUR__" data-track-index="5" style="z-index:22">
+        <div class="kwrap"><div id="kem_body" class="kbody">
+__KEMAL_FACES__
+        </div></div>
+        <div id="kem_desk" class="kdesk"><i></i>KEMAL <b>// ECW</b></div>
       </div>
 
       <!-- ===== transition flashes ===== -->
@@ -488,196 +558,242 @@ __SFX__
       shake("#h_b", w("L01", 2), 5, 10);
       twinkle("#h_s1", 0.1, 0.6); twinkle("#h_s2", 0.4, 0.6);
 
-      // ===== L02 =====
+      // ===== L02 bukan semua M =====
       slam("#b_t", ls("L02"));
       [["#b_c1", w("L02", 2)], ["#b_c2", w("L02", 2) + 0.25], ["#b_c3", w("L02", 2) + 0.5]].forEach(([s, t]) => tl.fromTo(s, { x: -900, opacity: 0 }, { x: 0, opacity: 1, duration: 0.4, ease: "power3.out" }, t));
       ["#b_v1", "#b_v2", "#b_v3"].forEach((s, i) => pop(s, w("L02", 5) + i * 0.12));
       tl.fromTo(["#b_v1", "#b_v2", "#b_v3"], { rotation: -12 }, { rotation: 12, duration: 0.2, yoyo: true, repeat: 5, ease: "sine.inOut" }, w("L02", 6));
       tl.fromTo("#b_st", { scale: 3, opacity: 0, rotation: -20 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, w("L02", 8));
 
-      // ===== L03 =====
-      slam("#m_m", ls("L03"));
-      tl.fromTo("#m_ring", { scale: 0.4, opacity: 0, rotation: -90 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.5, ease: "power3.out" }, ls("L03"));
-      tl.to("#m_ring", { rotation: 120, duration: 3, ease: "none" }, ls("L03") + 0.5);
-      wipe("#m_t", w("L03", 2), 0.35);
-      type("#m_l", w("L03", 3), 0.5);
-      pop("#m_f1", w("L03", 4)); pop("#m_f2", w("L03", 4) + 0.1);
-      tl.to(["#m_f1", "#m_f2"], { rotation: 6, duration: 0.25, yoyo: true, repeat: 5, ease: "sine.inOut" }, w("L03", 4) + 0.3);
-      drawCar("#m_car", w("L03", 2), 0.5);
-      tl.fromTo("#m_car", { x: 700 }, { x: -60, duration: 1.4, ease: "power2.out" }, w("L03", 2));
-      spin("#m_car", w("L03", 2), 1.6, -4);
-      tl.fromTo("#m_sp .speed", { scaleX: 0, opacity: 0, transformOrigin: "right center" }, { scaleX: 1, opacity: 1, duration: 0.3, stagger: 0.06 }, w("L03", 2) + 0.3);
+      // ===== L03 Kemal intro =====
+      tl.fromTo("#in_k", { y: 500, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.5)" }, ls("L03"));
+      tl.fromTo("#in_ki", { rotation: -3, transformOrigin: "50% 100%" }, { rotation: 3, transformOrigin: "50% 100%", duration: 0.3, yoyo: true, repeat: 5, ease: "sine.inOut" }, ls("L03") + 0.4);
+      tl.fromTo("#in_hi", { scale: 2.4, opacity: 0, rotation: -20 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.32, ease: "back.out(1.8)" }, w("L03", 1) - 0.05);
+      tl.fromTo("#in_np", { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.35, ease: "power3.out" }, w("L03", 2) - 0.1);
+      slam("#in_t", w("L03", 9));
+      twinkle("#in_s1", w("L03", 1), 0.6); twinkle("#in_s2", w("L03", 2), 0.6);
+      tl.to("#in_k", { y: -12, duration: 0.5, yoyo: true, repeat: 5, ease: "sine.inOut" }, w("L03", 8));
 
-      // ===== L04 =====
-      rise("#f_t", ls("L04"), 0.3);
-      pop("#f_m", w("L04", 3));
-      pop("#f_p", w("L04", 4));
+      // ===== L04 M = Motorsport =====
+      slam("#m_m", ls("L04"));
+      tl.fromTo("#m_ring", { scale: 0.4, opacity: 0, rotation: -90 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.5, ease: "power3.out" }, ls("L04"));
+      tl.to("#m_ring", { rotation: 120, duration: 3, ease: "none" }, ls("L04") + 0.5);
+      wipe("#m_t", w("L04", 3), 0.35);
+      type("#m_l", w("L04", 4), 0.5);
+      pop("#m_f1", w("L04", 5)); pop("#m_f2", w("L04", 5) + 0.1);
+      tl.to(["#m_f1", "#m_f2"], { rotation: 6, duration: 0.25, yoyo: true, repeat: 5, ease: "sine.inOut" }, w("L04", 5) + 0.3);
+      drawCar("#m_car", w("L04", 3), 0.5);
+      tl.fromTo("#m_car", { x: 700 }, { x: -60, duration: 1.4, ease: "power2.out" }, w("L04", 3));
+      spin("#m_car", w("L04", 3), 1.6, -4);
+      tl.fromTo("#m_sp .speed", { scaleX: 0, opacity: 0, transformOrigin: "right center" }, { scaleX: 1, opacity: 1, duration: 0.3, stagger: 0.06 }, w("L04", 3) + 0.3);
+
+      // ===== L05 formula =====
+      rise("#f_t", ls("L05"), 0.3);
+      pop("#f_m", w("L05", 5));
+      pop("#f_p", w("L05", 6));
       const fns = qa("#f_n .fn");
       tl.set(fns, { opacity: 0 }, 0);
-      fns.forEach((n, i) => { tl.set(n, { opacity: 1 }, w("L04", 5) + i * 0.13); if (i < 3) tl.set(n, { opacity: 0 }, w("L04", 5) + (i + 1) * 0.13); });
-      pop("#f_n", w("L04", 5), { duration: 0.25 });
-      type("#f_lbl", w("L04", 5), 0.4);
-      pop("#f_ok", le("L04") - 0.15, { rotation: -3 });
+      fns.forEach((n, i) => { tl.set(n, { opacity: 1 }, w("L05", 7) + i * 0.13); if (i < 3) tl.set(n, { opacity: 0 }, w("L05", 7) + (i + 1) * 0.13); });
+      pop("#f_n", w("L05", 7), { duration: 0.25 });
+      type("#f_lbl", w("L05", 7), 0.4);
+      pop("#f_ok", le("L05") - 0.15, { rotation: -3 });
 
-      // ===== L05 =====
-      rise("#z_t", ls("L05"), 0.3);
-      [["#z_r1", "#z_c1", w("L05", 1)], ["#z_r2", "#z_c2", w("L05", 2)], ["#z_r3", "#z_c3", w("L05", 4)]].forEach(([r, c, t]) => {
+      // ===== L06 size ladder =====
+      rise("#z_t", ls("L06"), 0.3);
+      [["#z_r1", "#z_c1", w("L06", 1)], ["#z_r2", "#z_c2", w("L06", 2)], ["#z_r3", "#z_c3", w("L06", 4)]].forEach(([r, c, t]) => {
         tl.fromTo(r, { opacity: 0, x: -200 }, { opacity: 1, x: 0, duration: 0.3, ease: "power3.out" }, t);
         drawCar(c, t, 0.45);
       });
-      tl.fromTo("#z_ar", { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 1.2, ease: "power2.inOut" }, w("L05", 1));
-      tl.fromTo("#z_c3", { scale: 1 }, { scale: 1.06, duration: 0.25, yoyo: true, repeat: 1 }, w("L05", 5));
+      tl.fromTo("#z_ar", { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", duration: 1.2, ease: "power2.inOut" }, w("L06", 1));
+      tl.fromTo("#z_c3", { scale: 1 }, { scale: 1.06, duration: 0.25, yoyo: true, repeat: 1 }, w("L06", 5));
 
-      // ===== L06 M2 / L07 M3 =====
-      [["L06", "#m2_b", "#m2_car", "#m2_l"], ["L07", "#m3_b", "#m3_car", "#m3_l"]].forEach(([id, b, c, l]) => {
+      // ===== L07 M2 / L08 M3 =====
+      [["L07", "#m2_b", "#m2_car", "#m2_l"], ["L08", "#m3_b", "#m3_car", "#m3_l"]].forEach(([id, b, c, l]) => {
         tl.fromTo(b, { scale: 2.4, opacity: 0, rotation: -12 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, ls(id));
         drawCar(c, ls(id) + 0.05, 0.45);
         driveIn(c, ls(id), 0.5);
-        pop(l, w(id, 1), { rotation: id === "L06" ? -3 : 3 });
+        pop(l, w(id, 1), { rotation: id === "L07" ? -3 : 3 });
         idle(b, ls(id) + 0.4, le(id) - ls(id));
       });
+      tl.fromTo("#m2_f", { scale: 2.6, opacity: 0, rotation: 25 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.8)" }, w("L07", 3));
+      tl.to("#m2_car", { rotation: -3, transformOrigin: "50% 90%", duration: 0.15, yoyo: true, repeat: 3, ease: "sine.inOut" }, w("L07", 4));
 
-      // ===== L08 M4 =====
-      tl.fromTo("#m4_b", { scale: 2.4, opacity: 0, rotation: -12 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, ls("L08"));
-      type("#m4_eq", w("L08", 1), 0.4);
-      drawCar("#m4_car", ls("L08") + 0.05, 0.45); driveIn("#m4_car", ls("L08"), 0.5, 1100);
+      // ===== L09 M3 Touring =====
+      tl.fromTo("#to_b", { scale: 2.4, opacity: 0, rotation: -12 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, ls("L09"));
+      drawCar("#to_car", w("L09", 3) - 0.1, 0.5); driveIn("#to_car", w("L09", 3) - 0.1, 0.55, 1100);
+      tl.fromTo("#to_w", { scale: 2.6, opacity: 0, rotation: -25 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.8)" }, w("L09", 4));
+      tl.fromTo("#to_s", { scale: 3, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.6)" }, w("L09", 6));
+      twinkle("#to_s1", w("L09", 6), 0.6);
+
+      // ===== L10 M4 =====
+      tl.fromTo("#m4_b", { scale: 2.4, opacity: 0, rotation: -12 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, ls("L10"));
+      type("#m4_eq", w("L10", 2), 0.4);
+      drawCar("#m4_car", ls("L10") + 0.05, 0.45); driveIn("#m4_car", ls("L10"), 0.5, 1100);
       tl.set("#m4_conv", { opacity: 0 }, 0);
-      pop("#m4_l1", w("L08", 4), { rotation: -3 });
-      tl.set("#m4_conv", { opacity: 1 }, w("L08", 6));
-      tl.set("#m4_car", { opacity: 0 }, w("L08", 6));
-      tl.fromTo("#m4_conv", { y: -14 }, { y: 0, duration: 0.25, ease: "bounce.out" }, w("L08", 6));
-      tl.to("#m4_l1", { opacity: 0.35, scale: 0.9, duration: 0.15 }, w("L08", 6));
-      pop("#m4_l2", w("L08", 6), { rotation: 3 });
+      pop("#m4_l1", w("L10", 5), { rotation: -3 });
+      tl.set("#m4_conv", { opacity: 1 }, w("L10", 7));
+      tl.set("#m4_car", { opacity: 0 }, w("L10", 7));
+      tl.fromTo("#m4_conv", { y: -14 }, { y: 0, duration: 0.25, ease: "bounce.out" }, w("L10", 7));
+      tl.to("#m4_l1", { opacity: 0.35, scale: 0.9, duration: 0.15 }, w("L10", 7));
+      pop("#m4_l2", w("L10", 7), { rotation: 3 });
 
-      // ===== L09 M5 =====
-      tl.fromTo("#m5_b", { scale: 2.4, opacity: 0, rotation: -12 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, ls("L09"));
-      type("#m5_eq", w("L09", 1), 0.4);
-      drawCar("#m5_car", ls("L09") + 0.05, 0.5); driveIn("#m5_car", ls("L09"), 0.55);
-      tl.fromTo("#m5_h", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, w("L09", 4) - 0.1);
-      drawPaths("#m5_plug path", w("L09", 4) - 0.1, 0.4);
-      tl.fromTo("#m5_bf", { scaleX: 0.05 }, { scaleX: 1, duration: 0.9, ease: "power1.inOut" }, w("L09", 4));
-      tl.to("#m5_bf", { opacity: 0.5, duration: 0.12, yoyo: true, repeat: 3 }, w("L09", 4) + 0.9);
-      slam("#m5_hl", w("L09", 4));
+      // ===== L11 M5 =====
+      tl.fromTo("#m5_b", { scale: 2.4, opacity: 0, rotation: -12 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, ls("L11"));
+      type("#m5_eq", w("L11", 1), 0.4);
+      drawCar("#m5_car", ls("L11") + 0.05, 0.5); driveIn("#m5_car", ls("L11"), 0.55);
+      tl.fromTo("#m5_h", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, w("L11", 4) - 0.1);
+      drawPaths("#m5_plug path", w("L11", 4) - 0.1, 0.4);
+      tl.fromTo("#m5_bf", { scaleX: 0.05 }, { scaleX: 1, duration: 0.9, ease: "power1.inOut" }, w("L11", 4));
+      tl.to("#m5_bf", { opacity: 0.5, duration: 0.12, yoyo: true, repeat: 3 }, w("L11", 4) + 0.9);
+      slam("#m5_hl", w("L11", 4));
 
-      // ===== L10 X =====
-      pop("#x_p", ls("L10"));
-      slam("#x_x", w("L10", 1));
-      shake("#x_x", w("L10", 1) + 0.25, 5, 10);
-      wipe("#x_eq", w("L10", 3), 0.3);
-      drawCar("#x_car", w("L10", 2), 0.6); driveIn("#x_car", w("L10", 2), 0.55);
-      pop("#x_b", w("L10", 5));
+      // ===== L12 X = SUV =====
+      pop("#x_p", ls("L12"));
+      slam("#x_x", w("L12", 1));
+      shake("#x_x", w("L12", 1) + 0.25, 5, 10);
+      wipe("#x_eq", w("L12", 3), 0.3);
+      drawCar("#x_car", w("L12", 2), 0.6); driveIn("#x_car", w("L12", 2), 0.55);
+      pop("#x_b", w("L12", 5)); pop("#x_b2", w("L12", 7));
 
-      // ===== L11 XM =====
-      tl.fromTo("#xm_b", { scale: 2.4, opacity: 0, rotation: 12 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, ls("L11"));
-      drawCar("#xm_car", ls("L11") + 0.05, 0.55); driveIn("#xm_car", ls("L11"), 0.55, 1100);
-      type("#xm_l", w("L11", 3), 0.45);
-      tl.fromTo("#xm_s", { scale: 3, opacity: 0, rotation: -25 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, w("L11", 5));
-      twinkle("#xm_s1", w("L11", 5), 0.5); twinkle("#xm_s2", w("L11", 5) + 0.2, 0.5);
+      // ===== L13 XM =====
+      tl.fromTo("#xm_b", { scale: 2.4, opacity: 0, rotation: 12 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, ls("L13"));
+      drawCar("#xm_car", ls("L13") + 0.05, 0.55); driveIn("#xm_car", ls("L13"), 0.55, 1100);
+      tl.fromTo("#xm_s", { scale: 3, opacity: 0, rotation: -25 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, w("L13", 7));
+      type("#xm_l", w("L13", 9), 0.5);
+      twinkle("#xm_s1", w("L13", 7), 0.5); twinkle("#xm_s2", w("L13", 7) + 0.2, 0.5);
 
-      // ===== L12 Competition =====
-      type("#c_l", ls("L12"), 0.35);
-      tl.fromTo("#c_b", { scale: 2.2, opacity: 0, rotation: -14 }, { scale: 1, opacity: 1, rotation: -3, duration: 0.3, ease: "back.out(1.6)" }, w("L12", 1));
-      pop("#c_g", w("L12", 1) + 0.15, { duration: 0.3 });
-      tl.fromTo("#c_n", { rotation: -100, svgOrigin: "150 160" }, { rotation: 82, svgOrigin: "150 160", duration: 0.8, ease: "power3.out" }, w("L12", 2));
-      tl.to("#c_n", { rotation: 76, svgOrigin: "150 160", duration: 0.06, yoyo: true, repeat: 7, ease: "none" }, w("L12", 2) + 0.8);
-      slam("#c_p", w("L12", 2));
-      shake("#c_p", w("L12", 3), 5, 8);
+      // ===== L14 Competition =====
+      type("#c_l", ls("L14"), 0.4);
+      tl.fromTo("#c_b", { scale: 2.2, opacity: 0, rotation: -14 }, { scale: 1, opacity: 1, rotation: -3, duration: 0.3, ease: "back.out(1.6)" }, ls("L14") + 0.3);
+      tl.to("#c_b", { scale: 1.12, duration: 0.14, yoyo: true, repeat: 1 }, w("L14", 4));
+      pop("#c_g", w("L14", 4) + 0.15, { duration: 0.3 });
+      tl.fromTo("#c_n", { rotation: -100, svgOrigin: "150 160" }, { rotation: 82, svgOrigin: "150 160", duration: 0.8, ease: "power3.out" }, w("L14", 5));
+      tl.to("#c_n", { rotation: 76, svgOrigin: "150 160", duration: 0.06, yoyo: true, repeat: 7, ease: "none" }, w("L14", 5) + 0.8);
+      slam("#c_p", w("L14", 5));
+      shake("#c_p", w("L14", 6), 5, 8);
 
-      // ===== L13 CS =====
-      tl.fromTo("#cs_b", { scale: 2.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.6)" }, ls("L13"));
-      wipe("#cs_t", w("L13", 1), 0.35);
-      pop("#cs_panel", w("L13", 3) - 0.15, { duration: 0.3 });
-      pop("#cs_i1 .vmark", w("L13", 3)); rise("#cs_i1 .t", w("L13", 3), 0.3);
-      tl.fromTo("#cs_i1 .vmark", { y: -10 }, { y: 10, duration: 0.2, yoyo: true, repeat: 3 }, w("L13", 4));
-      pop("#cs_i2 .vmark", w("L13", 5)); rise("#cs_i2 .t", w("L13", 5), 0.3);
-      shake("#cs_i2", w("L13", 6), 5, 7);
+      // ===== L15 CS =====
+      tl.fromTo("#cs_b", { scale: 2.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.6)" }, ls("L15"));
+      wipe("#cs_t", w("L15", 2), 0.35);
+      pop("#cs_panel", w("L15", 4) - 0.15, { duration: 0.3 });
+      pop("#cs_i1 .vmark", w("L15", 4)); rise("#cs_i1 .t", w("L15", 4), 0.3);
+      tl.fromTo("#cs_i1 .vmark", { y: -10 }, { y: 10, duration: 0.2, yoyo: true, repeat: 3 }, w("L15", 5));
+      pop("#cs_i2 .vmark", w("L15", 6)); rise("#cs_i2 .t", w("L15", 6), 0.3);
+      shake("#cs_i2", w("L15", 7), 5, 7);
 
-      // ===== L14 CSL =====
-      tl.fromTo("#sl_b", { scale: 2.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.6)" }, ls("L14"));
-      tl.fromTo("#sl_L", { color: "#FFEFEF" }, { color: "#FECD00", duration: 0.1, yoyo: true, repeat: 5 }, w("L14", 1));
-      drawPaths("#sl_ln path", w("L14", 1), 0.4);
-      slam("#sl_w", w("L14", 2));
-      type("#sl_de", w("L14", 3), 0.4);
-      pop("#sl_eq", w("L14", 5) - 0.1, { rotation: -3 });
-      tl.fromTo("#sl_kg", { y: -40, opacity: 0 }, { y: 30, opacity: 1, duration: 0.6, ease: "power2.out" }, w("L14", 5));
+      // ===== L16 CSL =====
+      tl.fromTo("#sl_b", { scale: 2.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.6)" }, ls("L16"));
+      tl.fromTo("#sl_L", { color: "#FFEFEF" }, { color: "#FECD00", duration: 0.1, yoyo: true, repeat: 5 }, w("L16", 1));
+      drawPaths("#sl_ln path", w("L16", 1), 0.4);
+      slam("#sl_w", w("L16", 2));
+      type("#sl_de", w("L16", 3), 0.4);
+      pop("#sl_eq", w("L16", 5) - 0.1, { rotation: -3 });
+      tl.fromTo("#sl_kg", { y: -40, opacity: 0 }, { y: 30, opacity: 1, duration: 0.6, ease: "power2.out" }, w("L16", 5));
+      tl.fromTo("#sl_u", { scale: 3, opacity: 0, rotation: 30 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.6)" }, w("L16", 8));
+      const cnt = { v: 0 };
+      tl.fromTo(cnt, { v: 0 }, { v: 1000, duration: 0.6, ease: "power2.out", onUpdate: () => { const e = document.querySelector("#sl_n"); if (e) e.textContent = Math.round(cnt.v); } }, w("L16", 8));
 
-      // ===== L15 levels =====
-      rise("#lv_t", ls("L15"), 0.3);
-      [["#lv_1", 0], ["#lv_2", 0.1], ["#lv_3", 0.2]].forEach(([s, d]) => tl.fromTo(s, { x: 900, opacity: 0 }, { x: 0, opacity: 1, duration: 0.35, ease: "power3.out" }, ls("L15") + 0.15 + d));
-      pop("#lv_ar", ls("L15") + 0.4);
-      tl.to("#lv_ar", { y: 200, duration: 0.35, ease: "back.out(2)" }, w("L15", 2));
-      tl.to("#lv_2", { scale: 1.06, duration: 0.2, yoyo: true, repeat: 1 }, w("L15", 3));
-      tl.to("#lv_1", { opacity: 0.45, duration: 0.2 }, w("L15", 2));
+      // ===== L17 levels =====
+      rise("#lv_t", ls("L17"), 0.3);
+      [["#lv_1", 0], ["#lv_2", 0.1], ["#lv_3", 0.2]].forEach(([s, d]) => tl.fromTo(s, { x: 900, opacity: 0 }, { x: 0, opacity: 1, duration: 0.35, ease: "power3.out" }, ls("L17") + 0.15 + d));
+      pop("#lv_ar", ls("L17") + 0.4);
+      tl.to("#lv_ar", { y: 200, duration: 0.35, ease: "back.out(2)" }, w("L17", 2));
+      tl.to("#lv_2", { scale: 1.06, duration: 0.2, yoyo: true, repeat: 1 }, w("L17", 3));
+      tl.to("#lv_1", { opacity: 0.45, duration: 0.2 }, w("L17", 2));
 
-      // ===== L16 M in front =====
-      rise("#mp_t", ls("L16"), 0.3);
+      // ===== L18 M in front =====
+      rise("#mp_t", ls("L18"), 0.3);
       tl.set(["#mp_b2", "#mp_c2"], { opacity: 0 }, 0);
-      pop("#mp_b1", w("L16", 4));
-      drawCar("#mp_c1", w("L16", 4), 0.45); driveIn("#mp_c1", w("L16", 4), 0.5);
-      tl.fromTo("#mp_arw", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: "back.out(2)" }, w("L16", 5));
-      tl.fromTo("#mp_m1", { scale: 1 }, { scale: 1.3, duration: 0.18, yoyo: true, repeat: 3 }, w("L16", 5));
-      type("#mp_lbl", w("L16", 5), 0.4);
-      tl.to(["#mp_b1", "#mp_c1"], { opacity: 0, x: -600, duration: 0.25, ease: "power2.in" }, w("L16", 6) - 0.2);
-      tl.set(["#mp_b2", "#mp_c2"], { opacity: 1 }, w("L16", 6) - 0.05);
-      pop("#mp_b2", w("L16", 6) - 0.05);
-      drawCar("#mp_c2", w("L16", 6), 0.4); driveIn("#mp_c2", w("L16", 6) - 0.05, 0.5, 1100);
-      tl.fromTo("#mp_m2", { scale: 1 }, { scale: 1.3, duration: 0.18, yoyo: true, repeat: 3 }, w("L16", 6) + 0.3);
+      pop("#mp_b1", w("L18", 4));
+      drawCar("#mp_c1", w("L18", 4), 0.45); driveIn("#mp_c1", w("L18", 4), 0.5);
+      tl.fromTo("#mp_arw", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: "back.out(2)" }, w("L18", 5));
+      tl.fromTo("#mp_m1", { scale: 1 }, { scale: 1.3, duration: 0.18, yoyo: true, repeat: 3 }, w("L18", 5));
+      type("#mp_lbl", w("L18", 5), 0.4);
+      tl.to(["#mp_b1", "#mp_c1"], { opacity: 0, x: -600, duration: 0.25, ease: "power2.in" }, w("L18", 6) - 0.2);
+      tl.set(["#mp_b2", "#mp_c2"], { opacity: 1 }, w("L18", 6) - 0.05);
+      pop("#mp_b2", w("L18", 6) - 0.05);
+      drawCar("#mp_c2", w("L18", 6), 0.4); driveIn("#mp_c2", w("L18", 6) - 0.05, 0.5, 1100);
+      tl.fromTo("#mp_m2", { scale: 1 }, { scale: 1.3, duration: 0.18, yoyo: true, repeat: 3 }, w("L18", 6) + 0.3);
 
-      // ===== L17 bars =====
-      rise("#cp_t", ls("L17"), 0.3);
-      [["#cp_m1", w("L17", 2)], ["#cp_m2", w("L17", 2) + 0.35], ["#cp_m3", w("L17", 6)]].forEach(([m, t]) => {
+      // ===== L19 bars =====
+      rise("#cp_t", ls("L19"), 0.3);
+      [["#cp_m1", w("L19", 2)], ["#cp_m2", w("L19", 2) + 0.35], ["#cp_m3", w("L19", 6)]].forEach(([m, t]) => {
         tl.fromTo(m, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.25 }, t - 0.1);
         tl.fromTo(m + " .fill", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power3.out" }, t);
       });
-      tl.fromTo("#cp_x", { scale: 3, opacity: 0, rotation: -25 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.28, ease: "back.out(1.6)" }, w("L17", 5));
+      tl.fromTo("#cp_x", { scale: 3, opacity: 0, rotation: -25 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.28, ease: "back.out(1.6)" }, w("L19", 5));
 
-      // ===== L18 M Sport =====
-      tl.fromTo("#ms_t1", { x: -1200 }, { x: 0, duration: 0.35, ease: "power3.out" }, ls("L18"));
-      tl.fromTo("#ms_t2", { x: 1200 }, { x: 0, duration: 0.35, ease: "power3.out" }, ls("L18") + 0.05);
-      tl.to("#ms_t1", { x: -88, duration: 1.8, ease: "none" }, ls("L18") + 0.35);
-      tl.to("#ms_t2", { x: 88, duration: 1.8, ease: "none" }, ls("L18") + 0.4);
-      type("#ms_l", w("L18", 1), 0.45);
-      pop("#ms_w", w("L18", 2));
-      tl.to("#ms_w", { scale: 1.12, duration: 0.15, yoyo: true, repeat: 5 }, w("L18", 3));
-      slam("#ms_b", w("L18", 4));
-      shake("#ms_b", w("L18", 5), 5, 10);
+      // ===== L20 M Sport warning =====
+      tl.fromTo("#ms_t1", { x: -1200 }, { x: 0, duration: 0.35, ease: "power3.out" }, ls("L20"));
+      tl.fromTo("#ms_t2", { x: 1200 }, { x: 0, duration: 0.35, ease: "power3.out" }, ls("L20") + 0.05);
+      tl.to("#ms_t1", { x: -88, duration: 1.8, ease: "none" }, ls("L20") + 0.35);
+      tl.to("#ms_t2", { x: 88, duration: 1.8, ease: "none" }, ls("L20") + 0.4);
+      type("#ms_l", w("L20", 2), 0.45);
+      pop("#ms_w", w("L20", 3));
+      tl.to("#ms_w", { scale: 1.12, duration: 0.15, yoyo: true, repeat: 5 }, w("L20", 4));
+      slam("#ms_b", w("L20", 5));
+      shake("#ms_b", w("L20", 6), 5, 10);
 
-      // ===== L19 trim =====
-      tl.fromTo("#tr_t", { scale: 3, opacity: 0, rotation: -15 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.28, ease: "back.out(1.6)" }, ls("L19"));
-      drawCar("#tr_car", ls("L19") + 0.1, 0.45);
-      pop("#tr_panel", w("L19", 2) - 0.15, { duration: 0.3 });
-      pop("#tr_i1 .vmark", w("L19", 2)); rise("#tr_i1 .t", w("L19", 2), 0.3);
-      tl.to("#tr_car .whl", { scale: 1.18, transformOrigin: "50% 50%", duration: 0.2, yoyo: true, repeat: 1 }, w("L19", 2));
-      tl.to("#tr_car .tyre", { stroke: "#FECD00", duration: 0.1 }, w("L19", 2));
-      pop("#tr_i2 .vmark", w("L19", 4)); rise("#tr_i2 .t", w("L19", 4), 0.3);
-      pop("#tr_i3 .xmark", w("L19", 6)); rise(["#tr_i3 .t", "#tr_i3 .mono"], w("L19", 6), 0.3);
-      shake("#tr_i3", w("L19", 8), 5, 9);
+      // ===== L21 just a trim =====
+      tl.fromTo("#tr_t", { scale: 3, opacity: 0, rotation: -15 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.28, ease: "back.out(1.6)" }, ls("L21"));
+      drawCar("#tr_car", ls("L21") + 0.1, 0.45);
+      pop("#tr_panel", w("L21", 2) - 0.15, { duration: 0.3 });
+      pop("#tr_i1 .vmark", w("L21", 2)); rise("#tr_i1 .t", w("L21", 2), 0.3);
+      tl.to("#tr_car .whl", { scale: 1.18, transformOrigin: "50% 50%", duration: 0.2, yoyo: true, repeat: 1 }, w("L21", 2));
+      tl.to("#tr_car .tyre", { stroke: "#FECD00", duration: 0.1 }, w("L21", 2));
+      pop("#tr_i2 .vmark", w("L21", 4)); rise("#tr_i2 .t", w("L21", 4), 0.3);
+      pop("#tr_i3 .xmark", w("L21", 6)); rise(["#tr_i3 .t", "#tr_i3 .mono"], w("L21", 6), 0.3);
+      shake("#tr_i3", w("L21", 8), 5, 9);
 
-      // ===== L20 decoder =====
-      type("#dc_l", ls("L20"), 0.35);
-      pop("#dc_1", w("L20", 1)); pop("#dc_2", w("L20", 2)); pop("#dc_3", w("L20", 3));
-      [["#dc_r1", w("L20", 4)], ["#dc_r2", w("L20", 6)], ["#dc_r3", w("L20", 8)]].forEach(([s, t]) => wipe(s, t, 0.3));
-      tl.fromTo(["#dc_1", "#dc_2", "#dc_3"], { y: 0 }, { y: -10, duration: 0.12, yoyo: true, repeat: 1, stagger: 0.6 }, w("L20", 4));
-      pop("#dc_ch", w("L20", 8), { duration: 0.3 });
-      tl.fromTo("#dc_ch .dw", { opacity: 0.3 }, { opacity: 1, duration: 0.1, stagger: 0.1 }, w("L20", 9));
-      tl.to("#dc_ch .dw", { opacity: 0.4, duration: 0.1, yoyo: true, repeat: 3 }, w("L20", 10) + 0.2);
+      // ===== L22 330e M Sport =====
+      type("#ex_l", ls("L22"), 0.3);
+      pop("#ex_b", w("L22", 1));
+      pop("#ex_p1", w("L22", 4) - 0.1, { duration: 0.3 }); pop("#ex_p2", w("L22", 4), { duration: 0.3 });
+      drawPaths("#ex_e1 path", w("L22", 4), 0.5); drawPaths("#ex_e2 path", w("L22", 4) + 0.1, 0.5);
+      rise("#ex_t1", w("L22", 4), 0.3); rise("#ex_t2", w("L22", 6), 0.3);
+      slam("#ex_eq", w("L22", 5));
+      tl.fromTo("#ex_ok", { scale: 2.6, opacity: 0, rotation: -15 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: "back.out(1.8)" }, w("L22", 6) + 0.25);
 
-      // ===== L21 CTA =====
-      rise("#e_q", ls("L21"), 0.3);
-      drawCar("#e_c1", ls("L21") + 0.05, 0.5); driveIn("#e_c1", ls("L21"), 0.55);
-      pop("#e_panel", w("L21", 4) - 0.1, { duration: 0.3 });
-      tl.fromTo("#e_pin", { y: -500, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "bounce.out" }, w("L21", 4));
-      type("#e_a", w("L21", 4), 0.35);
-      slam("#e_b", w("L21", 5));
-      wipe("#e_c", w("L21", 8), 0.35);
-      tl.to("#e_pin", { y: -20, duration: 0.25, yoyo: true, repeat: 3, ease: "sine.inOut" }, w("L21", 8) + 0.4);
+      // ===== L23 badge tip =====
+      type("#bt_l", ls("L23"), 0.35);
+      drawCar("#bt_car", ls("L23"), 0.5);
+      tl.fromTo("#bt_badge", { y: -420, opacity: 0, rotation: -30, scale: 1.6 }, { y: 0, opacity: 1, rotation: 0, scale: 1, duration: 0.45, ease: "power3.in" }, w("L23", 7) - 0.45);
+      tl.fromTo("#bt_badge", { scaleY: 0.7 }, { scaleY: 1, duration: 0.25, ease: "back.out(3)" }, w("L23", 7));
+      tl.fromTo("#bt_st", { scale: 3, opacity: 0, rotation: -20 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.28, ease: "back.out(1.6)" }, w("L23", 8));
+      pop("#bt_panel", w("L23", 9), { duration: 0.3 });
+      pop("#bt_i1 .vmark", w("L23", 10)); rise("#bt_i1 .t", w("L23", 10), 0.3);
+      pop("#bt_i2 .vmark", w("L23", 12)); rise("#bt_i2 .t", w("L23", 12), 0.3);
+      pop("#bt_i3 .xmark", w("L23", 14)); rise("#bt_i3 .t", w("L23", 14), 0.3);
+      shake("#bt_i3", w("L23", 15), 5, 9);
 
-      // ===== L22 follow =====
-      pop("#fo_m", ls("L22"));
-      tl.fromTo("#fo_b", { scale: 2.6, opacity: 0, rotation: -20 }, { scale: 1, opacity: 1, rotation: -3, duration: 0.3, ease: "back.out(1.6)" }, w("L22", 0) + 0.05);
-      tl.to("#fo_b", { scale: 1.07, duration: 0.3, yoyo: true, repeat: 5, ease: "sine.inOut" }, w("L22", 0) + 0.45);
-      type("#fo_t", w("L22", 2), 0.6);
-      twinkle("#fo_s1", w("L22", 1), 0.6); twinkle("#fo_s2", w("L22", 2), 0.6);
+      // ===== L24 decoder =====
+      type("#dc_l", ls("L24"), 0.35);
+      pop("#dc_1", w("L24", 1)); pop("#dc_2", w("L24", 2)); pop("#dc_3", w("L24", 3));
+      [["#dc_r1", w("L24", 4)], ["#dc_r2", w("L24", 6)], ["#dc_r3", w("L24", 8)]].forEach(([s, t]) => wipe(s, t, 0.3));
+      tl.fromTo(["#dc_1", "#dc_2", "#dc_3"], { y: 0 }, { y: -10, duration: 0.12, yoyo: true, repeat: 1, stagger: 0.6 }, w("L24", 4));
+      pop("#dc_ch", w("L24", 8), { duration: 0.3 });
+      tl.fromTo("#dc_ch .dw", { opacity: 0.3 }, { opacity: 1, duration: 0.1, stagger: 0.1 }, w("L24", 9));
+      tl.to("#dc_ch .dw", { opacity: 0.4, duration: 0.1, yoyo: true, repeat: 3 }, w("L24", 10) + 0.2);
+
+      // ===== L25 CTA =====
+      rise("#e_q", ls("L25"), 0.3);
+      drawCar("#e_c1", ls("L25") + 0.05, 0.5); driveIn("#e_c1", ls("L25"), 0.55);
+      pop("#e_panel", w("L25", 4) - 0.1, { duration: 0.3 });
+      tl.fromTo("#e_pin", { y: -500, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "bounce.out" }, w("L25", 4));
+      type("#e_a", w("L25", 4), 0.35);
+      slam("#e_b", w("L25", 5));
+      wipe("#e_c", w("L25", 8), 0.35);
+      tl.to("#e_pin", { y: -20, duration: 0.25, yoyo: true, repeat: 3, ease: "sine.inOut" }, w("L25", 8) + 0.4);
+
+      // ===== L26 follow =====
+      pop("#fo_m", ls("L26"));
+      tl.fromTo("#fo_b", { scale: 2.6, opacity: 0, rotation: -20 }, { scale: 1, opacity: 1, rotation: -3, duration: 0.3, ease: "back.out(1.6)" }, w("L26", 0) + 0.05);
+      tl.to("#fo_b", { scale: 1.07, duration: 0.3, yoyo: true, repeat: 7, ease: "sine.inOut" }, w("L26", 0) + 0.45);
+      type("#fo_t", w("L26", 3), 0.6);
+      twinkle("#fo_s1", w("L26", 2), 0.6); twinkle("#fo_s2", w("L26", 3), 0.6);
+
+      // ===== Kemal narrator =====
+__KEMALJS__
 
       // ===== scene exits + transitions =====
 __EXITJS__

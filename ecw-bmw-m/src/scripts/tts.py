@@ -1,10 +1,10 @@
 import asyncio, edge_tts, sys, ssl, os, json
 import edge_tts.communicate as ec
 ec._SSL_CTX = ssl.create_default_context(cafile="/root/.ccr/ca-bundle.crt")
-VOICE, RATE = "ms-MY-OsmanNeural", "+16%"
+VOICE, RATE = "ms-MY-OsmanNeural", "+14%"
 lines = json.load(open(sys.argv[1])); out = sys.argv[2]
 async def one(L):
-    c = edge_tts.Communicate(L["say"], VOICE, rate=RATE, pitch="-2Hz", boundary="WordBoundary", proxy=os.environ["HTTPS_PROXY"])
+    c = edge_tts.Communicate(L["say"], VOICE, rate=RATE, boundary="WordBoundary", proxy=os.environ["HTTPS_PROXY"])
     words = []
     with open(f"{out}/{L['id']}.mp3", "wb") as f:
         async for ch in c.stream():

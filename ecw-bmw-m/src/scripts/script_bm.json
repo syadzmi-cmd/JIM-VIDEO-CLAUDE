@@ -2,111 +2,157 @@
  {
   "id": "L01",
   "show": "Jangan beli BMW M, sebelum tengok video ni!",
-  "say": "Jangan beli BMW M, sebelum tengok video ni!"
+  "say": "Jangan beli BMW M, sebelum tengok video ni!",
+  "face": "alamak"
  },
  {
   "id": "L02",
   "show": "Sebab bukan semua yang ada huruf M, tu M betul.",
-  "say": "Sebab bukan semua yang ada huruf M, tu M betul."
+  "say": "Sebab bukan semua yang ada huruf M, tu M betul.",
+  "face": "sebab"
  },
  {
   "id": "L03",
-  "show": "M maksudnya Motorsport, divisyen lumba BMW.",
-  "say": "M maksudnya Motorsport, divisyen lumba BMW."
+  "show": "Hai geng! Kemal dari ECW Motorsport. Jom decode badge M, satu-satu.",
+  "say": "Hai geng! Kemal dari E C W Motorsport. Jom dikod badge M, satu-satu.",
+  "face": "hai"
  },
  {
   "id": "L04",
-  "show": "M penuh? Huruf M, campur satu nombor.",
-  "say": "M penuh? Huruf M, campur satu nombor."
+  "show": "M ni maksudnya Motorsport. Divisyen lumba BMW.",
+  "say": "M ni maksudnya Motorsport. Divisyen lumba BMW.",
+  "face": "hai"
  },
  {
   "id": "L05",
-  "show": "Makin besar nombor, makin besar kereta.",
-  "say": "Makin besar nombor, makin besar kereta."
+  "show": "M penuh? Senang je. Huruf M, campur satu nombor.",
+  "say": "M penuh? Senang je. Huruf M, campur satu nombor.",
+  "face": "hmmm"
  },
  {
   "id": "L06",
-  "show": "M2, coupe kecil.",
-  "say": "M2, kupei kecil."
+  "show": "Makin besar nombor, makin besar kereta.",
+  "say": "Makin besar nombor, makin besar kereta.",
+  "face": "mantap"
  },
  {
   "id": "L07",
-  "show": "M3, sedan.",
-  "say": "M3, sedan."
+  "show": "M2, coupe kecil. Paling fun.",
+  "say": "M2, kupei kecil. Paling fun.",
+  "face": "hahaha"
  },
  {
   "id": "L08",
-  "show": "M4, M3 dua pintu. Coupe atau convertible.",
-  "say": "M4, M3 dua pintu. Kupei atau kenvertebel."
+  "show": "M3, sedan empat pintu.",
+  "say": "M3, sedan empat pintu.",
+  "face": "hai"
  },
  {
   "id": "L09",
-  "show": "M5, sedan besar. Sekarang plug-in hybrid.",
-  "say": "M5, sedan besar. Sekarang plug-in hybrid."
+  "show": "M3 pun ada Touring. Wagon M3 pertama dalam sejarah!",
+  "say": "M3 pun ada Touring. Wagon M3 pertama dalam sejarah!",
+  "face": "alamak"
  },
  {
   "id": "L10",
-  "show": "Tambah X, jadi SUV. Macam X5 M.",
-  "say": "Tambah Eks, jadi SUV. Macam Eks-lima M."
+  "show": "M4 pula, M3 dua pintu. Coupe atau convertible.",
+  "say": "M4 pula, M3 dua pintu. Kupei atau kenvertebel.",
+  "face": "hai"
  },
  {
   "id": "L11",
-  "show": "XM pula, memang lahir sebagai M sahaja.",
-  "say": "XM pula, memang lahir sebagai M sahaja."
+  "show": "M5, sedan besar. Sekarang plug-in hybrid.",
+  "say": "M5, sedan besar. Sekarang plug-in hybrid.",
+  "face": "mantap"
  },
  {
   "id": "L12",
-  "show": "Ada Competition? Power lebih.",
-  "say": "Ada Competition? Power lebih."
+  "show": "Tambah X, jadi SUV. Macam X5 M, X6 M.",
+  "say": "Tambah Eks, jadi SUV. Macam Eks-lima M, Eks-enam M.",
+  "face": "hai"
  },
  {
   "id": "L13",
-  "show": "CS, Club Sport. Lagi ringan, lagi laju.",
-  "say": "CS, Club Sport. Lagi ringan, lagi laju."
+  "show": "XM pula, model pertama yang lahir sebagai M sahaja, sejak M1.",
+  "say": "XM pula, model pertama yang lahir sebagai M sahaja, sejak M1.",
+  "face": "suka"
  },
  {
   "id": "L14",
-  "show": "CSL tambah Leichtbau. Jerman, maksudnya ringan.",
-  "say": "CSL tambah Laihtbau. Jerman, maksudnya ringan."
+  "show": "Badge belakang pula. Ada Competition? Power lebih.",
+  "say": "Badge belakang pula. Ada Competition? Power lebih.",
+  "face": "hmmm"
  },
  {
   "id": "L15",
-  "show": "Turun satu level, M Performance.",
-  "say": "Turun satu level, M Performance."
+  "show": "CS pula, Club Sport. Lagi ringan, lagi laju.",
+  "say": "CS pula, Club Sport. Lagi ringan, lagi laju.",
+  "face": "mantap"
  },
  {
   "id": "L16",
-  "show": "M duduk depan nombor. Macam M340i, M135.",
-  "say": "M duduk depan nombor. Macam M340i, M135."
+  "show": "CSL tambah Leichtbau, Jerman untuk ringan. M4 CSL, seribu unit je.",
+  "say": "CSL tambah Laihtbau, Jerman untuk ringan. M4 CSL, seribu unit je.",
+  "face": "alamak"
  },
  {
   "id": "L17",
-  "show": "Laju dari BMW biasa, tapi bukan M penuh.",
-  "say": "Laju dari BMW biasa, tapi bukan M penuh."
+  "show": "Turun satu level, M Performance.",
+  "say": "Turun satu level, M Performance.",
+  "face": "hai"
  },
  {
   "id": "L18",
-  "show": "Yang paling ramai keliru, M Sport.",
-  "say": "Yang paling ramai keliru, M Sport."
+  "show": "M duduk depan nombor. Macam M340i, M135.",
+  "say": "M duduk depan nombor. Macam M340i, M135.",
+  "face": "hai"
  },
  {
   "id": "L19",
-  "show": "Cuma trim. Rim besar, bumper sporty, power tak tambah langsung.",
-  "say": "Cuma trim. Rim besar, bumper sporty, power tak tambah langsung."
+  "show": "Laju dari BMW biasa, tapi bukan M penuh.",
+  "say": "Laju dari BMW biasa, tapi bukan M penuh.",
+  "face": "sebab"
  },
  {
   "id": "L20",
-  "show": "Jadi M4 Competition xDrive? M penuh, power lebih, pacuan empat roda.",
-  "say": "Jadi M4 Competition xDrive? M penuh, power lebih, pacuan empat roda."
+  "show": "Haa, yang paling ramai keliru. M Sport.",
+  "say": "Haa, yang paling ramai keliru. M Sport.",
+  "face": "alamak"
  },
  {
   "id": "L21",
-  "show": "Nak BMW yang berbaloi? Jumpa ECW Motorsport.",
-  "say": "Nak BMW yang berbaloi? Jumpa E C W Motorsport."
+  "show": "Cuma trim. Rim besar, bumper sporty, power tak tambah langsung.",
+  "say": "Cuma trim. Rim besar, bumper sporty, power tak tambah langsung.",
+  "face": "geram"
  },
  {
   "id": "L22",
-  "show": "Follow untuk tips kereta lagi!",
-  "say": "Follow untuk tips kereta lagi!"
+  "show": "Contoh, 330e M Sport. Enjin tetap 330e.",
+  "say": "Contoh, tiga-tiga-puluh-e M Sport. Enjin tetap tiga-tiga-puluh-e.",
+  "face": "hmmm"
+ },
+ {
+  "id": "L23",
+  "show": "Satu lagi, badge M ni orang boleh pasang sendiri. Jadi check spec dan dokumen, bukan badge je.",
+  "say": "Satu lagi, badge M ni orang boleh pasang sendiri. Jadi check spec dan dokumen, bukan badge je.",
+  "face": "geram"
+ },
+ {
+  "id": "L24",
+  "show": "Jadi, M4 Competition xDrive? M penuh, power lebih, pacuan empat roda.",
+  "say": "Jadi, M4 Competition xDrive? M penuh, power lebih, pacuan empat roda.",
+  "face": "mantap"
+ },
+ {
+  "id": "L25",
+  "show": "Nak BMW yang berbaloi? Jumpa ECW Motorsport.",
+  "say": "Nak BMW yang berbaloi? Jumpa E C W Motorsport.",
+  "face": "suka"
+ },
+ {
+  "id": "L26",
+  "show": "Follow Kemal untuk tips kereta lagi. Jumpa lagi, geng!",
+  "say": "Folo Kemal untuk tips kereta lagi. Jumpa lagi, geng!",
+  "face": "hai"
  }
 ]

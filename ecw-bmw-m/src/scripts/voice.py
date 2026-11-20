@@ -3,8 +3,8 @@ Trims lead/tail silence, shortens internal pauses > MAXP, joins lines with GAP.
 Writes assets/audio/voice.wav and src/words_edit.json (output-time word timings)."""
 import json, subprocess, sys, numpy as np, wave
 lines_dir, P = sys.argv[1], sys.argv[2]
-SR = 48000; HOP = int(SR*0.01); MAXP = 0.16; GAP = 0.09; BIG_GAP = 0.20
-BREAK_AFTER = {"L02", "L05", "L09", "L11", "L14", "L17", "L19", "L20"}  # small breath between sections
+SR = 48000; HOP = int(SR*0.01); MAXP = 0.22; GAP = 0.11; BIG_GAP = 0.24
+BREAK_AFTER = {"L02", "L03", "L06", "L09", "L13", "L16", "L19", "L23", "L24"}  # breath between sections
 lines = json.load(open(f"{lines_dir}/words.json"))
 def load(p):
     raw = subprocess.run(["ffmpeg", "-v", "error", "-i", p, "-ac", "1", "-ar", str(SR), "-f", "s16le", "-"], capture_output=True, check=True).stdout
