@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ms" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <link rel="stylesheet" href="assets/fonts.css" />
+    <style>
+      :root {
+        --maroon: #430107;
+        --maroon-deep: #24000a;
+        --cream: #ffefef;
+        --yellow: #fecd00;
+        --paper: #fbf8f1;
+        --ink: #23201d;
+        --font-display: "Anton", sans-serif;
+        --font-ui: "Poppins", sans-serif;
+        --font-mono: "JetBrains Mono", monospace;
+        --font-hand: "Permanent Marker", "Poppins", cursive;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--maroon-deep); }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: var(--font-ui);
+              background: radial-gradient(ellipse 120% 70% at 50% 32%, #6d0b16 0%, var(--maroon) 48%, var(--maroon-deep) 100%); }
+      .layer { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none; }
+      .abs { position: absolute; }
+      .row { position: absolute; left: 0; width: 1080px; text-align: center; }
+
+      /* background */
+      .stripes { left: -400px; width: 1880px; background: repeating-linear-gradient(115deg, rgba(254,205,0,0.055) 0 4px, transparent 4px 70px); }
+      .dots { background-image: radial-gradient(rgba(255,239,239,0.08) 2px, transparent 2.5px); background-size: 34px 34px;
+              -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 55%, #000 100%); mask-image: linear-gradient(to bottom, transparent 0%, #000 55%, #000 100%); }
+      .wm { position: absolute; left: 0; width: 1080px; text-align: center; font-family: var(--font-display); font-size: 760px; line-height: 1;
+            color: transparent; -webkit-text-stroke: 4px rgba(254,205,0,0.08); letter-spacing: -0.02em; }
+      .vignette { background: radial-gradient(ellipse at 50% 40%, transparent 55%, rgba(20,0,4,0.6) 100%); }
+
+      /* header */
+      .hdr { position: absolute; left: 0; width: 1080px; top: 150px; text-align: center; font-family: var(--font-mono); font-weight: 700;
+             font-size: 26px; letter-spacing: 0.24em; color: var(--cream); }
+      .hdr b { color: var(--yellow); }
+      .pips { position: absolute; top: 196px; left: 0; width: 1080px; display: flex; justify-content: center; gap: 14px; }
+      .pip { font-family: var(--font-mono); font-weight: 700; font-size: 22px; letter-spacing: 0.1em; color: rgba(255,239,239,0.55);
+             border: 3px solid rgba(255,239,239,0.35); border-radius: 999px; padding: 4px 16px 2px; }
+      .pip.on { color: var(--maroon); background: var(--yellow); border-color: var(--yellow); box-shadow: 0 0 24px rgba(254,205,0,0.6); }
+
+      /* polaroid */
+      .pol { position: absolute; background: var(--paper); padding: var(--p) var(--p) 0;
+             box-shadow: 0 26px 50px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.35);
+             background-image: linear-gradient(160deg, #fffdf8 0%, var(--paper) 60%, #f1ece0 100%); }
+      .pol .ph { position: relative; width: 100%; height: var(--ph); overflow: hidden; background: #1a1a1a; }
+      .pol .ph img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(1.12) contrast(1.05); }
+      .pol .ph::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 50px rgba(0,0,0,0.35);
+                        background: linear-gradient(135deg, rgba(255,240,200,0.12), transparent 50%); }
+      .pol .cp { height: var(--cb); display: flex; align-items: center; justify-content: center; font-family: var(--font-hand);
+                 color: var(--ink); font-size: var(--fs); line-height: 1; transform: rotate(-1.5deg); white-space: nowrap; }
+      .pol .cr { position: absolute; right: 8px; bottom: 8px; font-family: var(--font-ui); font-weight: 500; font-size: 13px; color: rgba(255,255,255,0.85); background: rgba(0,0,0,0.45); padding: 2px 8px; border-radius: 6px; }
+      .pol .flashx { position: absolute; inset: 0; background: #fff; opacity: 0; }
+      .tape { position: absolute; height: 58px; background: rgba(246,231,170,0.82);
+              background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.18) 0 6px, transparent 6px 14px);
+              box-shadow: 0 3px 6px rgba(0,0,0,0.18); }
+      .tape.r { background-color: rgba(254,205,0,0.7); }
+      .tape.p { background-color: rgba(255,190,200,0.78); }
+
+      /* stickers, tiles */
+      .sticker { display: inline-block; font-family: var(--font-ui); font-weight: 900; font-style: italic; text-transform: uppercase;
+                 background: var(--yellow); color: var(--maroon); padding: 8px 30px 4px; border-radius: 16px; white-space: nowrap;
+                 border: 6px solid var(--cream); box-shadow: 8px 8px 0 var(--maroon), 0 0 40px rgba(254,205,0,0.45); }
+      .sticker.m { background: var(--maroon); color: var(--cream); border-color: var(--yellow); }
+      .tile { position: absolute; width: 300px; height: 178px; border-radius: 26px; background: rgba(67,1,7,0.92); border: 5px solid var(--yellow);
+              box-shadow: 0 0 0 3px rgba(36,0,10,0.9), 0 0 40px rgba(254,205,0,0.28), inset 0 0 40px rgba(254,205,0,0.1); text-align: center; }
+      .tile .k { margin-top: 16px; font-family: var(--font-mono); font-weight: 700; font-size: 24px; letter-spacing: 0.2em; color: var(--yellow); }
+      .tile .v { font-family: var(--font-display); font-size: 92px; line-height: 1.02; color: var(--cream); white-space: nowrap; }
+      .tile .v small { font-family: var(--font-ui); font-weight: 800; font-size: 32px; margin-left: 6px; color: var(--yellow); }
+      .tile .v.sm { font-size: 66px; line-height: 1.5; }
+      .tile .fn { position: absolute; left: 0; width: 100%; bottom: -34px; font-family: var(--font-ui); font-weight: 500; font-size: 19px; color: rgba(255,239,239,0.7); }
+      .spec { position: absolute; left: 0; width: 1080px; text-align: center; font-family: var(--font-mono); font-weight: 700; font-size: 27px;
+              letter-spacing: 0.12em; color: var(--cream); }
+      .spec span { background: rgba(36,0,10,0.75); border: 2px solid rgba(254,205,0,0.5); border-radius: 12px; padding: 8px 20px 6px; }
+      .big { font-family: var(--font-display); text-transform: uppercase; line-height: 0.92; color: var(--cream);
+             text-shadow: 0 7px 0 var(--maroon-deep), 0 14px 0 rgba(0,0,0,0.3), 0 0 44px rgba(254,205,0,0.25); }
+      .big.y { color: var(--yellow); text-shadow: 0 7px 0 var(--maroon-deep), 0 14px 0 rgba(0,0,0,0.3), 0 0 50px rgba(254,205,0,0.5); }
+      .skew { display: inline-block; transform: skewX(-8deg); }
+      .pill { position: absolute; left: 140px; width: 800px; height: 150px; border-radius: 999px; background: var(--paper);
+              display: flex; align-items: center; gap: 30px; padding-left: 34px; box-shadow: 10px 10px 0 var(--maroon-deep), 0 0 40px rgba(254,205,0,0.3); }
+      .pill .n { width: 96px; height: 96px; border-radius: 50%; background: var(--maroon); color: var(--yellow); font-family: var(--font-display);
+                 font-size: 64px; display: flex; align-items: center; justify-content: center; }
+      .pill .t { font-family: var(--font-display); font-size: 92px; color: var(--maroon); text-transform: uppercase; }
+      .hand { font-family: var(--font-hand); color: var(--yellow); text-shadow: 0 4px 0 var(--maroon-deep); white-space: nowrap; }
+      svg { overflow: visible; }
+      .ink { fill: none; stroke: var(--yellow); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round;
+             filter: drop-shadow(0 4px 0 rgba(36,0,10,0.9)); }
+
+      /* host + speech bubble */
+      #host { position: absolute; left: 40px; top: 1190px; width: 470px; height: 610px; }
+      #hostBob { position: absolute; inset: 0; transform-origin: 50% 100%; }
+      #host img { position: absolute; bottom: 0; left: 50%; height: 610px; transform: translateX(-50%); opacity: 0;
+                  filter: drop-shadow(0 16px 18px rgba(0,0,0,0.45)); }
+      #hostShadow { position: absolute; left: 70px; top: 1772px; width: 400px; height: 46px; border-radius: 50%; background: rgba(0,0,0,0.4); filter: blur(10px); }
+      #bubble { position: absolute; left: 520px; top: 1180px; width: 440px; height: 270px; background: var(--cream); border-radius: 40px;
+                border: 6px solid var(--maroon-deep); box-shadow: 10px 10px 0 var(--yellow), 0 18px 36px rgba(0,0,0,0.35); transform-origin: 0% 60%; }
+      #bubble::before { content: ""; position: absolute; left: -46px; top: 150px; width: 0; height: 0;
+                        border-top: 26px solid transparent; border-bottom: 26px solid transparent; border-right: 48px solid var(--maroon-deep); }
+      #bubble::after { content: ""; position: absolute; left: -33px; top: 158px; width: 0; height: 0;
+                       border-top: 18px solid transparent; border-bottom: 18px solid transparent; border-right: 36px solid var(--cream); }
+      .cap { position: absolute; left: 520px; top: 1180px; width: 440px; height: 270px; display: flex; flex-wrap: wrap; align-content: center;
+             justify-content: center; padding: 0 28px; text-align: center; }
+      .cap span { display: inline-block; margin: 0 7px; font-family: var(--font-ui); font-weight: 900; font-style: italic; font-size: 52px;
+                  line-height: 1.12; color: var(--maroon); text-transform: uppercase; }
+      .cap.m span { font-size: 46px; }
+      .cap.s span { font-size: 41px; }
+      .cap span.k { color: var(--maroon); background: var(--yellow); border-radius: 10px; padding: 0 8px; box-shadow: 0 4px 0 var(--maroon); }
+      .flash { background: #fff; }
+      .sparkle { position: absolute; width: 64px; height: 64px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="__DUR__" data-width="1080" data-height="1920">
+      <svg width="0" height="0" style="position:absolute">
+        <defs>
+          <symbol id="star" viewBox="0 0 100 100">
+            <path d="M50 0 C54 36 64 46 100 50 C64 54 54 64 50 100 C46 64 36 54 0 50 C36 46 46 36 50 0Z" fill="#FECD00"/>
+          </symbol>
+          <symbol id="crown" viewBox="0 0 120 90">
+            <path d="M8 78 L14 22 L40 50 L60 8 L80 50 L106 22 L112 78Z" fill="#FECD00" stroke="#430107" stroke-width="7" stroke-linejoin="round"/>
+            <circle cx="60" cy="8" r="8" fill="#FFEFEF" stroke="#430107" stroke-width="5"/>
+            <rect x="8" y="70" width="104" height="14" rx="4" fill="#FECD00" stroke="#430107" stroke-width="6"/>
+          </symbol>
+          <symbol id="drop" viewBox="0 0 40 56">
+            <path d="M20 2 C26 16 38 26 38 38 A18 18 0 0 1 2 38 C2 26 14 16 20 2Z" fill="#9fd8ff" stroke="#430107" stroke-width="4"/>
+          </symbol>
+        </defs>
+      </svg>
+
+      <!-- ===== BACKGROUND ===== -->
+      <div id="bgStripes" class="clip layer stripes" data-start="0" data-duration="__DUR__" data-track-index="1" style="z-index:1"></div>
+      <div class="clip layer dots" data-start="0" data-duration="__DUR__" data-track-index="1" style="z-index:1"></div>
+      <div id="bgWm" class="clip wm" data-start="0" data-duration="__DUR__" data-track-index="1" style="z-index:1;top:520px">911</div>
+      <div class="clip layer vignette" data-start="0" data-duration="__DUR__" data-track-index="1" style="z-index:2"></div>
+
+__BODY__
+
+      <!-- ===== HOST ===== -->
+      <div id="hostShadow" class="clip" data-start="0" data-duration="__DUR__" data-track-index="6" style="z-index:40"></div>
+      <div id="host" class="clip" data-start="0" data-duration="__DUR__" data-track-index="6" style="z-index:41">
+        <div id="hostBob">
+__HOSTIMGS__
+        </div>
+      </div>
+      <div id="bubble" class="clip" data-start="0" data-duration="__VOICEEND__" data-track-index="7" style="z-index:42"></div>
+__CAPTIONS__
+
+      <!-- ===== AUDIO ===== -->
+      <audio id="voice" src="assets/audio/voice.wav" data-start="0" data-duration="__VOICEDUR__" data-track-index="18" data-volume="1"></audio>
+      <audio id="music" src="assets/audio/music_ducked.wav" data-start="0" data-duration="__DUR__" data-track-index="19" data-volume="1"></audio>
+__SFX__
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const qa = (s) => Array.from(document.querySelectorAll(s));
+      const pop = (sel, t, extra = {}) => tl.fromTo(sel, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(2.4)", ...extra }, t);
+      const slam = (sel, t) => tl.fromTo(sel, { scale: 1.9, opacity: 0, filter: "blur(14px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.3, ease: "power3.out" }, t);
+      const rise = (sel, t, d = 0.4) => tl.fromTo(sel, { y: 70, opacity: 0 }, { y: 0, opacity: 1, duration: d, ease: "power3.out" }, t);
+      const out = (sel, t, d = 0.22) => tl.to(sel, { opacity: 0, scale: 0.85, duration: d, ease: "power2.in" }, t);
+      const twinkle = (sel, t) => tl.fromTo(sel, { scale: 0, rotation: -90, opacity: 0 }, { scale: 1, rotation: 90, opacity: 1, duration: 0.5, ease: "back.out(3)" }, t)
+                                    .to(sel, { scale: 0.5, rotation: 200, opacity: 0, duration: 0.8, ease: "sine.in" }, t + 1.2);
+      const drawPath = (sel, t, d) => qa(sel).forEach((p) => {
+        const L = p.getTotalLength();
+        tl.fromTo(p, { strokeDasharray: L, strokeDashoffset: L }, { strokeDashoffset: 0, duration: d, ease: "power2.inOut" }, t);
+      });
+      // polaroid slaps onto the board: drop + spin, shutter flash, tapes stick on
+      const polIn = (id, t, rot, from = -1) => {
+        tl.fromTo(id, { y: -1100 * (from < 0 ? 1 : -1), rotation: rot - 28 * from, scale: 1.15, opacity: 1 },
+                      { y: 0, rotation: rot, scale: 1, duration: 0.5, ease: "back.out(1.3)" }, t);
+        tl.fromTo(id + " .flashx", { opacity: 0.95 }, { opacity: 0, duration: 0.45, ease: "power2.out" }, t + 0.45);
+        qa(id + " .tape").forEach((el, i) => tl.fromTo(el, { scale: 1.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.18, ease: "power2.out" }, t + 0.52 + i * 0.1));
+        tl.fromTo(id + " .ph img", { scale: 1.12 }, { scale: 1.0, duration: 4, ease: "sine.out" }, t + 0.45);
+      };
+      const polOut = (id, t, dir = -1) => tl.to(id, { x: 1300 * dir, rotation: 25 * dir, duration: 0.4, ease: "power2.in" }, t);
+      const count = (sel, to, t, d, dec = 0) => {
+        const el = document.querySelector(sel); const o = { v: 0 };
+        tl.fromTo(o, { v: 0 }, { v: to, duration: d, ease: "power2.out", onUpdate: () => { el.textContent = o.v.toFixed(dec); } }, t);
+      };
+
+      // background drift
+      tl.fromTo("#bgStripes", { x: 0 }, { x: 148 * 4, duration: __DUR__, ease: "none" }, 0);
+      tl.fromTo("#bgWm", { y: 0, scale: 1 }, { y: -120, scale: 1.08, duration: __DUR__, ease: "none" }, 0);
+
+__JS__
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

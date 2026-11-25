@@ -1,0 +1,233 @@
+{
+  "voice": "ms-MY-OsmanNeural",
+  "rate": "+14%",
+  "gap": 0.22,
+  "scenes": [
+    {
+      "id": "hook",
+      "expr": "shock",
+      "chunks": [
+        [
+          "Nak beli Porsh nain wan wan,",
+          "Nak beli Porsche 911,"
+        ],
+        [
+          "tapi pening",
+          "tapi pening"
+        ],
+        [
+          "tengok banyak sangat model Karera?",
+          "tengok banyak sangat model Carrera?"
+        ],
+        [
+          "Jom aku terangkan",
+          "Jom aku terangkan"
+        ],
+        [
+          "dalam satu minit!",
+          "dalam satu minit!"
+        ]
+      ]
+    },
+    {
+      "id": "intro",
+      "expr": "excited",
+      "chunks": [
+        [
+          "Semua Karera baru ni",
+          "Semua Carrera baru ni"
+        ],
+        [
+          "guna enjin boxer enam silinder",
+          "guna enjin boxer 6 silinder"
+        ],
+        [
+          "dekat belakang.",
+          "dekat belakang."
+        ],
+        [
+          "Bezanya:",
+          "Bezanya:"
+        ],
+        [
+          "power, gearbox, dan pacuan.",
+          "power, gearbox, dan pacuan."
+        ]
+      ]
+    },
+    {
+      "id": "carrera",
+      "expr": "thinking",
+      "chunks": [
+        [
+          "Mula dengan Karera biasa.",
+          "Mula dengan Carrera biasa."
+        ],
+        [
+          "Tiga liter twin turbo,",
+          "3.0 liter twin-turbo,"
+        ],
+        [
+          "tiga ratus sembilan puluh empat kuda.",
+          "394 kuda."
+        ],
+        [
+          "Kosong ke seratus,",
+          "0-100,"
+        ],
+        [
+          "empat perpuluhan satu saat.",
+          "4.1 saat."
+        ],
+        [
+          "Harian? Dah cukup!",
+          "Harian? Dah cukup!"
+        ]
+      ]
+    },
+    {
+      "id": "carrera_t",
+      "expr": "laugh",
+      "chunks": [
+        [
+          "Karera T pula",
+          "Carrera T pula"
+        ],
+        [
+          "untuk kaki drive.",
+          "untuk kaki drive."
+        ],
+        [
+          "Power sama,",
+          "Power sama,"
+        ],
+        [
+          "tapi manual enam kelajuan,",
+          "tapi manual 6 kelajuan,"
+        ],
+        [
+          "lebih ringan,",
+          "lebih ringan,"
+        ],
+        [
+          "dan siap stereng roda belakang.",
+          "dan siap stereng roda belakang."
+        ]
+      ]
+    },
+    {
+      "id": "carrera_s",
+      "expr": "angry",
+      "chunks": [
+        [
+          "Nak lebih ganas?",
+          "Nak lebih ganas?"
+        ],
+        [
+          "Karera S naik ke",
+          "Carrera S naik ke"
+        ],
+        [
+          "empat ratus lapan puluh kuda.",
+          "480 kuda."
+        ],
+        [
+          "Kosong ke seratus,",
+          "0-100,"
+        ],
+        [
+          "tiga perpuluhan tiga saat!",
+          "3.3 saat!"
+        ]
+      ]
+    },
+    {
+      "id": "carrera_4s",
+      "expr": "wink",
+      "chunks": [
+        [
+          "Karera empat S,",
+          "Carrera 4S,"
+        ],
+        [
+          "power sama,",
+          "power sama,"
+        ],
+        [
+          "tapi pacuan empat roda.",
+          "tapi pacuan 4 roda."
+        ],
+        [
+          "Lebih yakin masa hujan.",
+          "Lebih yakin masa hujan."
+        ]
+      ]
+    },
+    {
+      "id": "gts",
+      "expr": "love",
+      "chunks": [
+        [
+          "Dan raja Karera,",
+          "Dan raja Carrera,"
+        ],
+        [
+          "G T S, T Haibrid.",
+          "GTS T-Hybrid."
+        ],
+        [
+          "Tiga perpuluhan enam liter, plus motor elektrik.",
+          "3.6 liter + motor elektrik."
+        ],
+        [
+          "Lima ratus empat puluh satu kuda,",
+          "541 kuda,"
+        ],
+        [
+          "tiga saat je ke seratus!",
+          "3 saat je ke 100!"
+        ]
+      ]
+    },
+    {
+      "id": "body",
+      "expr": "shrug",
+      "chunks": [
+        [
+          "Nak buka bumbung?",
+          "Nak buka bumbung?"
+        ],
+        [
+          "Ada Kabriolei,",
+          "Ada Cabriolet,"
+        ],
+        [
+          "dan Targa",
+          "dan Targa"
+        ],
+        [
+          "untuk empat S dan empat G T S.",
+          "untuk 4S dan 4 GTS."
+        ]
+      ]
+    },
+    {
+      "id": "outro",
+      "expr": "excited",
+      "chunks": [
+        [
+          "Korang pilih yang mana?",
+          "Korang pilih yang mana?"
+        ],
+        [
+          "Komen kat bawah,",
+          "Komen kat bawah,"
+        ],
+        [
+          "dan follow E C W Motorsports!",
+          "dan follow ECW Motorsports!"
+        ]
+      ]
+    }
+  ]
+}

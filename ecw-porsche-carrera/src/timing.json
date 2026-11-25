@@ -1,0 +1,292 @@
+{
+ "voice_end": 69.691,
+ "scenes": [
+  {
+   "id": "hook",
+   "expr": "shock",
+   "s": 0.35,
+   "e": 6.928,
+   "chunks": [
+    {
+     "text": "Nak beli Porsche 911,",
+     "s": 0.4,
+     "e": 1.935
+    },
+    {
+     "text": "tapi pening",
+     "s": 2.1,
+     "e": 2.626
+    },
+    {
+     "text": "tengok banyak sangat model Carrera?",
+     "s": 2.659,
+     "e": 4.26
+    },
+    {
+     "text": "Jom aku terangkan",
+     "s": 5.109,
+     "e": 6.019
+    },
+    {
+     "text": "dalam satu minit!",
+     "s": 6.03,
+     "e": 6.808
+    }
+   ]
+  },
+  {
+   "id": "intro",
+   "expr": "excited",
+   "s": 7.148,
+   "e": 14.406,
+   "chunks": [
+    {
+     "text": "Semua Carrera baru ni",
+     "s": 7.198,
+     "e": 8.218
+    },
+    {
+     "text": "guna enjin boxer 6 silinder",
+     "s": 8.262,
+     "e": 10.049
+    },
+    {
+     "text": "dekat belakang.",
+     "s": 10.093,
+     "e": 10.805
+    },
+    {
+     "text": "Bezanya:",
+     "s": 11.633,
+     "e": 12.192
+    },
+    {
+     "text": "power, gearbox, dan pacuan.",
+     "s": 12.411,
+     "e": 14.286
+    }
+   ]
+  },
+  {
+   "id": "carrera",
+   "expr": "thinking",
+   "s": 14.626,
+   "e": 26.215,
+   "chunks": [
+    {
+     "text": "Mula dengan Carrera biasa.",
+     "s": 14.676,
+     "e": 15.959
+    },
+    {
+     "text": "3.0 liter twin-turbo,",
+     "s": 16.819,
+     "e": 18.003
+    },
+    {
+     "text": "394 kuda.",
+     "s": 18.201,
+     "e": 19.988
+    },
+    {
+     "text": "0-100,",
+     "s": 20.854,
+     "e": 21.841
+    },
+    {
+     "text": "4.1 saat.",
+     "s": 21.918,
+     "e": 23.508
+    },
+    {
+     "text": "Harian? Dah cukup!",
+     "s": 24.275,
+     "e": 26.095
+    }
+   ]
+  },
+  {
+   "id": "carrera_t",
+   "expr": "laugh",
+   "s": 26.435,
+   "e": 33.967,
+   "chunks": [
+    {
+     "text": "Carrera T pula",
+     "s": 26.485,
+     "e": 27.209
+    },
+    {
+     "text": "untuk kaki drive.",
+     "s": 27.22,
+     "e": 28.207
+    },
+    {
+     "text": "Power sama,",
+     "s": 29.012,
+     "e": 29.648
+    },
+    {
+     "text": "tapi manual 6 kelajuan,",
+     "s": 29.823,
+     "e": 31.314
+    },
+    {
+     "text": "lebih ringan,",
+     "s": 31.523,
+     "e": 32.181
+    },
+    {
+     "text": "dan siap stereng roda belakang.",
+     "s": 32.323,
+     "e": 33.847
+    }
+   ]
+  },
+  {
+   "id": "carrera_s",
+   "expr": "angry",
+   "s": 34.187,
+   "e": 41.906,
+   "chunks": [
+    {
+     "text": "Nak lebih ganas?",
+     "s": 34.237,
+     "e": 35.125
+    },
+    {
+     "text": "Carrera S naik ke",
+     "s": 35.93,
+     "e": 36.928
+    },
+    {
+     "text": "480 kuda.",
+     "s": 36.928,
+     "e": 38.43
+    },
+    {
+     "text": "0-100,",
+     "s": 39.297,
+     "e": 40.272
+    },
+    {
+     "text": "3.3 saat!",
+     "s": 40.393,
+     "e": 41.786
+    }
+   ]
+  },
+  {
+   "id": "carrera_4s",
+   "expr": "wink",
+   "s": 42.126,
+   "e": 47.849,
+   "chunks": [
+    {
+     "text": "Carrera 4S,",
+     "s": 42.176,
+     "e": 43.207
+    },
+    {
+     "text": "power sama,",
+     "s": 43.404,
+     "e": 43.985
+    },
+    {
+     "text": "tapi pacuan 4 roda.",
+     "s": 44.183,
+     "e": 45.553
+    },
+    {
+     "text": "Lebih yakin masa hujan.",
+     "s": 46.413,
+     "e": 47.729
+    }
+   ]
+  },
+  {
+   "id": "gts",
+   "expr": "love",
+   "s": 48.069,
+   "e": 58.266,
+   "chunks": [
+    {
+     "text": "Dan raja Carrera,",
+     "s": 48.119,
+     "e": 49.073
+    },
+    {
+     "text": "GTS T-Hybrid.",
+     "s": 49.27,
+     "e": 50.718
+    },
+    {
+     "text": "3.6 liter + motor elektrik.",
+     "s": 51.501,
+     "e": 54.187
+    },
+    {
+     "text": "541 kuda,",
+     "s": 54.999,
+     "e": 56.6
+    },
+    {
+     "text": "3 saat je ke 100!",
+     "s": 56.797,
+     "e": 58.146
+    }
+   ]
+  },
+  {
+   "id": "body",
+   "expr": "shrug",
+   "s": 58.486,
+   "e": 64.417,
+   "chunks": [
+    {
+     "text": "Nak buka bumbung?",
+     "s": 58.536,
+     "e": 59.523
+    },
+    {
+     "text": "Ada Cabriolet,",
+     "s": 60.361,
+     "e": 61.205
+    },
+    {
+     "text": "dan Targa",
+     "s": 61.37,
+     "e": 61.896
+    },
+    {
+     "text": "untuk 4S dan 4 GTS.",
+     "s": 61.896,
+     "e": 64.297
+    }
+   ]
+  },
+  {
+   "id": "outro",
+   "expr": "excited",
+   "s": 64.637,
+   "e": 69.691,
+   "chunks": [
+    {
+     "text": "Korang pilih yang mana?",
+     "s": 64.687,
+     "e": 65.674
+    },
+    {
+     "text": "Komen kat bawah,",
+     "s": 66.523,
+     "e": 67.422
+    },
+    {
+     "text": "dan follow ECW Motorsports!",
+     "s": 67.543,
+     "e": 69.571
+    }
+   ]
+  }
+ ]
+}
